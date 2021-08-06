@@ -1,0 +1,21 @@
+{
+	"mb_comp": {
+		"band0": "Bande 0",
+		"band1": "Bande 1",
+		"band2": "Bande 2",
+		"band3": "Bande 3",
+		"band4": "Bande 4",
+		"band5": "Bande 5",
+		"band6": "Bande 6",
+		"band7": "Bande 7",
+		"down_ward": "Baisse",
+		"downward": "À la baisse",
+		"split": "Séparé",
+		"split_left": "Séparé gauche",
+		"split_middle": "Séparé milieu",
+		"split_right": "Séparé droite",
+		"split_side": "Séparé côté",
+		"up_ward": "Hausse",
+		"upward": "À la hausse"
+	}
+}
