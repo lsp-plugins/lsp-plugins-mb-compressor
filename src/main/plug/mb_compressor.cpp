@@ -1110,7 +1110,7 @@ namespace lsp
                 for (size_t j=0; j<c->nPlanSize; ++j)
                 {
                     comp_band_t *b  = c->vPlan[j];
-                    filter_params_t fp;
+                    dspu::filter_params_t fp;
                     sFilters.get_params(b->nFilterID, &fp);
 
                     lsp_trace("plan[%d, %d] start=%f, end=%f, filter={id=%d, type=%d, slope=%d}, solo=%s, mute=%s",
