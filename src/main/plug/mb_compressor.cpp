@@ -1812,6 +1812,7 @@ namespace lsp
             v->write("vEnv", vEnv);
             v->write("vTr", vTr);
             v->write("vPFc", vPFc);
+            v->write("vRFc", vRFc);
             v->write("vFreqs", vFreqs);
             v->write("vCurve", vCurve);
             v->write("vIndexes", vIndexes);
