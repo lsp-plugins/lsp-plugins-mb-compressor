@@ -21,7 +21,7 @@
 # Package version
 ARTIFACT_ID                 = LSP_PLUGINS_MB_COMPRESSOR
 ARTIFACT_NAME               = lsp-plugins-mb-compressor
-ARTIFACT_DESC               = Trigger plugin series
+ARTIFACT_DESC               = Multiband Compressor plugin series
 ARTIFACT_HEADERS            = lsp-plug.in
 ARTIFACT_EXPORT_ALL         = 1
 ARTIFACT_VERSION            = 1.0.3-devel
