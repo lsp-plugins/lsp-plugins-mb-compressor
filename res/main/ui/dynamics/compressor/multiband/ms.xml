@@ -1,110 +1,132 @@
 <plugin resizable="true">
 	<vbox spacing="4">
 		<grid rows="2" cols="3" vspacing="4" hspacing="4" expand="true" >
-			<graph width="640" height="320" expand="true" fill="true">
-				<center hpos="-1" vpos="-1" visible="false" />
+			<graph width.min="640" height.min="320" expand="true" fill="true">
+				<origin hpos="-1" vpos="-1" visible="false" />
 				
-				<!-- Gray grid -->
-				<ui:for id="f" first="20" last="90" step="10"><marker value="${f}" color="g_gray" basis="0" parallel="1" /></ui:for>
-				<ui:for id="f" first="200" last="900" step="100"><marker value="${f}" color="g_gray" basis="0" parallel="1" /></ui:for>
-				<ui:for id="f" first="2000" last="9000" step="1000"><marker value="${f}" color="g_gray" basis="0" parallel="1" /></ui:for>
-				<marker value="20000" color="g_gray" basis="0" parallel="1" />
+				<!-- Additional grid -->
+				<ui:with color="graph_alt_1">
+					<ui:for id="f" first="20" last="90" step="10">
+						<marker v="${:f}" />
+						<marker v="${:f*10}" />
+						<marker v="${:f*100}" />
+					</ui:for>
+					<marker v="20000" />
+					<ui:with ox="1" oy="0">
+						<marker v="+12 db" />
+						<marker v="-12 db" />
+						<marker v="-36 db" />
+						<marker v="-60 db" />
+						
+						<ui:for id="g" first="-42" last="6" step="12">
+							<marker v="${g} db" visibility=":zoom le -9 db" />
+						</ui:for>
+						<ui:for id="g" first="-21" last="3" step="6">
+							<marker v="${g} db" visibility=":zoom le -15 db" />
+						</ui:for>
+					</ui:with>
+				</ui:with>
 				
-				<marker value="+12 db" color="g_gray" basis="1" parallel="0" /> <!-- +12 dB -->
-				<marker value="-12 db" color="g_gray" basis="1" parallel="0" /> <!-- -12 dB -->
-				<marker value="-36 db" color="g_gray" basis="1" parallel="0" /> <!-- -36 dB -->
-				<marker value="-60 db" color="g_gray" basis="1" parallel="0" /> <!-- -60 dB -->
-				
-				<!-- Additional markers for zoom -->
-				<marker value="6 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -9 db" />
-				<marker value="-6 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -9 db" />
-				<marker value="-18 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -9 db" />
-				<marker value="-30 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -9 db" />
-				<marker value="-42 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -9 db" />
-
-				<marker value="3 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -15 db" />
-				<marker value="-3 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -15 db" />
-				<marker value="-9 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -15 db" />
-				<marker value="-15 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -15 db" />
-				<marker value="-21 db" color="g_gray" basis="1" parallel="0" visibility=":zoom le -15 db" />
-
-				<!-- Yellow grid -->
-				<marker value="100" color="g_yellow" basis="0" parallel="1" /> <!-- 100 Hz -->
-				<marker value="1000" color="g_yellow" basis="0" parallel="1" /> <!-- 1 kHz -->
-				<marker value="10000" color="g_yellow" basis="0" parallel="1" /> <!-- 10 kHz -->
-
-				<marker value="0 db" color="g_yellow" basis="1" parallel="0" /> <!-- 0 dB -->
-				<marker value="-24 db" color="g_yellow" basis="1" parallel="0" /> <!-- -24 dB -->
-				<marker value="-48 db" color="g_yellow" basis="1" parallel="0" /> <!-- -48 dB -->
+				<!-- Secondary grid -->
+				<ui:with color="graph_sec">
+					<marker v="100" />
+					<marker v="1000" />
+					<marker v="10000" />
+					<marker value="0 db" ox="1" oy="0" />
+					<marker value="-24 db" ox="1" oy="0" />
+					<marker value="-48 db" ox="1" oy="0" />
+				</ui:with>
 				
 				<!-- Band markers -->
-				<marker value="10" basis="0" parallel="1" color="g_red" hue_id="hue_0m" width="2" border="-16" fill="0.5" />
-				<marker value="10" basis="0" parallel="1" color="g_red" hue_id="hue_0s" width="2" border="-16" fill="0.5" />
-				<marker id="fre_0m" basis="0" parallel="1" color="g_red" hue_id="hue_0m" width="2" border="16" fill="0.5" />
-				<marker id="fre_0s" basis="0" parallel="1" color="g_red" hue_id="hue_0s" width="2" border="16" fill="0.5" />
-				<ui:for id="i" first="1" last="7">
-					<marker id="sf_${i}m" editable="true" basis="0" parallel="1" color="g_red" hue_id="hue_${i}m" visibility=":cbe_${i}m" width="2" border="-16" fill="0.5" />
-					<marker id="sf_${i}s" editable="true" basis="0" parallel="1" color="g_red" hue_id="hue_${i}s" visibility=":cbe_${i}s" width="2" border="-16" fill="0.5" />
-					<marker id="fre_${i}m" basis="0" parallel="1" color="g_red" hue_id="hue_${i}m" visibility=":cbe_${i}m" width="2" border="16" fill="0.5" />
-					<marker id="fre_${i}s" basis="0" parallel="1" color="g_red" hue_id="hue_${i}s" visibility=":cbe_${i}s" width="2" border="16" fill="0.5" />
-				</ui:for>
+				<ui:with color="g_red" width="2" fill="0.5"
+					lcolor="mesh_graph" hlcolor="mesh_graph"
+					rcolor="mesh_graph" hrcolor="mesh_graph"
+				>
+					<marker v="10"
+						rborder="16" rcolor.hue=":hue_0m"
+						hrborder="16" hrcolor.hue=":hue_0m"
+					/>
+					<marker v="10" 
+						rborder="16" rcolor.hue=":hue_0s"
+						hrborder="16" hrcolor.hue=":hue_0s"
+					/>
+					<marker id="fre_0m"
+						lborder="16" lcolor.hue=":hue_0m"
+						hlborder="16" hlcolor.hue=":hue_0m"
+					/>
+					<marker id="fre_0s"
+						lborder="16" lcolor.hue=":hue_0s"
+						hlborder="16" hlcolor.hue=":hue_0s"
+					/>
+					<ui:for id="i" first="1" last="7">
+						<marker id="sf_${i}m" visibility=":cbe_${i}m" editable="true"
+							rborder="16" rcolor.hue=":hue_${i}m"
+							hrborder="16" hrcolor.hue=":hue_${i}m"
+							pointer="hsize"
+						/>
+						<marker id="sf_${i}s" visibility=":cbe_${i}s" editable="true"
+							rborder="16" rcolor.hue=":hue_${i}s"
+							hrborder="16" hrcolor.hue=":hue_${i}s"
+							pointer="hsize"
+						/>
+						<marker id="fre_${i}m" visibility=":cbe_${i}m"
+							lborder="16" lcolor.hue=":hue_${i}m" 
+							hlborder="16" hlcolor.hue=":hue_${i}m"
+						/>
+						<marker id="fre_${i}s" visibility=":cbe_${i}s"
+							lborder="16" lcolor.hue=":hue_${i}s"
+							hlborder="16" hlcolor.hue=":hue_${i}s"
+						/>
+					</ui:for>
+				</ui:with>
 	
 				<!-- Meshes -->
-				<mesh id="bfc_0m" color="eq_base" width="2" hue_id="hue_0m" fill="0.9" smooth="true" visibility=":flt_m" />
-				<mesh id="bfc_0s" color="eq_base" width="2" hue_id="hue_0s" fill="0.9" smooth="true" visibility=":flt_s" />
-				
-				<ui:for id="i" first="1" last="7">
-					<mesh id="bfc_${i}m" color="eq_base" width="2" hue_id="hue_${i}m" visibility=":flt_m and :cbe_${i}m" fill="0.9" smooth="true" />
-					<mesh id="bfc_${i}s" color="eq_base" width="2" hue_id="hue_${i}s" visibility=":flt_s and :cbe_${i}s" fill="0.9" smooth="true" />
-				</ui:for>
-				<mesh id="ifg_m" width="3" color="middle_channel_in" />
-				<mesh id="ifg_s" width="3" color="side_channel_in" />
-				<mesh id="ofg_m" width="3" color="middle_channel" />
-				<mesh id="ofg_s" width="3" color="side_channel" />
-				
-				<mesh id="ag_m" width="3" color="middle_channel" smooth="true" />
-				<mesh id="ag_s" width="3" color="side_channel" smooth="true" />
+				<!-- 
+					<mesh id="bfc_0m" color="eq_base" width="2" hue=":hue_0m" fill="0.9" smooth="true" visibility=":flt_m" />
+					<mesh id="bfc_0s" color="eq_base" width="2" hue=":hue_0s" fill="0.9" smooth="true" visibility=":flt_s" />
+					
+					<ui:for id="i" first="1" last="7">
+						<mesh id="bfc_${i}m" color="eq_base" width="2" hue=":hue_${i}m" visibility=":flt_m and :cbe_${i}m" fill="0.9" smooth="true" />
+						<mesh id="bfc_${i}s" color="eq_base" width="2" hue=":hue_${i}s" visibility=":flt_s and :cbe_${i}s" fill="0.9" smooth="true" />
+					</ui:for>
+					<mesh id="ifg_m" width="3" color="mid_in" />
+					<mesh id="ifg_s" width="3" color="side_in" />
+					<mesh id="ofg_m" width="3" color="mid" />
+					<mesh id="ofg_s" width="3" color="side" />
+					
+					<mesh id="ag_m" width="3" color="mid" smooth="true" />
+					<mesh id="ag_s" width="3" color="side" smooth="true" />
+				-->
 				
 				<!-- Boundaries -->
-				<marker value="1" color="g_white" basis="2" parallel="0" /> <!-- +48 dB -->
-				<marker value="24000" color="g_white" basis="0" parallel="1" />
+				<marker v="1" ox="2" oy="0" color="graph_prim" visibility="false" />
+				<marker v="24000" color="graph_prim" visibility="false" />
 				
 				<!-- Axis -->
-				<axis min="10" max="24000" angle="0.0" color="g_white" logarithmic="true" />
-				<axis min="-72 db / (:zoom ** 3)" max="24 db * :zoom" color="g_white" angle="0.5" logarithmic="true" /> <!-- -72..+24 dB -->
+				<axis min="10" max="24000" angle="0.0" log="true" />
+				<axis min="-72 db / (:zoom ** 3)" max="24 db * :zoom" color="g_white" angle="0.5" log="true" />
 				<axis min="-1" max="1" visible="false" angle="0.5" />
 				
-				<!-- Marker -->
-				<marker id="freq" color="g_red" basis="0" parallel="1" />
-				<marker id="lvl" color="g_red" basis="1" parallel="0" />
-				
 				<!-- Text -->
-				<text text="graph.units.hz" basis="0;2" coord="10;0" halign="1" valign="1" />
-				<text text="100" basis="0;2" coord="100;0" halign="1" valign="1" />
-				<text text="graph.values.1k" basis="0;2" coord="1000;0" halign="1" valign="1" />
-				<text text="graph.values.10k" basis="0;2" coord="10000;0" halign="1" valign="1" />
+				<ui:with y="0" ox="0" oy="2" halign="1" valign="1">
+					<text x="10" text="graph.units.hz" />
+					<text x="100" text="100" />
+					<text x="1000" text="graph.values.1k" />
+					<text x="10000" text="graph.values.10k" />
+				</ui:with>
 				
-				<text text="0" coord="10;0 db" halign="1" valign="1" />
-				<text text="12" coord="10;12 db" halign="1" valign="1" />
-				<text text="-12" coord="10;-12 db" halign="1" valign="1" />
-				<text text="-24" coord="10;-24 db" halign="1" valign="1" />
-				<text text="-36" coord="10;-36 db" halign="1" valign="1" />
-				<text text="-48" coord="10;-48 db" halign="1" valign="1" />
-				<text text="-60" coord="10;-60 db" halign="1" valign="1" />
-				<text text="graph.units.db" basis="0;2" coord="10;1" halign="1" valign="-1" />
-				
-				<!-- Additional text -->
-				<text text="6" coord="10;6 db" halign="1" valign="1" visibility=":zoom le -9 db" />
-				<text text="-6" coord="10;-6 db" halign="1" valign="1" visibility=":zoom le -9 db" />
-				<text text="-18" coord="10;-18 db" halign="1" valign="1" visibility=":zoom le -9 db" />
-				<text text="-30" coord="10;-30 db" halign="1" valign="1" visibility=":zoom le -9 db" />
-				<text text="-42" coord="10;-42 db" halign="1" valign="1" visibility=":zoom le -9 db" />
-
-				<text text="3" coord="10;3 db" halign="1" valign="1" visibility=":zoom le -15 db" />
-				<text text="-3" coord="10;-3 db" halign="1" valign="1" visibility=":zoom le -15 db" />
-				<text text="-9" coord="10;-9 db" halign="1" valign="1" visibility=":zoom le -15 db" />
-				<text text="-15" coord="10;-15 db" halign="1" valign="1" visibility=":zoom le -15 db" />
-				<text text="-21" coord="10;-21 db" halign="1" valign="1" visibility=":zoom le -15 db" />
+				<ui:with x="10" halign="1" valign="1">
+					<ui:for id="g" first="-60" last="12" step="12">
+						<text y="${g} db" text="${g}" />
+					</ui:for>
+					<text y="0 db" ox="0" oy="2" text="graph.units.db" valign="-1" />
+					<ui:for id="g" first="-42" last="6" step="12">
+						<text y="${g} db" text="${g}" visibility=":zoom le -9 db" />
+					</ui:for>
+					<ui:for id="g" first="-21" last="3" step="6">
+						<text y="${g} db" text="${g}" visibility=":zoom le -15 db" />
+					</ui:for>
+				</ui:with>
 			</graph>
 			<cell rows="2">
 				<vbox>
