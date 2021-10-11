@@ -193,7 +193,7 @@
 								<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ofe_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
 									<button id="ofe_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
 
-								<cell cols="5"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+								<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
 							</grid>
 
 							<grid rows="2" cols="2" transpose="false" expand="true" hspacing="4">
@@ -391,7 +391,7 @@
 									<label text="labels.flt.HCF"/>
 								</cell>
 
-								<cell cols="12"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+								<cell cols="8"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
 
 								<cell rows="2">
 									<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
@@ -420,7 +420,7 @@
 								<knob id="schf_${i}l" size="16" ssize="3" scolor="(:sclc_${i}l ieq 0) ? 'cycle_inactive' : 'cycle'" pad.v="4" scolor.hue=":hue_${i}l" bg.bright="(:schc_${i}l ieq 0) ? :const_bg_darken : 1.0"/>
 								<value id="schf_${i}l" pad.r="6" bg.bright="(:schc_${i}l ieq 0) ? :const_bg_darken : 1.0" bright="(:schc_${i}l ieq 0) ? 0.75 : 1.0" width.min="30"/>
 
-								<cell cols="12"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+								<cell cols="8"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
 
 								<cell rows="2">
 									<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
