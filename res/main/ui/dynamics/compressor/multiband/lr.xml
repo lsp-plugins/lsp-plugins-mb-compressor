@@ -68,12 +68,12 @@
 					</ui:with>
 
 					<!-- Meshes -->
-					<mesh id="bfc_0l" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0l" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0l" fcolor.a="0.96" visibility=":flt_l"/>
-					<mesh id="bfc_0r" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0r" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0r" fcolor.a="0.96" visibility=":flt_r"/>
+					<mesh id="bfc_0l" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0l" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0l" fcolor.a="0.9" visibility=":flt_l"/>
+					<mesh id="bfc_0r" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0r" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0r" fcolor.a="0.9" visibility=":flt_r"/>
 
 					<ui:for id="i" first="1" last="7">
-						<mesh id="bfc_${i}l" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}l" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}l" fcolor.a="0.96" visibility=":flt_l and :cbe_${i}l"/>
-						<mesh id="bfc_${i}r" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}r" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}r" fcolor.a="0.96" visibility=":flt_r and :cbe_${i}r"/>
+						<mesh id="bfc_${i}l" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}l" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}l" fcolor.a="0.9" visibility=":flt_l and :cbe_${i}l"/>
+						<mesh id="bfc_${i}r" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}r" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}r" fcolor.a="0.9" visibility=":flt_r and :cbe_${i}r"/>
 					</ui:for>
 					<mesh id="ifg_l" width="3" color="left_in"/>
 					<mesh id="ifg_r" width="3" color="right_in"/>

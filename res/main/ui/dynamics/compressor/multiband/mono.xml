@@ -64,10 +64,10 @@
 					</ui:with>
 
 					<!-- Meshes -->
-					<mesh id="bfc_0" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0" fcolor.a="0.96" visibility=":flt"/>
+					<mesh id="bfc_0" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0" fcolor.a="0.9" visibility=":flt"/>
 
 					<ui:for id="i" first="1" last="7">
-						<mesh id="bfc_${i}" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}" fcolor.a="0.96" visibility=":flt and :cbe_${i}"/>
+						<mesh id="bfc_${i}" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}" fcolor.a="0.9" visibility=":flt and :cbe_${i}"/>
 					</ui:for>
 					<mesh id="ifg" width="3" color="mono_in"/>
 					<mesh id="ofg" width="3" color="mono"/>
@@ -136,7 +136,7 @@
 			<!-- signal -->
 			<cell rows="2">
 				<vbox spacing="4">
-					<group text="groups.signa" expand="true">
+					<group text="groups.signal" expand="true">
 						<grid rows="4" cols="2" hspacing="4">
 							<knob id="g_in" pad.r="4"/>
 							<vbox vfill="false">
@@ -360,12 +360,20 @@
 											<label text="labels.flt.HCF"/>
 										</cell>
 
-										<cell cols="12"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+										<cell cols="8"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
 
 										<cell rows="2">
 											<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
 												<combo id="scm_${i}" fill="true"/>
-												<button text="labels.chan.external_sc" id="sce_${i}" ui:inject="Button_left" hfill="true" height="19" visibility="ex :sce_${i}"/>
+												<button text="labels.chan.external_sc" id="sce_${i}" ui:inject="Button_Cycle"
+												hfill="true"
+												height="19"
+												down.color.hue=":hue_${i}"
+												down.hover.color.hue=":hue_${i}"
+												text.down.color.hue=":hue_${i}"
+												text.down.hover.color.hue=":hue_${i}"
+												border.down.color.hue=":hue_${i}"
+												border.down.hover.color.hue=":hue_${i}" visibility="ex :sce_${i}"/>
 											</vbox>
 										</cell>
 										<knob id="sla_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
@@ -385,7 +393,7 @@
 												text.down.color.hue=":hue_${i}"
 												text.down.hover.color.hue=":hue_${i}"
 												border.down.color.hue=":hue_${i}"
-												border.down.hover.color.hue=":hue_${i}"/>/>
+												border.down.hover.color.hue=":hue_${i}"/>
 										</cell>
 
 										<cell cols="2" bg.bright="(:schc_${i} ieq 0) ? :const_bg_darken : 1.0">
@@ -401,7 +409,7 @@
 												text.down.color.hue=":hue_${i}"
 												text.down.hover.color.hue=":hue_${i}"
 												border.down.color.hue=":hue_${i}"
-												border.down.hover.color.hue=":hue_${i}"/>/>
+												border.down.hover.color.hue=":hue_${i}"/>
 										</cell>
 
 										<value id="sla_${i}"/>
