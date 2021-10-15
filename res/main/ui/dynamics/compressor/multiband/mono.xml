@@ -489,18 +489,20 @@
 
 							<grid rows="5" cols="9" hspacing="0" expand="true">
 								<!-- r1,2 -->
-								<cell rows="2" vreduce="true"><label text="labels.mode"/></cell>
-								<cell rows="2"><label text="labels.ratio"/></cell>
-								<cell rows="2"><label text="labels.knee"/></cell>
-								<cell rows="2"><label text="labels.makeup"/></cell>
-								<cell rows="2"><label text="labels.boost" bright="((:cm_${i} ieq 0) and (:cm_${i} ieq 0)) ? 0.5 : 1"/></cell>
-								<cell cols="2"><label text="labels.attack" pad.t="4"/></cell>
-								<cell cols="2"><label text="labels.release"/></cell>
-
-								<cell vreduce="true"><label text="labels.thresh_old"/></cell>
-								<cell><label text="labels.time"/></cell>
-								<cell><label text="labels.thresh_old"/></cell>
-								<cell><label text="labels.time" pad.b="4"/></cell>
+								<ui:with vreduce="true">
+									<cell rows="2"><label text="labels.mode"/></cell>
+									<cell rows="2"><label text="labels.ratio"/></cell>
+									<cell rows="2"><label text="labels.knee"/></cell>
+									<cell rows="2"><label text="labels.makeup"/></cell>
+									<cell rows="2"><label text="labels.boost" bright="((:cm_${i} ieq 0) and (:cm_${i} ieq 0)) ? 0.5 : 1"/></cell>
+									<cell cols="2"><label text="labels.attack" pad.t="4"/></cell>
+									<cell cols="2"><label text="labels.release"/></cell>
+	
+									<label text="labels.thresh_old"/>
+									<label text="labels.time"/>
+									<label text="labels.thresh_old"/>
+									<label text="labels.time" pad.b="4"/>
+								</ui:with>
 
 								<!-- r3 -->
 								<cell cols="9"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
