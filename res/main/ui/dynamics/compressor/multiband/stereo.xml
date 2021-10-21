@@ -69,12 +69,12 @@
 					<ui:for id="i" first="1" last="7">
 						<mesh id="bfc_${i}" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}" fcolor.a="0.9" visibility=":flt and :cbe_${i}"/>
 					</ui:for>
-					<mesh id="ifg_l" width="3" color="left_in"/>
-					<mesh id="ifg_r" width="3" color="right_in"/>
-					<mesh id="ofg_l" width="3" color="left"/>
-					<mesh id="ofg_r" width="3" color="right"/>
+					<mesh id="ifg_l" width="3" color="left_in" visibility=":ife_l"/>
+					<mesh id="ifg_r" width="3" color="right_in" visibility=":ife_r"/>
+					<mesh id="ofg_l" width="3" color="left" visibility=":ofe_l"/>
+					<mesh id="ofg_r" width="3" color="right" visibility=":ofe_r"/>
 
-					<mesh id="ag" width="3" color="left" smooth="true"/>
+					<mesh id="ag" width="3" color="bright_cyan" smooth="true"/>
 
 					<!-- Boundaries -->
 					<marker v="1" ox="2" oy="0" color="graph_prim" visibility="false"/>
@@ -508,7 +508,7 @@
 									<cell rows="2"><label text="labels.boost" bright="((:cm_${i} ieq 0) and (:cm_${i} ieq 0)) ? 0.5 : 1"/></cell>
 									<cell cols="2"><label text="labels.attack" pad.t="4"/></cell>
 									<cell cols="2"><label text="labels.release"/></cell>
-	
+
 									<label text="labels.thresh_old"/>
 									<label text="labels.time"/>
 									<label text="labels.thresh_old"/>
