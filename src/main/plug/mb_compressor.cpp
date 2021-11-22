@@ -144,10 +144,10 @@ namespace lsp
             return dspu::CM_DOWNWARD;
         }
 
-        void mb_compressor::init(plug::IWrapper *wrapper)
+        void mb_compressor::init(plug::IWrapper *wrapper, plug::IPort **ports)
         {
             // Initialize plugin
-            plug::Module::init(wrapper);
+            plug::Module::init(wrapper, ports);
 
             // Determine number of channels
             size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
@@ -396,16 +396,16 @@ namespace lsp
             lsp_trace("Binding input ports");
             for (size_t i=0; i<channels; ++i)
             {
-                TRACE_PORT(vPorts[port_id]);
-                vChannels[i].pIn        =   vPorts[port_id++];
+                TRACE_PORT(ports[port_id]);
+                vChannels[i].pIn        =   ports[port_id++];
             }
 
             // Input ports
             lsp_trace("Binding output ports");
             for (size_t i=0; i<channels; ++i)
             {
-                TRACE_PORT(vPorts[port_id]);
-                vChannels[i].pOut       =   vPorts[port_id++];
+                TRACE_PORT(ports[port_id]);
+                vChannels[i].pOut       =   ports[port_id++];
             }
 
             // Input ports
@@ -414,34 +414,34 @@ namespace lsp
                 lsp_trace("Binding sidechain ports");
                 for (size_t i=0; i<channels; ++i)
                 {
-                    TRACE_PORT(vPorts[port_id]);
-                    vChannels[i].pScIn      =   vPorts[port_id++];
+                    TRACE_PORT(ports[port_id]);
+                    vChannels[i].pScIn      =   ports[port_id++];
                 }
             }
 
             // Common ports
             lsp_trace("Binding common ports");
-            TRACE_PORT(vPorts[port_id]);
-            pBypass                 = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pMode                   = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pInGain                 = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pOutGain                = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pDryGain                = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pWetGain                = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pReactivity             = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pShiftGain              = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pZoom                   = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
-            pEnvBoost               = vPorts[port_id++];
-            TRACE_PORT(vPorts[port_id]);
+            TRACE_PORT(ports[port_id]);
+            pBypass                 = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pMode                   = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pInGain                 = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pOutGain                = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pDryGain                = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pWetGain                = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pReactivity             = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pShiftGain              = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pZoom                   = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
+            pEnvBoost               = ports[port_id++];
+            TRACE_PORT(ports[port_id]);
             port_id++;         // Skip band selector
 
             lsp_trace("Binding channel ports");
@@ -456,10 +456,10 @@ namespace lsp
                 }
                 else
                 {
-                    TRACE_PORT(vPorts[port_id]);
+                    TRACE_PORT(ports[port_id]);
                     port_id++;         // Skip filter switch
-                    TRACE_PORT(vPorts[port_id]);
-                    c->pAmpGraph            = vPorts[port_id++];
+                    TRACE_PORT(ports[port_id]);
+                    c->pAmpGraph            = ports[port_id++];
                 }
             }
 
@@ -468,18 +468,18 @@ namespace lsp
             {
                 channel_t *c    = &vChannels[i];
 
-                TRACE_PORT(vPorts[port_id]);
-                c->pFftInSw             = vPorts[port_id++];
-                TRACE_PORT(vPorts[port_id]);
-                c->pFftOutSw            = vPorts[port_id++];
-                TRACE_PORT(vPorts[port_id]);
-                c->pFftIn               = vPorts[port_id++];
-                TRACE_PORT(vPorts[port_id]);
-                c->pFftOut              = vPorts[port_id++];
-                TRACE_PORT(vPorts[port_id]);
-                c->pInLvl               = vPorts[port_id++];
-                TRACE_PORT(vPorts[port_id]);
-                c->pOutLvl              = vPorts[port_id++];
+                TRACE_PORT(ports[port_id]);
+                c->pFftInSw             = ports[port_id++];
+                TRACE_PORT(ports[port_id]);
+                c->pFftOutSw            = ports[port_id++];
+                TRACE_PORT(ports[port_id]);
+                c->pFftIn               = ports[port_id++];
+                TRACE_PORT(ports[port_id]);
+                c->pFftOut              = ports[port_id++];
+                TRACE_PORT(ports[port_id]);
+                c->pInLvl               = ports[port_id++];
+                TRACE_PORT(ports[port_id]);
+                c->pOutLvl              = ports[port_id++];
             }
 
             // Split frequencies
@@ -498,10 +498,10 @@ namespace lsp
                     }
                     else
                     {
-                        TRACE_PORT(vPorts[port_id]);
-                        s->pEnabled     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        s->pFreq        = vPorts[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        s->pEnabled     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        s->pFreq        = ports[port_id++];
                     }
                 }
             }
@@ -555,76 +555,76 @@ namespace lsp
                     {
                         if (bSidechain)
                         {
-                            TRACE_PORT(vPorts[port_id]);
-                            b->pExtSc       = vPorts[port_id++];
+                            TRACE_PORT(ports[port_id]);
+                            b->pExtSc       = ports[port_id++];
                         }
                         if (nMode != MBCM_MONO)
                         {
-                            TRACE_PORT(vPorts[port_id]);
-                            b->pScSource    = vPorts[port_id++];
+                            TRACE_PORT(ports[port_id]);
+                            b->pScSource    = ports[port_id++];
                         }
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScMode      = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScLook      = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScReact     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScPreamp    = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScLpfOn     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScHpfOn     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScLcfFreq   = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScHcfFreq   = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pScFreqChart = vPorts[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScMode      = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScLook      = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScReact     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScPreamp    = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScLpfOn     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScHpfOn     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScLcfFreq   = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScHcfFreq   = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pScFreqChart = ports[port_id++];
 
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pMode        = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pEnable      = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pSolo        = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pMute        = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pAttLevel    = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pAttTime     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pRelLevel    = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pRelTime     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pRatio       = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pKnee        = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pBThresh     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pBoost       = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pMakeup      = vPorts[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pMode        = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pEnable      = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pSolo        = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pMute        = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pAttLevel    = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pAttTime     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pRelLevel    = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pRelTime     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pRatio       = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pKnee        = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pBThresh     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pBoost       = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pMakeup      = ports[port_id++];
 
                         // Skip hue
-                        TRACE_PORT(vPorts[port_id]);
+                        TRACE_PORT(ports[port_id]);
                         port_id ++;
 
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pFreqEnd     = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pCurveGraph  = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pRelLevelOut = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pEnvLvl      = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pCurveLvl    = vPorts[port_id++];
-                        TRACE_PORT(vPorts[port_id]);
-                        b->pMeterGain   = vPorts[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pFreqEnd     = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pCurveGraph  = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pRelLevelOut = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pEnvLvl      = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pCurveLvl    = ports[port_id++];
+                        TRACE_PORT(ports[port_id]);
+                        b->pMeterGain   = ports[port_id++];
                     }
                 }
             }

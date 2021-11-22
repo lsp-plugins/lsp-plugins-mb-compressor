@@ -223,7 +223,7 @@ namespace lsp
                 explicit mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode);
                 virtual ~mb_compressor();
 
-                virtual void        init(plug::IWrapper *wrapper);
+                virtual void        init(plug::IWrapper *wrapper, plug::IPort **ports);
                 virtual void        destroy();
 
             public:
