@@ -529,6 +529,15 @@ namespace lsp
             PORTS_END
         };
 
+        const meta::bundle_t mb_compressor_bundle =
+        {
+            "mb_compressor",
+            "Multiband Compressor",
+            B_MB_DYNAMICS,
+            "RCdk94Hta3o",
+            "This plugin performs multiband compression of input signsl. Flexible sidechain\ncontrol configuration provided. As opposite to most available multiband\ncompressors, this compressor provides numerous special functions: 'modern'\noperating mode, 'Sidechain boost', 'Lookahead' option and up to 8 frequency\nbands for processing."
+        };
+
         // Multiband Compressor
         const meta::plugin_t  mb_compressor_mono =
         {
@@ -548,7 +557,8 @@ namespace lsp
             mb_compressor_mono_ports,
             "dynamics/compressor/multiband/mono.xml",
             NULL,
-            mono_plugin_port_groups
+            mono_plugin_port_groups,
+            &mb_compressor_bundle
         };
 
         const meta::plugin_t  mb_compressor_stereo =
@@ -569,7 +579,8 @@ namespace lsp
             mb_compressor_stereo_ports,
             "dynamics/compressor/multiband/stereo.xml",
             NULL,
-            stereo_plugin_port_groups
+            stereo_plugin_port_groups,
+            &mb_compressor_bundle
         };
 
         const meta::plugin_t  mb_compressor_lr =
@@ -590,7 +601,8 @@ namespace lsp
             mb_compressor_lr_ports,
             "dynamics/compressor/multiband/lr.xml",
             NULL,
-            stereo_plugin_port_groups
+            stereo_plugin_port_groups,
+            &mb_compressor_bundle
         };
 
         const meta::plugin_t  mb_compressor_ms =
@@ -611,7 +623,8 @@ namespace lsp
             mb_compressor_ms_ports,
             "dynamics/compressor/multiband/ms.xml",
             NULL,
-            stereo_plugin_port_groups
+            stereo_plugin_port_groups,
+            &mb_compressor_bundle
         };
 
 
@@ -633,7 +646,8 @@ namespace lsp
             sc_mb_compressor_mono_ports,
             "dynamics/compressor/multiband/mono.xml",
             NULL,
-            mono_plugin_sidechain_port_groups
+            mono_plugin_sidechain_port_groups,
+            &mb_compressor_bundle
         };
 
         const meta::plugin_t  sc_mb_compressor_stereo =
@@ -654,7 +668,8 @@ namespace lsp
             sc_mb_compressor_stereo_ports,
             "dynamics/compressor/multiband/stereo.xml",
             NULL,
-            stereo_plugin_sidechain_port_groups
+            stereo_plugin_sidechain_port_groups,
+            &mb_compressor_bundle
         };
 
         const meta::plugin_t  sc_mb_compressor_lr =
@@ -675,7 +690,8 @@ namespace lsp
             sc_mb_compressor_lr_ports,
             "dynamics/compressor/multiband/lr.xml",
             NULL,
-            stereo_plugin_sidechain_port_groups
+            stereo_plugin_sidechain_port_groups,
+            &mb_compressor_bundle
         };
 
         const meta::plugin_t  sc_mb_compressor_ms =
@@ -696,7 +712,8 @@ namespace lsp
             sc_mb_compressor_ms_ports,
             "dynamics/compressor/multiband/ms.xml",
             NULL,
-            stereo_plugin_sidechain_port_groups
+            stereo_plugin_sidechain_port_groups,
+            &mb_compressor_bundle
         };
 
     } // namespace meta
