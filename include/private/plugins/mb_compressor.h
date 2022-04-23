@@ -71,7 +71,7 @@ namespace lsp
                     dspu::Filter            sPassFilter;        // Passing filter for 'classic' mode
                     dspu::Filter            sRejFilter;         // Rejection filter for 'classic' mode
                     dspu::Filter            sAllFilter;         // All-pass filter for phase compensation
-                    dspu::Delay             sDelay;             // Delay for lookahead purpose
+                    dspu::Delay             sScDelay;           // Sidechain delay for lookahead purpose
 
                     float                  *vTr;                // Transfer function
                     float                  *vVCA;               // Voltage-controlled amplification value for each band
@@ -141,7 +141,8 @@ namespace lsp
                 {
                     dspu::Bypass            sBypass;            // Bypass
                     dspu::Filter            sEnvBoost[2];       // Envelope boost filter
-                    dspu::Delay             sDelay;             // Delay for lookahead purpose
+                    dspu::Delay             sDelay;             // Delay for lookahead compensation purpose
+                    dspu::Equalizer         sDryEq;             // Dry equalizer
 
                     comp_band_t             vBands[meta::mb_compressor_metadata::BANDS_MAX];     // Compressor bands
                     split_t                 vSplit[meta::mb_compressor_metadata::BANDS_MAX-1];   // Split bands

@@ -3,7 +3,8 @@
 *******************************************************************************
 
 === 1.0.4 ===
-
+- Fixed invalid phase compensation issue of the dry signal for 'Modern' mode.
+- Added all-pass phase compensation for the dry signal for the 'Classic' mode.
 
 === 1.0.3 ===
 * Initial release.
