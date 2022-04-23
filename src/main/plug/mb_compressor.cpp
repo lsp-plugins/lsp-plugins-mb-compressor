@@ -653,6 +653,7 @@ namespace lsp
                     c->sEnvBoost[0].destroy();
                     c->sEnvBoost[1].destroy();
                     c->sDelay.destroy();
+                    c->sDryEq.destroy();
 
                     c->vBuffer      = NULL;
 
@@ -1081,7 +1082,7 @@ namespace lsp
                     sFilters.set_filter_active(b->nFilterID, b->bEnabled);
                 }
 
-                // Disable unused filters for equalizer
+                // Set-up all-pass filters for the 'dry' chain which can be mixed with the 'wet' chain.
                 for (size_t j=0; j<meta::mb_compressor_metadata::BANDS_MAX-1; ++j)
                 {
                     comp_band_t *b  = (j < (c->nPlanSize-1)) ? c->vPlan[j] : NULL;
