@@ -249,6 +249,9 @@ namespace lsp
                         return;
                 }
 
+                c->sDryEq.init(meta::mb_compressor_metadata::BANDS_MAX-1, 0);
+                c->sDryEq.set_mode(dspu::EQM_IIR);
+
                 c->nPlanSize    = 0;
                 c->vIn          = NULL;
                 c->vOut         = NULL;
@@ -650,6 +653,7 @@ namespace lsp
                     c->sEnvBoost[0].destroy();
                     c->sEnvBoost[1].destroy();
                     c->sDelay.destroy();
+                    c->sDryEq.destroy();
 
                     c->vBuffer      = NULL;
 
@@ -660,7 +664,7 @@ namespace lsp
                         b->sEQ[0].destroy();
                         b->sEQ[1].destroy();
                         b->sSC.destroy();
-                        b->sDelay.destroy();
+                        b->sScDelay.destroy();
 
                         b->sPassFilter.destroy();
                         b->sRejFilter.destroy();
@@ -868,7 +872,7 @@ namespace lsp
                         b->bEnabled     = enabled;
                         b->nSync       |= S_COMP_CURVE;
                         if (!enabled)
-                            b->sDelay.clear(); // Clear delay buffer from artifacts
+                            b->sScDelay.clear(); // Clear delay buffer from artifacts
                     }
                     if (b->bSolo != solo)
                     {
@@ -1078,6 +1082,21 @@ namespace lsp
                     sFilters.set_filter_active(b->nFilterID, b->bEnabled);
                 }
 
+                // Set-up all-pass filters for the 'dry' chain which can be mixed with the 'wet' chain.
+                for (size_t j=0; j<meta::mb_compressor_metadata::BANDS_MAX-1; ++j)
+                {
+                    comp_band_t *b  = (j < (c->nPlanSize-1)) ? c->vPlan[j] : NULL;
+                    fp.nType        = (b != NULL) ? dspu::FLT_BT_LRX_ALLPASS : dspu::FLT_NONE;
+                    fp.fFreq        = (b != NULL) ? b->fFreqEnd : 0.0f;
+                    fp.fFreq2       = fp.fFreq;
+                    fp.fQuality     = 0.0f;
+                    fp.fGain        = 1.0f;
+                    fp.fQuality     = 0.0f;
+                    fp.nSlope       = 2;
+
+                    c->sDryEq.set_params(j, &fp);
+                }
+
                 // Calculate latency
                 for (size_t j=0; j<c->nPlanSize; ++j)
                 {
@@ -1096,7 +1115,7 @@ namespace lsp
                 for (size_t j=0; j<c->nPlanSize; ++j)
                 {
                     comp_band_t *b  = c->vPlan[j];
-                    b->sDelay.set_delay(latency - b->nLookahead);
+                    b->sScDelay.set_delay(latency - b->nLookahead);
                 }
                 c->sDelay.set_delay(latency);
             }
@@ -1113,12 +1132,13 @@ namespace lsp
                     dspu::filter_params_t fp;
                     sFilters.get_params(b->nFilterID, &fp);
 
-                    lsp_trace("plan[%d, %d] start=%f, end=%f, filter={id=%d, type=%d, slope=%d}, solo=%s, mute=%s",
+                    lsp_trace("plan[%d, %d] start=%f, end=%f, filter={id=%d, type=%d, slope=%d}, solo=%s, mute=%s, lookahead=%d",
                             int(i), int(j),
                             b->fFreqStart, b->fFreqEnd,
                             int(b->nFilterID), int(fp.nType), int(fp.nSlope),
                             (b->bSolo) ? "true" : "false",
-                            (b->bMute) ? "true" : "false"
+                            (b->bMute) ? "true" : "false",
+                            int(b->nLookahead)
                         );
                 }
             }
@@ -1145,6 +1165,7 @@ namespace lsp
                 channel_t *c = &vChannels[i];
                 c->sBypass.init(sr);
                 c->sDelay.init(max_delay);
+                c->sDryEq.set_sample_rate(sr);
 
                 // Update bands
                 for (size_t j=0; j<meta::mb_compressor_metadata::BANDS_MAX; ++j)
@@ -1153,7 +1174,7 @@ namespace lsp
 
                     b->sSC.set_sample_rate(sr);
                     b->sComp.set_sample_rate(sr);
-                    b->sDelay.init(max_delay);
+                    b->sScDelay.init(max_delay);
 
                     b->sPassFilter.set_sample_rate(sr);
                     b->sRejFilter.set_sample_rate(sr);
@@ -1188,19 +1209,23 @@ namespace lsp
              The overall schema of signal processing in 'classic' mode for 4 bands:
 
 
-            s   ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐  s'
+            s   ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐  s' (wet)
            ──┬─►│LPF 1│────►│VCA 1│────►│APF 2│────►│  +  │────►│APF 3│────►│  +  │────►│  +  │────►
              │  └─────┘     └─────┘     └─────┘     └─────┘     └─────┘     └─────┘     └─────┘
              │                                         ▲                       ▲           ▲
              │                                         │                       │           │
              │  ┌─────┐                 ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐        │
-             └─►│HPF 1│──────────────┬─►│LPF 2│────►│VCA 2│  ┌─►│LPF 3│────►│VCA 3│        │
-                └─────┘              │  └─────┘     └─────┘  │  └─────┘     └─────┘        │
-                                     │                       │                             │
-                                     │                       │                             │
-                                     │  ┌─────┐              │  ┌─────┐     ┌─────┐        │
-                                     └─►│HPF 2│──────────────┴─►│HPF 3│────►│VCA 4│────────┘
-                                        └─────┘                 └─────┘     └─────┘
+             ├─►│HPF 1│──────────────┬─►│LPF 2│────►│VCA 2│  ┌─►│LPF 3│────►│VCA 3│        │
+             │  └─────┘              │  └─────┘     └─────┘  │  └─────┘     └─────┘        │
+             │                       │                       │                             │
+             │                       │                       │                             │
+             │                       │  ┌─────┐              │  ┌─────┐     ┌─────┐        │
+             │                       └─►│HPF 2│──────────────┴─►│HPF 3│────►│VCA 4│────────┘
+             │                          └─────┘                 └─────┘     └─────┘
+             │
+             │  ┌─────┐                 ┌─────┐                 ┌─────┐                          s" (dry)
+             └─►│APF 1│────────────────►│APF 2│────────────────►│APF 3│────────────────────────────►
+                └─────┘                 └─────┘                 └─────┘
          */
 
         void mb_compressor::process(size_t samples)
@@ -1290,7 +1315,7 @@ namespace lsp
 
                         // Preprocess VCA signal
                         b->sSC.process(vBuffer, const_cast<const float **>(vSc), to_process); // Band now contains processed by sidechain signal
-                        b->sDelay.process(vBuffer, vBuffer, b->fScPreamp, to_process); // Apply sidechain preamp and lookahead delay
+                        b->sScDelay.process(vBuffer, vBuffer, b->fScPreamp, to_process); // Apply sidechain preamp and lookahead delay
 
                         if (b->bEnabled)
                         {
@@ -1338,8 +1363,8 @@ namespace lsp
                     for (size_t i=0; i<channels; ++i)
                     {
                         channel_t *c        = &vChannels[i];
-                        c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature
-                        dsp::copy(vBuffer, c->vInBuffer, to_process);
+                        c->sDelay.process(c->vBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature
+                        dsp::copy(c->vInBuffer, c->vBuffer, to_process);
 
                         for (size_t j=0; j<c->nPlanSize; ++j)
                         {
@@ -1396,10 +1421,20 @@ namespace lsp
                 {
                     channel_t *c        = &vChannels[i];
 
-                    // Apply dry/wet gain and bypass
-                    dsp::mix2(c->vBuffer, c->vInBuffer, fWetGain, fDryGain, to_process);
+                    // Apply dry/wet balance
+                    if (bModern)
+                        dsp::mix2(c->vBuffer, c->vInBuffer, fWetGain, fDryGain, to_process);
+                    else
+                    {
+                        c->sDryEq.process(vBuffer, c->vInBuffer, to_process);
+                        dsp::mix2(c->vBuffer, vBuffer, fWetGain, fDryGain, to_process);
+                    }
+
+                    // Compute output level
                     float level         = dsp::abs_max(c->vBuffer, to_process);
                     c->pOutLvl->set_value(level);
+
+                    // Apply bypass
                     c->sBypass.process(c->vOut, c->vInBuffer, c->vBuffer, to_process);
 
                     // Update pointers
@@ -1681,6 +1716,7 @@ namespace lsp
                         v->write_object(&c->sEnvBoost[i]);
                     v->end_array();
                     v->write_object("sDelay", &c->sDelay);
+                    v->write_object("sDryEq", &c->sDryEq);
 
                     v->begin_array("vBands", c->vBands, meta::mb_compressor_metadata::BANDS_MAX);
                     for (size_t i=0; i<meta::mb_compressor_metadata::BANDS_MAX; ++i)
@@ -1694,7 +1730,7 @@ namespace lsp
                             v->write_object("sPassFilter", &b->sPassFilter);
                             v->write_object("sRejFilter", &b->sRejFilter);
                             v->write_object("sAllFilter", &b->sAllFilter);
-                            v->write_object("sDelay", &b->sDelay);
+                            v->write_object("sScDelay", &b->sScDelay);
 
                             v->write("vTr", b->vTr);
                             v->write("vVCA", b->vVCA);
