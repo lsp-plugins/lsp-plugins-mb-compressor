@@ -1,0 +1,7 @@
+{
+	"mb_compressor": {
+		"name": "Multiband Kompressor",
+		"description": "Dieses Plugin leistet eine Multibandkompression des Eingangssignals. Eine flexible Sidechain-\nsteuerung ist verfügbar. Im Gegensatz zu anderen Multibandkompressoren, \nstellt dieser Kompressor auch folgende Funktionen zur Verfügung: \n'moderner' Operationsmodus, 'Sidechain Boost', 'Vorschau'\n-Option und bis zu 8 bearbeitbare Frequenzbänder."
+	}
+}
+
