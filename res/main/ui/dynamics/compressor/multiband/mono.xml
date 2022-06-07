@@ -222,7 +222,7 @@
 		<!-- down part -->
 		<hbox>
 
-			<cgroup id="bsel" embed.h=":bsel ilt 2" embed.b=":bsel ilt 2">
+			<cgroup id="bsel" embed.h=":bsel ilt 1" embed.b=":bsel ilt 1">
 				<grid rows="11" cols="25" transpose="true">
 					<!-- Labels -->
 					<label text="labels.band" pad.v="4" bg.color="bg_schema" hreduce="true"/>
