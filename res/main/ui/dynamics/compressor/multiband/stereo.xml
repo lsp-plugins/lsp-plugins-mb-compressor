@@ -366,7 +366,7 @@
 									<align halign="-1">
 										<label text="labels.sidechain" pad.h="6" height.max="20" bg.color="bg_schema_name" vreduce="true"/>
 									</align>
-									<hsep vreduse="true"/>
+									<hsep vreduce="true"/>
 
 									<grid rows="4" cols="8" spacing="0" expand="true">
 										<label text="labels.mode" pad.v="4" vreduce="true"/>
@@ -506,7 +506,7 @@
 							<align halign="-1">
 								<label text="labels.plug.compressor" halign="-1" pad.h="6" height.max="20" bg.color="bg_schema_name" vreduce="true"/>
 							</align>
-							<hsep vreduse="true"/>
+							<hsep vreduce="true"/>
 
 							<grid rows="5" cols="9" hspacing="0" expand="true">
 								<!-- r1,2 -->
