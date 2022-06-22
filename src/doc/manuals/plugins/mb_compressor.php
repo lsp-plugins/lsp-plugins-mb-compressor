@@ -165,5 +165,5 @@
 	<li><b>Compressor Attack Time</b> - attack time of the compressor.</li>
 	<li><b>Compressor Release Thresh</b> - relative to the <b>Attack Thresh</b> threshold that sets up the threshold of <b>Release Time</b>.</li>
 	<li><b>Compressor Release Time</b> - release time of the compressor.</li>
-	<li><b>Gain</b> - the amount of gain applied to frequency band by the compression curve.</li>
+	<li><b>Compressor Gain</b> - the amount of gain applied to frequency band by the compression curve.</li>
 </ul>

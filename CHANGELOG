@@ -2,6 +2,11 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.5 ===
+* Added german translations (contributed by Johannes Guenther).
+* Updated build scripts and dependencies.
+* Small UI fixes related to output level meter.
+
 === 1.0.4 ===
 * Fixed invalid phase compensation issue of the dry signal for 'Modern' mode.
 * Added all-pass phase compensation for the dry signal for the 'Classic' mode.

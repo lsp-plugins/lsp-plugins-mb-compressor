@@ -232,7 +232,7 @@
 		<!-- down part -->
 		<hbox>
 
-			<cgroup id="bsel" embed.h=":bsel ilt 2" embed.b=":bsel ilt 2">
+			<cgroup id="bsel" embed.h=":bsel ilt 1" embed.b=":bsel ilt 1">
 				<grid rows="11" cols="25" transpose="true">
 					<!-- Labels -->
 					<label text="labels.band" pad.v="4" bg.color="bg_schema" hreduce="true"/>
@@ -366,7 +366,7 @@
 									<align halign="-1">
 										<label text="labels.sidechain" pad.h="6" height.max="20" bg.color="bg_schema_name" vreduce="true"/>
 									</align>
-									<hsep vreduse="true"/>
+									<hsep vreduce="true"/>
 
 									<grid rows="4" cols="8" spacing="0" expand="true">
 										<label text="labels.mode" pad.v="4" vreduce="true"/>
@@ -506,7 +506,7 @@
 							<align halign="-1">
 								<label text="labels.plug.compressor" halign="-1" pad.h="6" height.max="20" bg.color="bg_schema_name" vreduce="true"/>
 							</align>
-							<hsep vreduse="true"/>
+							<hsep vreduce="true"/>
 
 							<grid rows="5" cols="9" hspacing="0" expand="true">
 								<!-- r1,2 -->
