@@ -24,7 +24,7 @@ ARTIFACT_NAME               = lsp-plugins-mb-compressor
 ARTIFACT_TYPE               = plug
 ARTIFACT_DESC               = LSP Multiband Compressor Plugin Series
 ARTIFACT_HEADERS            = lsp-plug.in
-ARTIFACT_VERSION            = 1.0.5
+ARTIFACT_VERSION            = 1.0.6-devel
 
 
 
