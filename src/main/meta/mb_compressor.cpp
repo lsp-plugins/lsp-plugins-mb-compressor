@@ -45,10 +45,10 @@ namespace lsp
 
         static const port_item_t mb_comp_sc_modes[] =
         {
-            { "Peak",           "sidechain.peak"           },
-            { "RMS",            "sidechain.rms"            },
-            { "Low-Pass",       "sidechain.lowpass"        },
-            { "Uniform",        "sidechain.uniform"        },
+            { "Peak",           "sidechain.peak"            },
+            { "RMS",            "sidechain.rms"             },
+            { "LPF",            "sidechain.lpf"             },
+            { "SMA",            "sidechain.sma"             },
             { NULL, NULL }
         };
 

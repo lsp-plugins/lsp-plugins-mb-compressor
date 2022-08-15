@@ -128,9 +128,9 @@
 	<li><b>Sidechain Mode</b> - combo box that allows to control sidechain working mode:</li>
 	<ul>
 		<li><b>Peak</b> - peak mode.</li>
-		<li><b>RMS</b> - root mean square of the input signal.</li>
-		<li><b>Low-pass</b> - input signal processed by low-pass filter.</li>
-		<li><b>Uniform</b> - input signal processed by uniform filter.</li>
+		<li><b>RMS</b> - Root Mean Square (SMA) of the input signal.</li>
+		<li><b>LPF</b> - input signal processed by recursive 1-pole Low-Pass Filter (LPF).</li>
+		<li><b>SMA</b> - input signal processed by Simple Moving Average (SMA) filter.</li>
 		<?php if ($m != 'm') { ?>
 			<li><b>Middle</b> - middle part of signal is used for sidechain processing.</li>
 			<li><b>Side</b> - side part of signal is used for sidechain processing.</li>

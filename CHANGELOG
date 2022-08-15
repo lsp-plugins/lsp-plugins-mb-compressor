@@ -3,6 +3,7 @@
 *******************************************************************************
 
 === 1.0.6 ===
+* Assigned more correct names for sidechain types.
 * Updated build scripts and dependencies.
 
 === 1.0.5 ===
