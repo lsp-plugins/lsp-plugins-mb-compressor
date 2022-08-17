@@ -62,7 +62,7 @@ namespace lsp
             static constexpr float  BTH_DFL                 = GAIN_AMP_M_72_DB;
             static constexpr float  BTH_STEP                = 0.05f;
 
-            static constexpr float  BSA_MIN                 = GAIN_AMP_0_DB;
+            static constexpr float  BSA_MIN                 = GAIN_AMP_M_72_DB;
             static constexpr float  BSA_MAX                 = GAIN_AMP_P_72_DB;
             static constexpr float  BSA_DFL                 = GAIN_AMP_P_6_DB;
             static constexpr float  BSA_STEP                = 0.05f;

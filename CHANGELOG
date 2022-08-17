@@ -3,6 +3,7 @@
 *******************************************************************************
 
 === 1.0.6 ===
+* Added negative boosting gain option in 'Boosting' mode.
 * Assigned more correct names for sidechain types.
 * Updated build scripts and dependencies.
 
