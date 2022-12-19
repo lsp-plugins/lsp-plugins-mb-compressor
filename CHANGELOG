@@ -2,6 +2,10 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.7 ===
+* Added 'Min' and 'Max' sidechain sources for the multiband compressor.
+* Updated build scripts and dependencies.
+
 === 1.0.6 ===
 * Added negative boosting gain option in 'Boosting' mode.
 * Assigned more correct names for sidechain types.
