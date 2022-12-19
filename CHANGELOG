@@ -2,6 +2,9 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.8 ===
+
+
 === 1.0.7 ===
 * Added 'Min' and 'Max' sidechain sources for the multiband compressor.
 * Updated build scripts and dependencies.
