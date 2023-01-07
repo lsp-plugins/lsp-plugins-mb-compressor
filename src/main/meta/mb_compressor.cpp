@@ -41,7 +41,9 @@ namespace lsp
     {
         //-------------------------------------------------------------------------
         // Multiband compressor
-        static const int mb_compressor_classes[] = { C_COMPRESSOR, -1 };
+        static const int plugin_classes[]           = { C_COMPRESSOR, -1 };
+        static const int clap_features_mono[]       = { CF_AUDIO_EFFECT, CF_COMPRESSOR, CF_MONO, -1 };
+        static const int clap_features_stereo[]     = { CF_AUDIO_EFFECT, CF_COMPRESSOR, CF_STEREO, -1 };
 
         static const port_item_t mb_comp_sc_modes[] =
         {
@@ -553,8 +555,10 @@ namespace lsp
             "fdiu",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 0,
             LSP_LADSPA_URI("mb_compressor_mono"),
+            LSP_CLAP_URI("mb_compressor_mono"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_mono,
             E_INLINE_DISPLAY,
             mb_compressor_mono_ports,
             "dynamics/compressor/multiband/mono.xml",
@@ -575,8 +579,10 @@ namespace lsp
             "gjsn",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 1,
             LSP_LADSPA_URI("mb_compressor_stereo"),
+            LSP_CLAP_URI("mb_compressor_stereo"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_stereo_ports,
             "dynamics/compressor/multiband/stereo.xml",
@@ -597,8 +603,10 @@ namespace lsp
             "0egf",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 2,
             LSP_LADSPA_URI("mb_compressor_lr"),
+            LSP_CLAP_URI("mb_compressor_lr"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_lr_ports,
             "dynamics/compressor/multiband/lr.xml",
@@ -619,8 +627,10 @@ namespace lsp
             "vhci",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 3,
             LSP_LADSPA_URI("mb_compressor_ms"),
+            LSP_CLAP_URI("mb_compressor_ms"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_ms_ports,
             "dynamics/compressor/multiband/ms.xml",
@@ -642,8 +652,10 @@ namespace lsp
             "vv0m",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 4,
             LSP_LADSPA_URI("sc_mb_compressor_mono"),
+            LSP_CLAP_URI("sc_mb_compressor_mono"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_mono,
             E_INLINE_DISPLAY,
             sc_mb_compressor_mono_ports,
             "dynamics/compressor/multiband/mono.xml",
@@ -664,8 +676,10 @@ namespace lsp
             "zqrn",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 5,
             LSP_LADSPA_URI("sc_mb_compressor_stereo"),
+            LSP_CLAP_URI("sc_mb_compressor_stereo"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_stereo_ports,
             "dynamics/compressor/multiband/stereo.xml",
@@ -686,8 +700,10 @@ namespace lsp
             "kvxe",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 6,
             LSP_LADSPA_URI("sc_mb_compressor_lr"),
+            LSP_CLAP_URI("sc_mb_compressor_lr"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_lr_ports,
             "dynamics/compressor/multiband/lr.xml",
@@ -708,8 +724,10 @@ namespace lsp
             "hjdp",
             LSP_LADSPA_MB_COMPRESSOR_BASE + 7,
             LSP_LADSPA_URI("sc_mb_compressor_ms"),
+            LSP_CLAP_URI("sc_mb_compressor_ms"),
             LSP_PLUGINS_MB_COMPRESSOR_VERSION,
-            mb_compressor_classes,
+            plugin_classes,
+            clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_ms_ports,
             "dynamics/compressor/multiband/ms.xml",
@@ -718,5 +736,5 @@ namespace lsp
             &mb_compressor_bundle
         };
 
-    } // namespace meta
-} // namespace lsp
+    } /* namespace meta */
+} /* namespace lsp */
