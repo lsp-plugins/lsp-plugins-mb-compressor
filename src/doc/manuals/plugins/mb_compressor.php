@@ -48,6 +48,12 @@
 	sidechain signal. 
 	</li>
 </ul>
+<p>
+	The compressor can provide two release times. If the compressor's envelope indicated by the dot on the
+	compression curve is above the ‘Release Thresh’ then the ‘Release Time’ parameter is taken as a release time
+	for processing. Otherwise, if the envelope is below the ‘Release Thresh’ then the ‘Attack Time’ parameter is
+	taken as a release time for processing.
+</p>
 <p><b>Controls:</b></p>
 <ul>
 	<li>
