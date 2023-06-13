@@ -160,7 +160,7 @@
 								<value id="g_out" width.min="50" sline="true" halign="0"/>
 							</vbox>
 
-							<knob id="g_dry" balance="0.5" scolor="dry" pad.r="4"/>
+							<knob id="g_dry" scolor="dry" pad.r="4"/>
 							<vbox vfill="false">
 								<label text="labels.signal.dry" halign="0"/>
 								<value id="g_dry" width.min="50" sline="true" halign="0"/>
