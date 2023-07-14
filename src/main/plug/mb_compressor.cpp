@@ -1288,7 +1288,6 @@ namespace lsp
                     }
                 }
 
-
                 // Do frequency boost and input channel analysis
                 for (size_t i=0; i<channels; ++i)
                 {
@@ -1436,7 +1435,7 @@ namespace lsp
                     c->pOutLvl->set_value(level);
 
                     // Apply bypass
-                    c->sBypass.process(c->vOut, c->vInBuffer, c->vBuffer, to_process);
+                    c->sBypass.process(c->vOut, c->vIn, c->vBuffer, to_process);
 
                     // Update pointers
                     c->vIn             += to_process;
