@@ -187,6 +187,7 @@ namespace lsp
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
                 bool                    bModern;                // Modern mode
+                bool                    bLRSplit;               // L/R split mode
                 size_t                  nEnvBoost;              // Envelope boost
                 channel_t              *vChannels;              // Compressor channels
                 float                   fInGain;                // Input gain

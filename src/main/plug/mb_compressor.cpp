@@ -92,6 +92,7 @@ namespace lsp
             bSidechain      = sc;
             bEnvUpdate      = true;
             bModern         = true;
+            bLRSplit        = false;
             nEnvBoost       = meta::mb_compressor_metadata::FB_DEFAULT;
             vChannels       = NULL;
             fInGain         = GAIN_AMP_0_DB;
@@ -709,6 +710,7 @@ namespace lsp
                 for (size_t i=0; i<channels; ++i)
                     vChannels[i].nPlanSize      = 0;
             }
+            bLRSplit            = (pLRSplit != NULL) ? pLRSplit->value() >= 0.5f : false;
 
             // Store gain
             float out_gain      = pOutGain->value();
@@ -807,7 +809,6 @@ namespace lsp
 
             size_t latency = 0;
             bool solo_on = false;
-            bool lr_split = (pLRSplit != NULL) ? pLRSplit->value() >= 0.5f : false;
 
             // Configure channels
             for (size_t i=0; i<channels; ++i)
@@ -831,7 +832,7 @@ namespace lsp
                     float sc_gain   = b->pScPreamp->value();
                     bool mute       = (b->pMute->value() >= 0.5f);
                     bool solo       = (enabled) && (b->pSolo->value() >= 0.5f);
-                    plug::IPort *sc = (lr_split) ? b->pScSpSource : b->pScSource;
+                    plug::IPort *sc = (bLRSplit) ? b->pScSpSource : b->pScSource;
                     size_t sc_src   = (sc != NULL) ? sc->value() : dspu::SCS_MIDDLE;
 
                     b->pRelLevelOut->set_value(release);
@@ -841,7 +842,7 @@ namespace lsp
                     b->sSC.set_mode(b->pScMode->value());
                     b->sSC.set_reactivity(b->pScReact->value());
                     b->sSC.set_stereo_mode((nMode == MBCM_MS) ? dspu::SCSM_MIDSIDE : dspu::SCSM_STEREO);
-                    b->sSC.set_source(decode_sidechain_source(sc_src, lr_split, i));
+                    b->sSC.set_source(decode_sidechain_source(sc_src, bLRSplit, i));
 
                     if (sc_gain != b->fScPreamp)
                     {
@@ -1652,15 +1653,20 @@ namespace lsp
             b->v[3][0]          = 1.0f;
             b->v[3][width+1]    = 1.0f;
 
-            size_t channels = ((nMode == MBCM_MONO) || (nMode == MBCM_STEREO)) ? 1 : 2;
-            static uint32_t c_colors[] = {
-                    CV_MIDDLE_CHANNEL, CV_MIDDLE_CHANNEL,
-                    CV_MIDDLE_CHANNEL, CV_MIDDLE_CHANNEL,
-                    CV_LEFT_CHANNEL, CV_RIGHT_CHANNEL,
-                    CV_MIDDLE_CHANNEL, CV_SIDE_CHANNEL
-                   };
+            static const uint32_t c_colors[] =
+            {
+                CV_MIDDLE_CHANNEL,
+                CV_LEFT_CHANNEL, CV_RIGHT_CHANNEL,
+                CV_MIDDLE_CHANNEL, CV_SIDE_CHANNEL
+            };
+
+            size_t channels     = ((nMode == MBCM_MONO) || ((nMode == MBCM_STEREO) && (!bLRSplit))) ? 1 : 2;
+            const uint32_t *vc  = (channels == 1) ? &c_colors[0] :
+                                  (nMode == MBCM_MS) ? &c_colors[3] :
+                                  &c_colors[1];
 
             bool aa = cv->set_anti_aliasing(true);
+            lsp_finally { cv->set_anti_aliasing(aa); };
             cv->set_line_width(2);
 
             for (size_t i=0; i<channels; ++i)
@@ -1680,11 +1686,10 @@ namespace lsp
                 dsp::axis_apply_log1(b->v[2], b->v[3], zy, dy, width+2);
 
                 // Draw mesh
-                uint32_t color = (bypassing || !(active())) ? CV_SILVER : c_colors[nMode*2 + i];
+                uint32_t color = (bypassing || !(active())) ? CV_SILVER : vc[i];
                 Color stroke(color), fill(color, 0.5f);
                 cv->draw_poly(b->v[1], b->v[2], width+2, stroke, fill);
             }
-            cv->set_anti_aliasing(aa);
 
             return true;
         }
@@ -1701,6 +1706,7 @@ namespace lsp
             v->write("bSidechain", bSidechain);
             v->write("bEnvUpdate", bEnvUpdate);
             v->write("bModern", bModern);
+            v->write("bLRSplit", bLRSplit);
             v->write("nEnvBoost", nEnvBoost);
             v->begin_array("vChannels", vChannels, channels);
             {
