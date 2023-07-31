@@ -230,7 +230,7 @@ namespace lsp
         #define MB_FFT_METERS(id, label) \
                 SWITCH("ife" id, "Input FFT graph enable" label, 1.0f), \
                 SWITCH("ofe" id, "Output FFT graph enable" label, 1.0f), \
-                MESH("ifg" id, "Input FFT graph" label, 2, mb_compressor_metadata::FFT_MESH_POINTS), \
+                MESH("ifg" id, "Input FFT graph" label, 2, mb_compressor_metadata::FFT_MESH_POINTS + 2), \
                 MESH("ofg" id, "Output FFT graph" label, 2, mb_compressor_metadata::FFT_MESH_POINTS)
 
         #define MB_CHANNEL_METERS(id, label) \

@@ -544,7 +544,7 @@ namespace lsp
 
                         b->pExtSc       = sb->pExtSc;
                         b->pScSource    = sb->pScSource;
-                        b->pScSpSource  = sb->pScSource;
+                        b->pScSpSource  = sb->pScSpSource;
                         b->pScMode      = sb->pScMode;
                         b->pScLook      = sb->pScLook;
                         b->pScReact     = sb->pScReact;
@@ -1551,12 +1551,18 @@ namespace lsp
                 {
                     if (c->bInFft)
                     {
+                        // Add extra points
+                        mesh->pvData[0][0] = SPEC_FREQ_MIN * 0.5f;
+                        mesh->pvData[0][meta::mb_compressor_metadata::FFT_MESH_POINTS+1] = SPEC_FREQ_MAX * 2.0f;
+                        mesh->pvData[1][0] = 0.0f;
+                        mesh->pvData[1][meta::mb_compressor_metadata::FFT_MESH_POINTS+1] = 0.0f;
+
                         // Copy frequency points
-                        dsp::copy(mesh->pvData[0], vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        sAnalyzer.get_spectrum(c->nAnInChannel, mesh->pvData[1], vIndexes, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        dsp::copy(&mesh->pvData[0][1], vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        sAnalyzer.get_spectrum(c->nAnInChannel, &mesh->pvData[1][1], vIndexes, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
                         // Mark mesh containing data
-                        mesh->data(2, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        mesh->data(2, meta::mb_compressor_metadata::FFT_MESH_POINTS + 2);
                     }
                     else
                         mesh->data(2, 0);
