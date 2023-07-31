@@ -97,6 +97,7 @@ namespace lsp
 
                     plug::IPort            *pExtSc;             // External sidechain
                     plug::IPort            *pScSource;          // Sidechain source
+                    plug::IPort            *pScSpSource;        // Sidechain split source
                     plug::IPort            *pScMode;            // Sidechain mode
                     plug::IPort            *pScLook;            // Sidechain lookahead
                     plug::IPort            *pScReact;           // Sidechain reactivity
@@ -215,10 +216,12 @@ namespace lsp
                 plug::IPort            *pShiftGain;             // Shift gain port
                 plug::IPort            *pZoom;                  // Zoom port
                 plug::IPort            *pEnvBoost;              // Envelope adjust
+                plug::IPort            *pLRSplit;               // Split left/right independently
 
             protected:
                 static bool compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2);
-                static dspu::compressor_mode_t    decode_mode(int mode);
+                static dspu::compressor_mode_t      decode_mode(int mode);
+                static dspu::sidechain_source_t     decode_sidechain_source(int source, bool split, size_t channel);
 
             public:
                 explicit mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode);

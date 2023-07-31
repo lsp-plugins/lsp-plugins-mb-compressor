@@ -74,7 +74,9 @@
 					<mesh id="ofg_l" width="3" color="left" visibility=":ofe_l"/>
 					<mesh id="ofg_r" width="3" color="right" visibility=":ofe_r"/>
 
-					<mesh id="ag" width="3" color="bright_cyan" smooth="true"/>
+					<mesh id="ag_l" width="3" color="bright_cyan" smooth="true" visibility="!:lrsplit"/>
+					<mesh id="ag_l" width="3" color="left" smooth="true" visibility=":lrsplit"/>
+					<mesh id="ag_r" width="3" color="right" smooth="true" visibility=":lrsplit"/>
 
 					<!-- Boundaries -->
 					<marker v="1" ox="2" oy="0" color="graph_prim" visibility="false"/>
@@ -224,6 +226,7 @@
 					<combo id="mode" pad.r="8" pad.v="4"/>
 					<label text="labels.sc_boost:"/>
 					<combo id="envb" pad.r="8"/>
+					<button id="lrsplit" text="labels.lr_split" size="22" ui:inject="Button_green"/>
 					<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
 				</hbox>
 			</align>
@@ -385,7 +388,8 @@
 										<cell rows="2">
 											<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
 												<combo id="scm_${i}" fill="true"/>
-												<combo id="scs_${i}" fill="true"/>
+												<combo id="scs_${i}" fill="true" visibility="!:lrsplit" />
+												<combo id="sscs_${i}" fill="true" visibility=":lrsplit" />
 												<button text="labels.chan.external_sc" id="sce_${i}" ui:inject="Button_Cycle"
 												hfill="true"
 												height="19"
@@ -618,7 +622,9 @@
 
 									<!-- Meshes -->
 									<mesh id="ccg_${i}" width="3" color="graph_mesh" smooth="true"/>
-									<dot x.id="elm_${i}" y.id="clm_${i}" color="graph_mesh" bcolor="graph_mesh"/>
+									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="graph_mesh" bcolor="graph_mesh" visibility="!:lrsplit"/>
+									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="left" bcolor="left" visibility=":lrsplit"/>
+									<dot x.id="elm_${i}r" y.id="clm_${i}r" color="right" bcolor="right" visibility=":lrsplit"/>
 
 									<!-- Markers -->
 									<marker id="al_${i}" color="attack_1"/>
@@ -653,7 +659,8 @@
 							<void bg.color="bg" height="4" vreduce="true"/>
 							<label text="labels.gain_" bg.color="bg_schema" pad.v="4"/>
 							<ledmeter vexpand="true" height.min="256" angle="1">
-								<ledchannel id="rlm_${i}" min="-72 db" max="24 db" log="true" balance="0 db" balance.visibility="true" type="peak" value.color="bright_blue"/>
+								<ledchannel id="rlm_${i}l" min="-72 db" max="24 db" log="true" balance="0 db" balance.visibility="true" type="peak" value.color="bright_blue"/>
+								<ledchannel id="rlm_${i}r" min="-72 db" max="24 db" log="true" balance="0 db" balance.visibility="true" type="peak" value.color="bright_blue"/>
 							</ledmeter>
 						</vbox>
 					</hbox>

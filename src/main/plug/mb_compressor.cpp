@@ -28,12 +28,17 @@
 #include <lsp-plug.in/shared/id_colors.h>
 
 #define MBC_BUFFER_SIZE         0x1000
-#define TRACE_PORT(p)           lsp_trace("  port id=%s", (p)->metadata()->id);
 
 namespace lsp
 {
     namespace plugins
     {
+        static plug::IPort *TRACE_PORT(plug::IPort *p)
+        {
+            lsp_trace("  port id=%s", (p)->metadata()->id);
+            return p;
+        }
+
         //-------------------------------------------------------------------------
         // Plugin factory
         typedef struct plugin_settings_t
@@ -120,6 +125,7 @@ namespace lsp
             pShiftGain      = NULL;
             pZoom           = NULL;
             pEnvBoost       = NULL;
+            pLRSplit        = NULL;
         }
 
         mb_compressor::~mb_compressor()
@@ -143,6 +149,52 @@ namespace lsp
                 default: break;
             }
             return dspu::CM_DOWNWARD;
+        }
+
+        dspu::sidechain_source_t mb_compressor::decode_sidechain_source(int source, bool split, size_t channel)
+        {
+            if (!split)
+            {
+                switch (source)
+                {
+                    case 0: return dspu::SCS_MIDDLE;
+                    case 1: return dspu::SCS_SIDE;
+                    case 2: return dspu::SCS_LEFT;
+                    case 3: return dspu::SCS_RIGHT;
+                    case 4: return dspu::SCS_AMIN;
+                    case 5: return dspu::SCS_AMAX;
+                    default: break;
+                }
+            }
+
+            if (channel == 0)
+            {
+                switch (source)
+                {
+                    case 0: return dspu::SCS_LEFT;
+                    case 1: return dspu::SCS_RIGHT;
+                    case 2: return dspu::SCS_MIDDLE;
+                    case 3: return dspu::SCS_SIDE;
+                    case 4: return dspu::SCS_AMIN;
+                    case 5: return dspu::SCS_AMAX;
+                    default: break;
+                }
+            }
+            else
+            {
+                switch (source)
+                {
+                    case 0: return dspu::SCS_RIGHT;
+                    case 1: return dspu::SCS_LEFT;
+                    case 2: return dspu::SCS_SIDE;
+                    case 3: return dspu::SCS_MIDDLE;
+                    case 4: return dspu::SCS_AMIN;
+                    case 5: return dspu::SCS_AMAX;
+                    default: break;
+                }
+            }
+
+            return dspu::SCS_MIDDLE;
         }
 
         void mb_compressor::init(plug::IWrapper *wrapper, plug::IPort **ports)
@@ -347,6 +399,7 @@ namespace lsp
 
                     b->pExtSc       = NULL;
                     b->pScSource    = NULL;
+                    b->pScSpSource  = NULL;
                     b->pScMode      = NULL;
                     b->pScLook      = NULL;
                     b->pScReact     = NULL;
@@ -399,91 +452,59 @@ namespace lsp
             // Input ports
             lsp_trace("Binding input ports");
             for (size_t i=0; i<channels; ++i)
-            {
-                TRACE_PORT(ports[port_id]);
-                vChannels[i].pIn        =   ports[port_id++];
-            }
+                vChannels[i].pIn        = TRACE_PORT(ports[port_id++]);
 
             // Input ports
             lsp_trace("Binding output ports");
             for (size_t i=0; i<channels; ++i)
-            {
-                TRACE_PORT(ports[port_id]);
-                vChannels[i].pOut       =   ports[port_id++];
-            }
+                vChannels[i].pOut       = TRACE_PORT(ports[port_id++]);
 
             // Input ports
             if (bSidechain)
             {
                 lsp_trace("Binding sidechain ports");
                 for (size_t i=0; i<channels; ++i)
-                {
-                    TRACE_PORT(ports[port_id]);
-                    vChannels[i].pScIn      =   ports[port_id++];
-                }
+                    vChannels[i].pScIn      = TRACE_PORT(ports[port_id++]);
             }
 
             // Common ports
             lsp_trace("Binding common ports");
-            TRACE_PORT(ports[port_id]);
-            pBypass                 = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pMode                   = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pInGain                 = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pOutGain                = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pDryGain                = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pWetGain                = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pReactivity             = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pShiftGain              = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pZoom                   = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            pEnvBoost               = ports[port_id++];
-            TRACE_PORT(ports[port_id]);
-            port_id++;         // Skip band selector
+            pBypass                 = TRACE_PORT(ports[port_id++]);
+            pMode                   = TRACE_PORT(ports[port_id++]);
+            pInGain                 = TRACE_PORT(ports[port_id++]);
+            pOutGain                = TRACE_PORT(ports[port_id++]);
+            pDryGain                = TRACE_PORT(ports[port_id++]);
+            pWetGain                = TRACE_PORT(ports[port_id++]);
+            pReactivity             = TRACE_PORT(ports[port_id++]);
+            pShiftGain              = TRACE_PORT(ports[port_id++]);
+            pZoom                   = TRACE_PORT(ports[port_id++]);
+            pEnvBoost               = TRACE_PORT(ports[port_id++]);
+            TRACE_PORT(ports[port_id++]); // Skip band selector
 
             lsp_trace("Binding channel ports");
             for (size_t i=0; i<channels; ++i)
             {
                 channel_t *c    = &vChannels[i];
 
-                if ((i > 0) && (nMode == MBCM_STEREO))
-                {
-                    channel_t *sc           = &vChannels[0];
-                    c->pAmpGraph            = sc->pAmpGraph;
-                }
-                else
-                {
-                    TRACE_PORT(ports[port_id]);
-                    port_id++;         // Skip filter switch
-                    TRACE_PORT(ports[port_id]);
-                    c->pAmpGraph            = ports[port_id++];
-                }
+                if ((i == 0) || (nMode == MBCM_LR) || (nMode == MBCM_MS))
+                    TRACE_PORT(ports[port_id++]); // Skip filter switch
+
+                c->pAmpGraph            = TRACE_PORT(ports[port_id++]);
             }
+            if (nMode == MBCM_STEREO)
+                pLRSplit                = TRACE_PORT(ports[port_id++]);
 
             lsp_trace("Binding meters");
             for (size_t i=0; i<channels; ++i)
             {
                 channel_t *c    = &vChannels[i];
 
-                TRACE_PORT(ports[port_id]);
-                c->pFftInSw             = ports[port_id++];
-                TRACE_PORT(ports[port_id]);
-                c->pFftOutSw            = ports[port_id++];
-                TRACE_PORT(ports[port_id]);
-                c->pFftIn               = ports[port_id++];
-                TRACE_PORT(ports[port_id]);
-                c->pFftOut              = ports[port_id++];
-                TRACE_PORT(ports[port_id]);
-                c->pInLvl               = ports[port_id++];
-                TRACE_PORT(ports[port_id]);
-                c->pOutLvl              = ports[port_id++];
+                c->pFftInSw             = TRACE_PORT(ports[port_id++]);
+                c->pFftOutSw            = TRACE_PORT(ports[port_id++]);
+                c->pFftIn               = TRACE_PORT(ports[port_id++]);
+                c->pFftOut              = TRACE_PORT(ports[port_id++]);
+                c->pInLvl               = TRACE_PORT(ports[port_id++]);
+                c->pOutLvl              = TRACE_PORT(ports[port_id++]);
             }
 
             // Split frequencies
@@ -502,10 +523,8 @@ namespace lsp
                     }
                     else
                     {
-                        TRACE_PORT(ports[port_id]);
-                        s->pEnabled     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        s->pFreq        = ports[port_id++];
+                        s->pEnabled     = TRACE_PORT(ports[port_id++]);
+                        s->pFreq        = TRACE_PORT(ports[port_id++]);
                     }
                 }
             }
@@ -524,6 +543,7 @@ namespace lsp
 
                         b->pExtSc       = sb->pExtSc;
                         b->pScSource    = sb->pScSource;
+                        b->pScSpSource  = sb->pScSource;
                         b->pScMode      = sb->pScMode;
                         b->pScLook      = sb->pScLook;
                         b->pScReact     = sb->pScReact;
@@ -551,85 +571,60 @@ namespace lsp
                         b->pFreqEnd     = sb->pFreqEnd;
                         b->pCurveGraph  = sb->pCurveGraph;
                         b->pRelLevelOut = sb->pRelLevelOut;
-                        b->pEnvLvl      = sb->pEnvLvl;
-                        b->pCurveLvl    = sb->pCurveLvl;
-                        b->pMeterGain   = sb->pMeterGain;
                     }
                     else
                     {
                         if (bSidechain)
-                        {
-                            TRACE_PORT(ports[port_id]);
-                            b->pExtSc       = ports[port_id++];
-                        }
+                            b->pExtSc       = TRACE_PORT(ports[port_id++]);
                         if (nMode != MBCM_MONO)
-                        {
-                            TRACE_PORT(ports[port_id]);
-                            b->pScSource    = ports[port_id++];
-                        }
-                        TRACE_PORT(ports[port_id]);
-                        b->pScMode      = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScLook      = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScReact     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScPreamp    = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScLpfOn     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScHpfOn     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScLcfFreq   = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScHcfFreq   = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pScFreqChart = ports[port_id++];
+                            b->pScSource    = TRACE_PORT(ports[port_id++]);
+                        if (nMode == MBCM_STEREO)
+                            b->pScSpSource  = TRACE_PORT(ports[port_id++]);
 
-                        TRACE_PORT(ports[port_id]);
-                        b->pMode        = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pEnable      = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pSolo        = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pMute        = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pAttLevel    = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pAttTime     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pRelLevel    = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pRelTime     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pRatio       = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pKnee        = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pBThresh     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pBoost       = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pMakeup      = ports[port_id++];
+                        b->pScMode      = TRACE_PORT(ports[port_id++]);
+                        b->pScLook      = TRACE_PORT(ports[port_id++]);
+                        b->pScReact     = TRACE_PORT(ports[port_id++]);
+                        b->pScPreamp    = TRACE_PORT(ports[port_id++]);
+                        b->pScLpfOn     = TRACE_PORT(ports[port_id++]);
+                        b->pScHpfOn     = TRACE_PORT(ports[port_id++]);
+                        b->pScLcfFreq   = TRACE_PORT(ports[port_id++]);
+                        b->pScHcfFreq   = TRACE_PORT(ports[port_id++]);
+                        b->pScFreqChart = TRACE_PORT(ports[port_id++]);
 
-                        // Skip hue
-                        TRACE_PORT(ports[port_id]);
-                        port_id ++;
+                        b->pMode        = TRACE_PORT(ports[port_id++]);
+                        b->pEnable      = TRACE_PORT(ports[port_id++]);
+                        b->pSolo        = TRACE_PORT(ports[port_id++]);
+                        b->pMute        = TRACE_PORT(ports[port_id++]);
+                        b->pAttLevel    = TRACE_PORT(ports[port_id++]);
+                        b->pAttTime     = TRACE_PORT(ports[port_id++]);
+                        b->pRelLevel    = TRACE_PORT(ports[port_id++]);
+                        b->pRelTime     = TRACE_PORT(ports[port_id++]);
+                        b->pRatio       = TRACE_PORT(ports[port_id++]);
+                        b->pKnee        = TRACE_PORT(ports[port_id++]);
+                        b->pBThresh     = TRACE_PORT(ports[port_id++]);
+                        b->pBoost       = TRACE_PORT(ports[port_id++]);
+                        b->pMakeup      = TRACE_PORT(ports[port_id++]);
 
-                        TRACE_PORT(ports[port_id]);
-                        b->pFreqEnd     = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pCurveGraph  = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pRelLevelOut = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pEnvLvl      = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pCurveLvl    = ports[port_id++];
-                        TRACE_PORT(ports[port_id]);
-                        b->pMeterGain   = ports[port_id++];
+                        TRACE_PORT(ports[port_id++]); // Skip hue
+
+                        b->pFreqEnd     = TRACE_PORT(ports[port_id++]);
+                        b->pCurveGraph  = TRACE_PORT(ports[port_id++]);
+                        b->pRelLevelOut = TRACE_PORT(ports[port_id++]);
                     }
+                }
+            }
+
+            // Compressor band meters
+            lsp_trace("Binding compressor band meters");
+            for (size_t i=0; i<channels; ++i)
+            {
+                for (size_t j=0; j<meta::mb_compressor_metadata::BANDS_MAX; ++j)
+                {
+                    comp_band_t *b  = &vChannels[i].vBands[j];
+
+                    b->pEnvLvl      = TRACE_PORT(ports[port_id++]);
+                    b->pCurveLvl    = TRACE_PORT(ports[port_id++]);
+                    b->pMeterGain   = TRACE_PORT(ports[port_id++]);
                 }
             }
 
@@ -812,6 +807,7 @@ namespace lsp
 
             size_t latency = 0;
             bool solo_on = false;
+            bool lr_split = (pLRSplit != NULL) ? pLRSplit->value() >= 0.5f : false;
 
             // Configure channels
             for (size_t i=0; i<channels; ++i)
@@ -835,6 +831,8 @@ namespace lsp
                     float sc_gain   = b->pScPreamp->value();
                     bool mute       = (b->pMute->value() >= 0.5f);
                     bool solo       = (enabled) && (b->pSolo->value() >= 0.5f);
+                    plug::IPort *sc = (lr_split) ? b->pScSpSource : b->pScSource;
+                    size_t sc_src   = (sc != NULL) ? sc->value() : dspu::SCS_MIDDLE;
 
                     b->pRelLevelOut->set_value(release);
 
@@ -843,7 +841,7 @@ namespace lsp
                     b->sSC.set_mode(b->pScMode->value());
                     b->sSC.set_reactivity(b->pScReact->value());
                     b->sSC.set_stereo_mode((nMode == MBCM_MS) ? dspu::SCSM_MIDSIDE : dspu::SCSM_STEREO);
-                    b->sSC.set_source((b->pScSource != NULL) ? b->pScSource->value() : dspu::SCS_MIDDLE);
+                    b->sSC.set_source(decode_sidechain_source(sc_src, lr_split, i));
 
                     if (sc_gain != b->fScPreamp)
                     {
@@ -994,7 +992,7 @@ namespace lsp
                             fp.fQuality     = 0.0f;
                             fp.fGain        = 1.0f;
                             fp.fQuality     = 0.0f;
-                            fp.nSlope       = 2; // TODO
+                            fp.nSlope       = 2;
 
                             b->sEQ[k].set_params(0, &fp);
 
@@ -1005,7 +1003,7 @@ namespace lsp
                             fp.fQuality     = 0.0f;
                             fp.fGain        = 1.0f;
                             fp.fQuality     = 0.0f;
-                            fp.nSlope       = 2; // TODO
+                            fp.nSlope       = 2;
 
                             b->sEQ[k].set_params(1, &fp);
                         }
@@ -1756,6 +1754,7 @@ namespace lsp
 
                             v->write("pExtSc", b->pExtSc);
                             v->write("pScSource", b->pScSource);
+                            v->write("pScSpSource", b->pScSpSource);
                             v->write("pScMode", b->pScMode);
                             v->write("pScLook", b->pScLook);
                             v->write("pScReact", b->pScReact);
@@ -1864,6 +1863,7 @@ namespace lsp
             v->write("pShiftGain", pShiftGain);
             v->write("pZoom", pZoom);
             v->write("pEnvBoost", pEnvBoost);
+            v->write("pLRSplit", pLRSplit);
         }
     } // namespace plugins
 } // namespace lsp
