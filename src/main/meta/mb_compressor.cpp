@@ -221,7 +221,7 @@ namespace lsp
                 SWITCH("flt", "Band filter curves", 1.0f), \
                 MESH("ag_l", "Compressor amplitude graph Left", 2, mb_compressor_metadata::FFT_MESH_POINTS), \
                 MESH("ag_r", "Compressor amplitude graph Right", 2, mb_compressor_metadata::FFT_MESH_POINTS), \
-                SWITCH("lrsplit", "Splt left/right", 0.0f)
+                SWITCH("lrsplit", "Stereo split", 1.0f)
 
         #define MB_CHANNEL(id, label) \
                 SWITCH("flt" id, "Band filter curves" label, 1.0f), \
