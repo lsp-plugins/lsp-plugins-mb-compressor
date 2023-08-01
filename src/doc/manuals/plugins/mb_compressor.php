@@ -74,7 +74,7 @@
 	<li><b>FFT<?= $sm ?> In</b> - enables FFT curve graph of input signal on the spectrum graph.</li>
 	<li><b>FFT<?= $sm ?> Out</b> - enables FFT curve graph of output signal on the spectrum graph.</li>
 	<?php if ($m == 's') { ?>
-	<li><b>L/R Split</b> - enables independent compression of left and right channels.</li>
+	<li><b>Stereo Split</b> - enables independent compression of left and right channels.</li>
 	<?php } ?>
 	<li><b>Filters<?= $sm ?></b> - enables drawing tranfer function of each sidechain filter on the spectrum graph.</li>
 	<li><b>Zoom</b> - zoom fader, allows to adjust zoom on the frequency chart.</li>
@@ -152,10 +152,10 @@
 			<li><b>Max</b> - the absolute maximum value is taken from stereo input.</li>
 		<?php } ?>
 		<?php if ($m == 's') { ?>
-			<li><b>Left/Right</b> - left and right channels are being compressed using respectively the left and right sidechain channels in L/R split mode.</li>
-			<li><b>Right/Left</b> - left and right channels are being compressed using respectively the right and left sidechain channels in L/R split mode.</li>
-			<li><b>Mid/Side</b> - left and right channels are being compressed using respectively the middle and side parts of sidechain signal in L/R split mode.</li>
-			<li><b>Side/Mid</b> - left and right channels are being compressed using respectively the side and middle parts of sidechain signal in L/R split mode.</li>
+			<li><b>Left/Right</b> - left and right channels are being compressed using respectively the left and right sidechain channels in stereo split mode.</li>
+			<li><b>Right/Left</b> - left and right channels are being compressed using respectively the right and left sidechain channels in stereo split mode.</li>
+			<li><b>Mid/Side</b> - left and right channels are being compressed using respectively the middle and side parts of sidechain signal in stereo split mode.</li>
+			<li><b>Side/Mid</b> - left and right channels are being compressed using respectively the side and middle parts of sidechain signal in stereo split mode.</li>
 		<?php } ?>
 	</ul>
 	<li><b>Sidechain Lookahead</b> - look-ahead time of the sidechain relative to the input signal.</li>

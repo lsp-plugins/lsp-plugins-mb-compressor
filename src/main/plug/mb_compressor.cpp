@@ -92,7 +92,7 @@ namespace lsp
             bSidechain      = sc;
             bEnvUpdate      = true;
             bModern         = true;
-            bLRSplit        = false;
+            bStereoSplit    = false;
             nEnvBoost       = meta::mb_compressor_metadata::FB_DEFAULT;
             vChannels       = NULL;
             fInGain         = GAIN_AMP_0_DB;
@@ -126,7 +126,7 @@ namespace lsp
             pShiftGain      = NULL;
             pZoom           = NULL;
             pEnvBoost       = NULL;
-            pLRSplit        = NULL;
+            pStereoSplit    = NULL;
         }
 
         mb_compressor::~mb_compressor()
@@ -493,7 +493,7 @@ namespace lsp
                 c->pAmpGraph            = TRACE_PORT(ports[port_id++]);
             }
             if (nMode == MBCM_STEREO)
-                pLRSplit                = TRACE_PORT(ports[port_id++]);
+                pStereoSplit            = TRACE_PORT(ports[port_id++]);
 
             lsp_trace("Binding meters");
             for (size_t i=0; i<channels; ++i)
@@ -710,7 +710,7 @@ namespace lsp
                 for (size_t i=0; i<channels; ++i)
                     vChannels[i].nPlanSize      = 0;
             }
-            bLRSplit            = (pLRSplit != NULL) ? pLRSplit->value() >= 0.5f : false;
+            bStereoSplit        = (pStereoSplit != NULL) ? pStereoSplit->value() >= 0.5f : false;
 
             // Store gain
             float out_gain      = pOutGain->value();
@@ -832,7 +832,7 @@ namespace lsp
                     float sc_gain   = b->pScPreamp->value();
                     bool mute       = (b->pMute->value() >= 0.5f);
                     bool solo       = (enabled) && (b->pSolo->value() >= 0.5f);
-                    plug::IPort *sc = (bLRSplit) ? b->pScSpSource : b->pScSource;
+                    plug::IPort *sc = (bStereoSplit) ? b->pScSpSource : b->pScSource;
                     size_t sc_src   = (sc != NULL) ? sc->value() : dspu::SCS_MIDDLE;
 
                     b->pRelLevelOut->set_value(release);
@@ -842,7 +842,7 @@ namespace lsp
                     b->sSC.set_mode(b->pScMode->value());
                     b->sSC.set_reactivity(b->pScReact->value());
                     b->sSC.set_stereo_mode((nMode == MBCM_MS) ? dspu::SCSM_MIDSIDE : dspu::SCSM_STEREO);
-                    b->sSC.set_source(decode_sidechain_source(sc_src, bLRSplit, i));
+                    b->sSC.set_source(decode_sidechain_source(sc_src, bStereoSplit, i));
 
                     if (sc_gain != b->fScPreamp)
                     {
@@ -1666,7 +1666,7 @@ namespace lsp
                 CV_MIDDLE_CHANNEL, CV_SIDE_CHANNEL
             };
 
-            size_t channels     = ((nMode == MBCM_MONO) || ((nMode == MBCM_STEREO) && (!bLRSplit))) ? 1 : 2;
+            size_t channels     = ((nMode == MBCM_MONO) || ((nMode == MBCM_STEREO) && (!bStereoSplit))) ? 1 : 2;
             const uint32_t *vc  = (channels == 1) ? &c_colors[0] :
                                   (nMode == MBCM_MS) ? &c_colors[3] :
                                   &c_colors[1];
@@ -1712,7 +1712,7 @@ namespace lsp
             v->write("bSidechain", bSidechain);
             v->write("bEnvUpdate", bEnvUpdate);
             v->write("bModern", bModern);
-            v->write("bLRSplit", bLRSplit);
+            v->write("bStereoSplit", bStereoSplit);
             v->write("nEnvBoost", nEnvBoost);
             v->begin_array("vChannels", vChannels, channels);
             {
@@ -1875,7 +1875,7 @@ namespace lsp
             v->write("pShiftGain", pShiftGain);
             v->write("pZoom", pZoom);
             v->write("pEnvBoost", pEnvBoost);
-            v->write("pLRSplit", pLRSplit);
+            v->write("pStereoSplit", pStereoSplit);
         }
     } // namespace plugins
 } // namespace lsp

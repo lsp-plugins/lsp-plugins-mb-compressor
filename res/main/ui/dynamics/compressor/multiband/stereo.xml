@@ -74,9 +74,9 @@
 					<mesh id="ofg_l" width="3" color="left" visibility=":ofe_l"/>
 					<mesh id="ofg_r" width="3" color="right" visibility=":ofe_r"/>
 
-					<mesh id="ag_l" width="3" color="bright_cyan" smooth="true" visibility="!:lrsplit"/>
-					<mesh id="ag_l" width="3" color="left" smooth="true" visibility=":lrsplit"/>
-					<mesh id="ag_r" width="3" color="right" smooth="true" visibility=":lrsplit"/>
+					<mesh id="ag_l" width="3" color="bright_cyan" smooth="true" visibility="!:ssplit"/>
+					<mesh id="ag_l" width="3" color="left" smooth="true" visibility=":ssplit"/>
+					<mesh id="ag_r" width="3" color="right" smooth="true" visibility=":ssplit"/>
 
 					<!-- Boundaries -->
 					<marker v="1" ox="2" oy="0" color="graph_prim" visibility="false"/>
@@ -232,7 +232,7 @@
 			</align>
 			<vsep pad.h="2" bg.color="bg" reduce="true" />
 			<hbox bg.color="bg_schema" hreduce="true" pad.h="6">
-				<button id="lrsplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
+				<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
 			</hbox>
 		</hbox>
 		</grid>
@@ -393,8 +393,8 @@
 										<cell rows="2">
 											<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
 												<combo id="scm_${i}" fill="true"/>
-												<combo id="scs_${i}" fill="true" visibility="!:lrsplit" />
-												<combo id="sscs_${i}" fill="true" visibility=":lrsplit" />
+												<combo id="scs_${i}" fill="true" visibility="!:ssplit" />
+												<combo id="sscs_${i}" fill="true" visibility=":ssplit" />
 												<button text="labels.chan.external_sc" id="sce_${i}" ui:inject="Button_Cycle"
 												hfill="true"
 												height="19"
@@ -627,9 +627,9 @@
 
 									<!-- Meshes -->
 									<mesh id="ccg_${i}" width="3" color="graph_mesh" smooth="true"/>
-									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="graph_mesh" bcolor="graph_mesh" visibility="!:lrsplit"/>
-									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="left" bcolor="left" visibility=":lrsplit"/>
-									<dot x.id="elm_${i}r" y.id="clm_${i}r" color="right" bcolor="right" visibility=":lrsplit"/>
+									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="graph_mesh" bcolor="graph_mesh" visibility="!:ssplit"/>
+									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="left" bcolor="left" visibility=":ssplit"/>
+									<dot x.id="elm_${i}r" y.id="clm_${i}r" color="right" bcolor="right" visibility=":ssplit"/>
 
 									<!-- Markers -->
 									<marker id="al_${i}" color="attack_1"/>

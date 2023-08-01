@@ -187,7 +187,7 @@ namespace lsp
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
                 bool                    bModern;                // Modern mode
-                bool                    bLRSplit;               // L/R split mode
+                bool                    bStereoSplit;           // Stereo split mode
                 size_t                  nEnvBoost;              // Envelope boost
                 channel_t              *vChannels;              // Compressor channels
                 float                   fInGain;                // Input gain
@@ -217,7 +217,7 @@ namespace lsp
                 plug::IPort            *pShiftGain;             // Shift gain port
                 plug::IPort            *pZoom;                  // Zoom port
                 plug::IPort            *pEnvBoost;              // Envelope adjust
-                plug::IPort            *pLRSplit;               // Split left/right independently
+                plug::IPort            *pStereoSplit;           // Split left/right independently
 
             protected:
                 static bool compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2);
