@@ -221,20 +221,20 @@
 
 			<!-- bottom line -->
 			<hbox vreduce="true">
-			<align halign="-1" vreduce="true">
-				<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
-					<label text="labels.mode:"/>
-					<combo id="mode" pad.r="8" pad.v="4"/>
-					<label text="labels.sc_boost:"/>
-					<combo id="envb" pad.r="8"/>
-					<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
+				<align halign="-1" vreduce="true">
+					<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
+						<label text="labels.mode:"/>
+						<combo id="mode" pad.r="8" pad.v="4"/>
+						<label text="labels.sc_boost:"/>
+						<combo id="envb" pad.r="8"/>
+						<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
+					</hbox>
+				</align>
+				<vsep pad.h="2" bg.color="bg" reduce="true" />
+				<hbox bg.color="bg_schema" hreduce="true" pad.h="6">
+					<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
 				</hbox>
-			</align>
-			<vsep pad.h="2" bg.color="bg" reduce="true" />
-			<hbox bg.color="bg_schema" hreduce="true" pad.h="6">
-				<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
 			</hbox>
-		</hbox>
 		</grid>
 
 		<!-- down part -->
