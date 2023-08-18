@@ -154,6 +154,7 @@ namespace lsp
                     dspu::Delay             sDelay;             // Delay for lookahead compensation purpose
                     dspu::Delay             sDryDelay;          // Delay for dry signal
                     dspu::Delay             sAnDelay;           // Delay for analyzer
+                    dspu::Delay             sXOverDelay;        // Delay for crossover
                     dspu::Equalizer         sDryEq;             // Dry equalizer
                     dspu::FFTCrossover      sFFTXOver;          // FFT crossover for linear phase
 

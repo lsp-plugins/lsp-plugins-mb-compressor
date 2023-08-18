@@ -303,6 +303,7 @@ namespace lsp
                 c->sDelay.construct();
                 c->sDryDelay.construct();
                 c->sAnDelay.construct();
+                c->sXOverDelay.construct();
                 c->sDryEq.construct();
                 c->sFFTXOver.construct();
 
@@ -665,6 +666,7 @@ namespace lsp
                     c->sDelay.destroy();
                     c->sDryDelay.destroy();
                     c->sAnDelay.destroy();
+                    c->sXOverDelay.destroy();
                     c->sDryEq.destroy();
                     c->sFFTXOver.destroy();
 
@@ -724,7 +726,10 @@ namespace lsp
             {
                 enXOver             = xover;
                 for (size_t i=0; i<channels; ++i)
+                {
                     vChannels[i].nPlanSize      = 0;
+                    vChannels[i].sXOverDelay.clear();
+                }
             }
             bStereoSplit        = (pStereoSplit != NULL) ? pStereoSplit->value() >= 0.5f : false;
 
@@ -1161,6 +1166,7 @@ namespace lsp
                 c->sDelay.set_delay(latency);
                 c->sDryDelay.set_delay(latency + xover_latency);
                 c->sAnDelay.set_delay(xover_latency);
+                c->sXOverDelay.set_delay(latency + xover_latency);
             }
 
             // Debug:
@@ -1219,6 +1225,7 @@ namespace lsp
                 c->sDelay.init(max_delay);
                 c->sDryDelay.init(max_delay);
                 c->sAnDelay.init(bins);
+                c->sXOverDelay.init(max_delay);
                 c->sDryEq.set_sample_rate(sr);
 
                 // Need to re-initialize FFT crossover?
@@ -1478,8 +1485,10 @@ namespace lsp
                     {
                         channel_t *c        = &vChannels[i];
 
-                        c->sDelay.process(c->vBuffer, c->vBuffer, to_process);  // Apply delay to compensate lookahead feature
-                        dsp::copy(c->vInBuffer, c->vBuffer, to_process);
+                        // Apply delay to compensate lookahead feature
+                        c->sDelay.process(c->vBuffer, c->vBuffer, to_process);
+                        // Apply delay to unprocessed signal to compensate lookahead + crossover delay
+                        c->sXOverDelay.process(c->vInBuffer, c->vBuffer, to_process);
                         c->sFFTXOver.process(c->vBuffer, to_process);
                         dsp::fill_zero(c->vBuffer, to_process);                 // Clear the channel buffer
 
