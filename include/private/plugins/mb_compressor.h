@@ -54,6 +54,13 @@ namespace lsp
                     MBCM_MS
                 };
 
+                enum xover_mode_t
+                {
+                    XOVER_CLASSIC,                              // Classic mode
+                    XOVER_MODERN,                               // Modern mode
+                    XOVER_LINEAR_PHASE                          // Linear phase mode
+                };
+
             protected:
                 enum sync_t
                 {
@@ -186,7 +193,7 @@ namespace lsp
                 size_t                  nMode;                  // Compressor mode
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
-                bool                    bModern;                // Modern mode
+                xover_mode_t            enXOver;                // Crossover mode
                 bool                    bStereoSplit;           // Stereo split mode
                 size_t                  nEnvBoost;              // Envelope boost
                 channel_t              *vChannels;              // Compressor channels

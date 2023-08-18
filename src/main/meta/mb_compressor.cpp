@@ -98,6 +98,7 @@ namespace lsp
         {
             { "Classic",        "mb_comp.classic" },
             { "Modern",         "mb_comp.modern" },
+            { "Linear Phase",   "mb_comp.linear_phase" },
             { NULL, NULL }
         };
 

@@ -27,7 +27,7 @@
 #include <lsp-plug.in/dsp-units/units.h>
 #include <lsp-plug.in/shared/id_colors.h>
 
-#define MBC_BUFFER_SIZE         0x1000
+#define MBC_BUFFER_SIZE         0x400
 
 namespace lsp
 {
@@ -91,7 +91,7 @@ namespace lsp
             nMode           = mode;
             bSidechain      = sc;
             bEnvUpdate      = true;
-            bModern         = true;
+            enXOver         = XOVER_MODERN;
             bStereoSplit    = false;
             nEnvBoost       = meta::mb_compressor_metadata::FB_DEFAULT;
             vChannels       = NULL;
@@ -703,10 +703,10 @@ namespace lsp
             size_t env_boost    = pEnvBoost->value();
 
             // Determine work mode: classic or modern
-            bool modern         = pMode->value() >= 0.5f;
-            if (modern != bModern)
+            xover_mode_t xover  = xover_mode_t(pMode->value());
+            if (xover != enXOver)
             {
-                bModern             = modern;
+                enXOver             = xover;
                 for (size_t i=0; i<channels; ++i)
                     vChannels[i].nPlanSize      = 0;
             }
@@ -1016,7 +1016,7 @@ namespace lsp
                         dsp::pcomplex_mod(b->vTr, b->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
                         // Update filter parameters, depending on operating mode
-                        if (bModern)
+                        if (enXOver == XOVER_MODERN)
                         {
                             // Configure filter for band
                             if (j <= 0)
@@ -1039,17 +1039,17 @@ namespace lsp
                             }
 
                             fp.fGain        = 1.0f;
-                            fp.nSlope       = 2; // TODO
+                            fp.nSlope       = 2;
                             fp.fQuality     = 0.0;
 
                             lsp_trace("Filter type=%d, from=%f, to=%f", int(fp.nType), fp.fFreq, fp.fFreq2);
 
                             sFilters.set_params(b->nFilterID, &fp);
                         }
-                        else
+                        else if (enXOver == XOVER_CLASSIC)
                         {
                             fp.fGain        = 1.0f;
-                            fp.nSlope       = 2; // TODO
+                            fp.nSlope       = 2;
                             fp.fQuality     = 0.0;
                             fp.fFreq        = b->fFreqEnd;
                             fp.fFreq2       = b->fFreqEnd;
@@ -1071,6 +1071,10 @@ namespace lsp
                                 fp.nType    = (j == 0) ? dspu::FLT_NONE : dspu::FLT_BT_LRX_ALLPASS;
                                 b->sAllFilter.update(fSampleRate, &fp);
                             }
+                        }
+                        else // enXOver == XOVER_LINEAR_PHASE
+                        {
+                            // TODO
                         }
                     }
                 } // nPlanSize
@@ -1356,7 +1360,7 @@ namespace lsp
                 }
 
                 // Here, we apply VCA to input signal dependent on the input
-                if (bModern) // 'Modern' mode
+                if (enXOver == XOVER_MODERN) // 'Modern' mode
                 {
                     // Apply VCA control
                     for (size_t i=0; i<channels; ++i)
@@ -1372,7 +1376,7 @@ namespace lsp
                         }
                     }
                 }
-                else // 'Classic' mode
+                else if (enXOver == XOVER_CLASSIC) // 'Classic' mode
                 {
                     // Apply VCA control
                     for (size_t i=0; i<channels; ++i)
@@ -1395,6 +1399,10 @@ namespace lsp
                             b->sRejFilter.process(vBuffer, vBuffer, to_process); // Filter frequencies from input
                         }
                     }
+                }
+                else // enXOver == XOVER_LINEAR_PHASE
+                {
+                    // TODO
                 }
 
                 // MAIN PLUGIN STUFF END
@@ -1421,12 +1429,15 @@ namespace lsp
                     channel_t *c        = &vChannels[i];
 
                     // Apply dry/wet balance
-                    if (bModern)
+                    if (enXOver == XOVER_MODERN)
                         dsp::mix2(c->vBuffer, c->vInBuffer, fWetGain, fDryGain, to_process);
-                    else
+                    else if (enXOver == XOVER_CLASSIC)
                     {
                         c->sDryEq.process(vBuffer, c->vInBuffer, to_process);
                         dsp::mix2(c->vBuffer, vBuffer, fWetGain, fDryGain, to_process);
+                    }
+                    else // enXOver == XOVER_LINEAR_PHASE
+                    {
                     }
 
                     // Compute output level
@@ -1451,7 +1462,7 @@ namespace lsp
                 channel_t *c     = &vChannels[i];
 
                 // Calculate transfer function for the compressor
-                if (bModern)
+                if (enXOver == XOVER_MODERN)
                 {
                     dsp::pcomplex_fill_ri(c->vTr, 1.0f, 0.0f, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
@@ -1463,7 +1474,7 @@ namespace lsp
                         dsp::pcomplex_mul2(c->vTr, vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                     }
                 }
-                else
+                else if (enXOver == XOVER_CLASSIC)
                 {
                     dsp::pcomplex_fill_ri(vTr, 1.0f, 0.0f, meta::mb_compressor_metadata::FFT_MESH_POINTS);   // vBuffer
                     dsp::fill_zero(c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS*2);                 // c->vBuffer
@@ -1486,6 +1497,9 @@ namespace lsp
                         b->sRejFilter.freq_chart(vRFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                         dsp::pcomplex_mul2(vTr, vRFc, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                     }
+                }
+                else // enXOver == XOVER_LINEAR_PHASE
+                {
                 }
                 dsp::pcomplex_mod(c->vTrMem, c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
@@ -1711,7 +1725,7 @@ namespace lsp
             v->write("nMode", nMode);
             v->write("bSidechain", bSidechain);
             v->write("bEnvUpdate", bEnvUpdate);
-            v->write("bModern", bModern);
+            v->write("enXOver", enXOver);
             v->write("bStereoSplit", bStereoSplit);
             v->write("nEnvBoost", nEnvBoost);
             v->begin_array("vChannels", vChannels, channels);
