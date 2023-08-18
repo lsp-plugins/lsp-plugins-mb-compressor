@@ -1032,9 +1032,7 @@ namespace lsp
                         }
 
                         // Update transfer function for equalizer
-                        b->sEQ[0].freq_chart(size_t(0), b->vTr, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        b->sEQ[0].freq_chart(size_t(1), vTr, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::pcomplex_mul2(b->vTr, vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        b->sEQ[0].freq_chart(b->vTr, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                         dsp::pcomplex_mod(b->vTr, b->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
                         // Update filter parameters, depending on operating mode
@@ -1105,7 +1103,7 @@ namespace lsp
                             else
                                 c->sFFTXOver.disable_hpf(band);
 
-                            if (j < c->nPlanSize)
+                            if (j < (c->nPlanSize-1))
                             {
                                 c->sFFTXOver.enable_lpf(band, true);
                                 c->sFFTXOver.set_lpf_frequency(band, b->fFreqEnd);
@@ -1469,12 +1467,14 @@ namespace lsp
                         {
                             comp_band_t *b      = c->vPlan[j];
 
-                            b->sAllFilter.process(c->vBuffer, c->vBuffer, to_process); // Process the signal with all-pass
-                            b->sPassFilter.process(vEnv, vBuffer, to_process); // Filter frequencies from input
-                            // TODO: use fmadd3
-                            dsp::mul2(vEnv, b->vVCA, to_process); // Apply VCA gain
-                            dsp::add2(c->vBuffer, vEnv, to_process); // Add signal to the channel buffer
-                            b->sRejFilter.process(vBuffer, vBuffer, to_process); // Filter frequencies from input
+                            // Process the signal with all-pass
+                            b->sAllFilter.process(c->vBuffer, c->vBuffer, to_process);
+                            // Filter frequencies from input
+                            b->sPassFilter.process(vEnv, vBuffer, to_process);
+                            // Apply VCA gain and add to the channel buffer
+                            dsp::fmadd3(c->vBuffer, vEnv, b->vVCA, to_process);
+                            // Filter frequencies from input
+                            b->sRejFilter.process(vBuffer, vBuffer, to_process);
                         }
                     }
                 }
