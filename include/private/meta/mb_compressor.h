@@ -138,6 +138,9 @@ namespace lsp
 
             static constexpr size_t         REFRESH_RATE        = 20;
 
+            static constexpr size_t         FFT_XOVER_RANK_MIN  = 12;
+            static constexpr size_t         FFT_XOVER_FREQ_MIN  = 44100;
+
             enum mode_t
             {
                 CM_DOWNWARD,

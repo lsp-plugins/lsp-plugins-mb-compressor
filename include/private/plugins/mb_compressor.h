@@ -31,6 +31,7 @@
 #include <lsp-plug.in/dsp-units/filters/Filter.h>
 #include <lsp-plug.in/dsp-units/util/Analyzer.h>
 #include <lsp-plug.in/dsp-units/util/Delay.h>
+#include <lsp-plug.in/dsp-units/util/FFTCrossover.h>
 #include <lsp-plug.in/dsp-units/util/MeterGraph.h>
 #include <lsp-plug.in/dsp-units/util/Sidechain.h>
 
@@ -80,6 +81,7 @@ namespace lsp
                     dspu::Filter            sAllFilter;         // All-pass filter for phase compensation
                     dspu::Delay             sScDelay;           // Sidechain delay for lookahead purpose
 
+                    float                  *vBuffer;            // Crossover band data
                     float                  *vTr;                // Transfer function
                     float                  *vVCA;               // Voltage-controlled amplification value for each band
                     float                   fScPreamp;          // Sidechain preamp
@@ -150,7 +152,10 @@ namespace lsp
                     dspu::Bypass            sBypass;            // Bypass
                     dspu::Filter            sEnvBoost[2];       // Envelope boost filter
                     dspu::Delay             sDelay;             // Delay for lookahead compensation purpose
+                    dspu::Delay             sDryDelay;          // Delay for dry signal
+                    dspu::Delay             sAnDelay;           // Delay for analyzer
                     dspu::Equalizer         sDryEq;             // Dry equalizer
+                    dspu::FFTCrossover      sFFTXOver;          // FFT crossover for linear phase
 
                     comp_band_t             vBands[meta::mb_compressor_metadata::BANDS_MAX];     // Compressor bands
                     split_t                 vSplit[meta::mb_compressor_metadata::BANDS_MAX-1];   // Split bands
@@ -230,6 +235,8 @@ namespace lsp
                 static bool compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2);
                 static dspu::compressor_mode_t      decode_mode(int mode);
                 static dspu::sidechain_source_t     decode_sidechain_source(int source, bool split, size_t channel);
+                static size_t                       select_fft_rank(size_t sample_rate);
+                static void                         process_band(void *object, void *subject, size_t band, const float *data, size_t sample, size_t count);
 
             public:
                 explicit mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode);
