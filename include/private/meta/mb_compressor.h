@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2021 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -118,25 +118,28 @@ namespace lsp
             static constexpr float  OUT_FREQ_STEP           = 0.002f;
 
 
-            static constexpr float          IN_GAIN_DFL         = 1.0f;
-            static constexpr float          OUT_GAIN_DFL        = 1.0f;
+            static constexpr float  IN_GAIN_DFL             = 1.0f;
+            static constexpr float  OUT_GAIN_DFL            = 1.0f;
 
-            static constexpr float          REACT_TIME_MIN      = 0.000;
-            static constexpr float          REACT_TIME_MAX      = 1.000;
-            static constexpr float          REACT_TIME_DFL      = 0.200;
-            static constexpr float          REACT_TIME_STEP     = 0.001;
-            static constexpr size_t         FFT_MESH_POINTS     = 640;
+            static constexpr float  REACT_TIME_MIN          = 0.000;
+            static constexpr float  REACT_TIME_MAX          = 1.000;
+            static constexpr float  REACT_TIME_DFL          = 0.200;
+            static constexpr float  REACT_TIME_STEP         = 0.001;
+            static constexpr size_t FFT_MESH_POINTS         = 640;
 
-            static constexpr size_t         FFT_RANK            = 13;
-            static constexpr size_t         FFT_ITEMS           = 1 << FFT_RANK;
-            static constexpr size_t         MESH_POINTS         = 640;
-            static constexpr size_t         FILTER_MESH_POINTS  = FFT_MESH_POINTS + 2;
-            static constexpr size_t         FFT_WINDOW          = dspu::windows::HANN;
+            static constexpr size_t FFT_RANK                = 13;
+            static constexpr size_t FFT_ITEMS               = 1 << FFT_RANK;
+            static constexpr size_t MESH_POINTS             = 640;
+            static constexpr size_t FILTER_MESH_POINTS      = FFT_MESH_POINTS + 2;
+            static constexpr size_t FFT_WINDOW              = dspu::windows::HANN;
 
-            static constexpr size_t         BANDS_MAX           = 8;
-            static constexpr size_t         BANDS_DFL           = 4;
+            static constexpr size_t BANDS_MAX               = 8;
+            static constexpr size_t BANDS_DFL               = 4;
 
-            static constexpr size_t         REFRESH_RATE        = 20;
+            static constexpr size_t REFRESH_RATE            = 20;
+
+            static constexpr size_t FFT_XOVER_RANK_MIN      = 12;
+            static constexpr size_t FFT_XOVER_FREQ_MIN      = 44100;
 
             enum mode_t
             {
@@ -168,8 +171,8 @@ namespace lsp
         extern const meta::plugin_t sc_mb_compressor_lr;
         extern const meta::plugin_t sc_mb_compressor_ms;
 
-    } // namespace meta
-} // namespace lsp
+    } /* namespace meta */
+} /* namespace lsp */
 
 
 #endif /* PRIVATE_META_MB_COMPRESSOR_H_ */
