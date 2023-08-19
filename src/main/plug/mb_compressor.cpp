@@ -1199,7 +1199,7 @@ namespace lsp
         {
             const size_t k = (sample_rate + meta::mb_compressor_metadata::FFT_XOVER_FREQ_MIN/2) / meta::mb_compressor_metadata::FFT_XOVER_FREQ_MIN;
             const size_t n = int_log2(k);
-            return meta::mb_compressor_metadata::FFT_XOVER_RANK_MIN << n;
+            return meta::mb_compressor_metadata::FFT_XOVER_RANK_MIN + n;
         }
 
         void mb_compressor::update_sample_rate(long sr)
