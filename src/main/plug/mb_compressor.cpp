@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2021 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -199,6 +199,68 @@ namespace lsp
             return dspu::SCS_MIDDLE;
         }
 
+        void mb_compressor::destroy()
+        {
+            // Determine number of channels
+            size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
+
+            // Destroy channels
+            if (vChannels != NULL)
+            {
+                for (size_t i=0; i<channels; ++i)
+                {
+                    channel_t *c    = &vChannels[i];
+
+                    c->sEnvBoost[0].destroy();
+                    c->sEnvBoost[1].destroy();
+                    c->sDelay.destroy();
+                    c->sDryDelay.destroy();
+                    c->sAnDelay.destroy();
+                    c->sXOverDelay.destroy();
+                    c->sDryEq.destroy();
+                    c->sFFTXOver.destroy();
+
+                    c->vBuffer      = NULL;
+
+                    for (size_t i=0; i<meta::mb_compressor_metadata::BANDS_MAX; ++i)
+                    {
+                        comp_band_t *b  = &c->vBands[i];
+
+                        b->sEQ[0].destroy();
+                        b->sEQ[1].destroy();
+                        b->sSC.destroy();
+                        b->sScDelay.destroy();
+
+                        b->sPassFilter.destroy();
+                        b->sRejFilter.destroy();
+                        b->sAllFilter.destroy();
+                    }
+                }
+
+                delete [] vChannels;
+                vChannels       = NULL;
+            }
+
+            // Destroy dynamic filters
+            sFilters.destroy();
+
+            // Destroy data
+            if (pData != NULL)
+                free_aligned(pData);
+
+            if (pIDisplay != NULL)
+            {
+                pIDisplay->destroy();
+                pIDisplay   = NULL;
+            }
+
+            // Destroy analyzer
+            sAnalyzer.destroy();
+
+            // Destroy plugin
+            plug::Module::destroy();
+        }
+
         void mb_compressor::init(plug::IWrapper *wrapper, plug::IPort **ports)
         {
             // Initialize plugin
@@ -307,9 +369,6 @@ namespace lsp
                 c->sDryEq.construct();
                 c->sFFTXOver.construct();
 
-                c->sDryEq.init(meta::mb_compressor_metadata::BANDS_MAX-1, 0);
-                c->sDryEq.set_mode(dspu::EQM_IIR);
-
                 if (!c->sEnvBoost[0].init(NULL))
                     return;
                 if (bSidechain)
@@ -317,6 +376,9 @@ namespace lsp
                     if (!c->sEnvBoost[1].init(NULL))
                         return;
                 }
+
+                c->sDryEq.init(meta::mb_compressor_metadata::BANDS_MAX-1, 0);
+                c->sDryEq.set_mode(dspu::EQM_IIR);
 
                 c->nPlanSize    = 0;
                 c->vIn          = NULL;
@@ -647,68 +709,6 @@ namespace lsp
             float delta = (meta::mb_compressor_metadata::CURVE_DB_MAX - meta::mb_compressor_metadata::CURVE_DB_MIN) / (meta::mb_compressor_metadata::CURVE_MESH_SIZE-1);
             for (size_t i=0; i<meta::mb_compressor_metadata::CURVE_MESH_SIZE; ++i)
                 vCurve[i]   = dspu::db_to_gain(meta::mb_compressor_metadata::CURVE_DB_MIN + delta * i);
-        }
-
-        void mb_compressor::destroy()
-        {
-            // Determine number of channels
-            size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
-
-            // Destroy channels
-            if (vChannels != NULL)
-            {
-                for (size_t i=0; i<channels; ++i)
-                {
-                    channel_t *c    = &vChannels[i];
-
-                    c->sEnvBoost[0].destroy();
-                    c->sEnvBoost[1].destroy();
-                    c->sDelay.destroy();
-                    c->sDryDelay.destroy();
-                    c->sAnDelay.destroy();
-                    c->sXOverDelay.destroy();
-                    c->sDryEq.destroy();
-                    c->sFFTXOver.destroy();
-
-                    c->vBuffer      = NULL;
-
-                    for (size_t i=0; i<meta::mb_compressor_metadata::BANDS_MAX; ++i)
-                    {
-                        comp_band_t *b  = &c->vBands[i];
-
-                        b->sEQ[0].destroy();
-                        b->sEQ[1].destroy();
-                        b->sSC.destroy();
-                        b->sScDelay.destroy();
-
-                        b->sPassFilter.destroy();
-                        b->sRejFilter.destroy();
-                        b->sAllFilter.destroy();
-                    }
-                }
-
-                delete [] vChannels;
-                vChannels       = NULL;
-            }
-
-            // Destroy dynamic filters
-            sFilters.destroy();
-
-            // Destroy data
-            if (pData != NULL)
-                free_aligned(pData);
-
-            if (pIDisplay != NULL)
-            {
-                pIDisplay->destroy();
-                pIDisplay   = NULL;
-            }
-
-            // Destroy analyzer
-            sAnalyzer.destroy();
-
-            // Destroy plugin
-            plug::Module::destroy();
         }
 
         void mb_compressor::update_settings()
@@ -1998,7 +1998,7 @@ namespace lsp
             v->write("pEnvBoost", pEnvBoost);
             v->write("pStereoSplit", pStereoSplit);
         }
-    } // namespace plugins
-} // namespace lsp
+    } /* namespace plugins */
+} /* namespace lsp */
 
 
