@@ -198,6 +198,64 @@ namespace lsp
             return dspu::SCS_MIDDLE;
         }
 
+        void mb_compressor::destroy()
+        {
+            // Determine number of channels
+            size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
+
+            // Destroy channels
+            if (vChannels != NULL)
+            {
+                for (size_t i=0; i<channels; ++i)
+                {
+                    channel_t *c    = &vChannels[i];
+
+                    c->sEnvBoost[0].destroy();
+                    c->sEnvBoost[1].destroy();
+                    c->sDelay.destroy();
+                    c->sDryEq.destroy();
+
+                    c->vBuffer      = NULL;
+
+                    for (size_t i=0; i<meta::mb_compressor_metadata::BANDS_MAX; ++i)
+                    {
+                        comp_band_t *b  = &c->vBands[i];
+
+                        b->sEQ[0].destroy();
+                        b->sEQ[1].destroy();
+                        b->sSC.destroy();
+                        b->sScDelay.destroy();
+
+                        b->sPassFilter.destroy();
+                        b->sRejFilter.destroy();
+                        b->sAllFilter.destroy();
+                    }
+                }
+
+                delete [] vChannels;
+                vChannels       = NULL;
+            }
+
+            // Destroy dynamic filters
+            sFilters.destroy();
+
+            // Destroy data
+            if (pData != NULL)
+                free_aligned(pData);
+
+            if (pIDisplay != NULL)
+            {
+                pIDisplay->destroy();
+                pIDisplay   = NULL;
+            }
+
+            // Destroy analyzer
+            sAnalyzer.destroy();
+
+            // Destroy plugin
+            plug::Module::destroy();
+        }
+
         void mb_compressor::init(plug::IWrapper *wrapper, plug::IPort **ports)
         {
             // Initialize plugin
@@ -633,64 +691,6 @@ namespace lsp
             float delta = (meta::mb_compressor_metadata::CURVE_DB_MAX - meta::mb_compressor_metadata::CURVE_DB_MIN) / (meta::mb_compressor_metadata::CURVE_MESH_SIZE-1);
             for (size_t i=0; i<meta::mb_compressor_metadata::CURVE_MESH_SIZE; ++i)
                 vCurve[i]   = dspu::db_to_gain(meta::mb_compressor_metadata::CURVE_DB_MIN + delta * i);
-        }
-
-        void mb_compressor::destroy()
-        {
-            // Determine number of channels
-            size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
-
-            // Destroy channels
-            if (vChannels != NULL)
-            {
-                for (size_t i=0; i<channels; ++i)
-                {
-                    channel_t *c    = &vChannels[i];
-
-                    c->sEnvBoost[0].destroy();
-                    c->sEnvBoost[1].destroy();
-                    c->sDelay.destroy();
-                    c->sDryEq.destroy();
-
-                    c->vBuffer      = NULL;
-
-                    for (size_t i=0; i<meta::mb_compressor_metadata::BANDS_MAX; ++i)
-                    {
-                        comp_band_t *b  = &c->vBands[i];
-
-                        b->sEQ[0].destroy();
-                        b->sEQ[1].destroy();
-                        b->sSC.destroy();
-                        b->sScDelay.destroy();
-
-                        b->sPassFilter.destroy();
-                        b->sRejFilter.destroy();
-                        b->sAllFilter.destroy();
-                    }
-                }
-
-                delete [] vChannels;
-                vChannels       = NULL;
-            }
-
-            // Destroy dynamic filters
-            sFilters.destroy();
-
-            // Destroy data
-            if (pData != NULL)
-                free_aligned(pData);
-
-            if (pIDisplay != NULL)
-            {
-                pIDisplay->destroy();
-                pIDisplay   = NULL;
-            }
-
-            // Destroy analyzer
-            sAnalyzer.destroy();
-
-            // Destroy plugin
-            plug::Module::destroy();
         }
 
         void mb_compressor::update_settings()
