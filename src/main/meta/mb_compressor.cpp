@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2021 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -26,7 +26,7 @@
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MAJOR       1
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MINOR       0
-#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       13
+#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       14
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION  \
     LSP_MODULE_VERSION( \
@@ -65,6 +65,17 @@ namespace lsp
             { NULL, NULL }
         };
 
+        static const port_item_t mb_comp_sc_split_source[] =
+        {
+            { "Left/Right",     "sidechain.left_right"      },
+            { "Right/Left",     "sidechain.right_left"      },
+            { "Mid/Side",       "sidechain.mid_side"        },
+            { "Side/Mid",       "sidechain.side_mid"        },
+            { "Min",            "sidechain.min"             },
+            { "Max",            "sidechain.max"             },
+            { NULL, NULL }
+        };
+
         static const port_item_t mb_comp_sc_boost[] =
         {
             { "None",           "sidechain.boost.none" },
@@ -87,6 +98,7 @@ namespace lsp
         {
             { "Classic",        "mb_comp.classic" },
             { "Modern",         "mb_comp.modern" },
+            { "Linear Phase",   "mb_comp.linear_phase" },
             { NULL, NULL }
         };
 
@@ -178,12 +190,19 @@ namespace lsp
                 HUE_CTL("hue" id, "Hue " label, float(x) / float(total)), \
                 METER("fre" id, "Frequency range end" label, U_HZ,  mb_compressor_metadata::OUT_FREQ), \
                 MESH("ccg" id, "Compression curve graph" label, 2, mb_compressor_metadata::CURVE_MESH_SIZE), \
-                METER_OUT_GAIN("rl" id, "Release level" label, 20.0f), \
+                METER_OUT_GAIN("rl" id, "Release level" label, 20.0f) \
+
+        #define MB_BAND_METERS(id, label) \
                 METER_OUT_GAIN("elm" id, "Envelope level meter" label, GAIN_AMP_P_36_DB), \
                 METER_OUT_GAIN("clm" id, "Curve level meter" label, GAIN_AMP_P_36_DB), \
                 METER_OUT_GAIN("rlm" id, "Reduction level meter" label, GAIN_AMP_P_72_DB)
 
         #define MB_STEREO_BAND(id, label, x, total, fe, fs) \
+                COMBO("scs" id, "Sidechain source" label, 0, mb_comp_sc_source), \
+                COMBO("sscs" id, "Split sidechain source" label, 0, mb_comp_sc_split_source), \
+                MB_MONO_BAND(id, label, x, total, fe, fs)
+
+        #define MB_SPLIT_BAND(id, label, x, total, fe, fs) \
                 COMBO("scs" id, "Sidechain source" label, dspu::SCS_MIDDLE, mb_comp_sc_source), \
                 MB_MONO_BAND(id, label, x, total, fe, fs)
 
@@ -195,6 +214,16 @@ namespace lsp
                 SWITCH("sce" id, "External sidechain enable" label, 0.0f), \
                 MB_STEREO_BAND(id, label, x, total, fe, fs)
 
+        #define MB_SC_SPLIT_BAND(id, label, x, total, fe, fs) \
+                SWITCH("sce" id, "External sidechain enable" label, 0.0f), \
+                MB_SPLIT_BAND(id, label, x, total, fe, fs)
+
+        #define MB_STEREO_CHANNEL \
+                SWITCH("flt", "Band filter curves", 1.0f), \
+                MESH("ag_l", "Compressor amplitude graph Left", 2, mb_compressor_metadata::FFT_MESH_POINTS), \
+                MESH("ag_r", "Compressor amplitude graph Right", 2, mb_compressor_metadata::FFT_MESH_POINTS), \
+                SWITCH("ssplit", "Stereo split", 0.0f)
+
         #define MB_CHANNEL(id, label) \
                 SWITCH("flt" id, "Band filter curves" label, 1.0f), \
                 MESH("ag" id, "Compressor amplitude graph " label, 2, mb_compressor_metadata::FFT_MESH_POINTS)
@@ -202,7 +231,7 @@ namespace lsp
         #define MB_FFT_METERS(id, label) \
                 SWITCH("ife" id, "Input FFT graph enable" label, 1.0f), \
                 SWITCH("ofe" id, "Output FFT graph enable" label, 1.0f), \
-                MESH("ifg" id, "Input FFT graph" label, 2, mb_compressor_metadata::FFT_MESH_POINTS), \
+                MESH("ifg" id, "Input FFT graph" label, 2, mb_compressor_metadata::FFT_MESH_POINTS + 2), \
                 MESH("ofg" id, "Output FFT graph" label, 2, mb_compressor_metadata::FFT_MESH_POINTS)
 
         #define MB_CHANNEL_METERS(id, label) \
@@ -246,6 +275,15 @@ namespace lsp
             MB_MONO_BAND("_6", " 6", 6, 8, 3984.0f, 10000.0f),
             MB_MONO_BAND("_7", " 7", 7, 8, 10000.0f, 20000.0f),
 
+            MB_BAND_METERS("_0", " 0"),
+            MB_BAND_METERS("_1", " 1"),
+            MB_BAND_METERS("_2", " 2"),
+            MB_BAND_METERS("_3", " 3"),
+            MB_BAND_METERS("_4", " 4"),
+            MB_BAND_METERS("_5", " 5"),
+            MB_BAND_METERS("_6", " 6"),
+            MB_BAND_METERS("_7", " 7"),
+
             PORTS_END
         };
 
@@ -253,7 +291,7 @@ namespace lsp
         {
             PORTS_STEREO_PLUGIN,
             MB_COMMON(mb_comp_sc_bands),
-            MB_CHANNEL("", ""),
+            MB_STEREO_CHANNEL,
             MB_FFT_METERS("_l", " Left"),
             MB_CHANNEL_METERS("_l", " Left"),
             MB_FFT_METERS("_r", " Right"),
@@ -275,6 +313,24 @@ namespace lsp
             MB_STEREO_BAND("_5", " 5", 5, 8, 1587.0f, 3984.0f),
             MB_STEREO_BAND("_6", " 6", 6, 8, 3984.0f, 10000.0f),
             MB_STEREO_BAND("_7", " 7", 7, 8, 10000.0f, 20000.0f),
+
+            MB_BAND_METERS("_0l", " 0 Left"),
+            MB_BAND_METERS("_1l", " 1 Left"),
+            MB_BAND_METERS("_2l", " 2 Left"),
+            MB_BAND_METERS("_3l", " 3 Left"),
+            MB_BAND_METERS("_4l", " 4 Left"),
+            MB_BAND_METERS("_5l", " 5 Left"),
+            MB_BAND_METERS("_6l", " 6 Left"),
+            MB_BAND_METERS("_7l", " 7 Left"),
+
+            MB_BAND_METERS("_0r", " 0 Right"),
+            MB_BAND_METERS("_1r", " 1 Right"),
+            MB_BAND_METERS("_2r", " 2 Right"),
+            MB_BAND_METERS("_3r", " 3 Right"),
+            MB_BAND_METERS("_4r", " 4 Right"),
+            MB_BAND_METERS("_5r", " 5 Right"),
+            MB_BAND_METERS("_6r", " 6 Right"),
+            MB_BAND_METERS("_7r", " 7 Right"),
 
             PORTS_END
         };
@@ -306,23 +362,41 @@ namespace lsp
             MB_SPLIT("_6r", " 6 Right", 1.0f, 3984.0f),
             MB_SPLIT("_7r", " 7 Right", 0.0f, 10000.0f),
 
-            MB_STEREO_BAND("_0l", " 0 Left", 0, 8, 10.0f, 40.0f),
-            MB_STEREO_BAND("_1l", " 1 Left", 1, 8, 40.0f, 100.0f),
-            MB_STEREO_BAND("_2l", " 2 Left", 2, 8, 100.0f, 252.0f),
-            MB_STEREO_BAND("_3l", " 3 Left", 3, 8, 252.0f, 632.0f),
-            MB_STEREO_BAND("_4l", " 4 Left", 4, 8, 632.0f, 1587.0f),
-            MB_STEREO_BAND("_5l", " 5 Left", 5, 8, 1587.0f, 3984.0f),
-            MB_STEREO_BAND("_6l", " 6 Left", 6, 8, 3984.0f, 10000.0f),
-            MB_STEREO_BAND("_7l", " 7 Left", 7, 8, 10000.0f, 20000.0f),
+            MB_SPLIT_BAND("_0l", " 0 Left", 0, 8, 10.0f, 40.0f),
+            MB_SPLIT_BAND("_1l", " 1 Left", 1, 8, 40.0f, 100.0f),
+            MB_SPLIT_BAND("_2l", " 2 Left", 2, 8, 100.0f, 252.0f),
+            MB_SPLIT_BAND("_3l", " 3 Left", 3, 8, 252.0f, 632.0f),
+            MB_SPLIT_BAND("_4l", " 4 Left", 4, 8, 632.0f, 1587.0f),
+            MB_SPLIT_BAND("_5l", " 5 Left", 5, 8, 1587.0f, 3984.0f),
+            MB_SPLIT_BAND("_6l", " 6 Left", 6, 8, 3984.0f, 10000.0f),
+            MB_SPLIT_BAND("_7l", " 7 Left", 7, 8, 10000.0f, 20000.0f),
 
-            MB_STEREO_BAND("_0r", " 0 Right", 0, 8, 10.0f, 40.0f),
-            MB_STEREO_BAND("_1r", " 1 Right", 1, 8, 40.0f, 100.0f),
-            MB_STEREO_BAND("_2r", " 2 Right", 2, 8, 100.0f, 252.0f),
-            MB_STEREO_BAND("_3r", " 3 Right", 3, 8, 252.0f, 632.0f),
-            MB_STEREO_BAND("_4r", " 4 Right", 4, 8, 632.0f, 1587.0f),
-            MB_STEREO_BAND("_5r", " 5 Right", 5, 8, 1587.0f, 3984.0f),
-            MB_STEREO_BAND("_6r", " 6 Right", 6, 8, 3984.0f, 10000.0f),
-            MB_STEREO_BAND("_7r", " 7 Right", 7, 8, 10000.0f, 20000.0f),
+            MB_SPLIT_BAND("_0r", " 0 Right", 0, 8, 10.0f, 40.0f),
+            MB_SPLIT_BAND("_1r", " 1 Right", 1, 8, 40.0f, 100.0f),
+            MB_SPLIT_BAND("_2r", " 2 Right", 2, 8, 100.0f, 252.0f),
+            MB_SPLIT_BAND("_3r", " 3 Right", 3, 8, 252.0f, 632.0f),
+            MB_SPLIT_BAND("_4r", " 4 Right", 4, 8, 632.0f, 1587.0f),
+            MB_SPLIT_BAND("_5r", " 5 Right", 5, 8, 1587.0f, 3984.0f),
+            MB_SPLIT_BAND("_6r", " 6 Right", 6, 8, 3984.0f, 10000.0f),
+            MB_SPLIT_BAND("_7r", " 7 Right", 7, 8, 10000.0f, 20000.0f),
+
+            MB_BAND_METERS("_0l", " 0 Left"),
+            MB_BAND_METERS("_1l", " 1 Left"),
+            MB_BAND_METERS("_2l", " 2 Left"),
+            MB_BAND_METERS("_3l", " 3 Left"),
+            MB_BAND_METERS("_4l", " 4 Left"),
+            MB_BAND_METERS("_5l", " 5 Left"),
+            MB_BAND_METERS("_6l", " 6 Left"),
+            MB_BAND_METERS("_7l", " 7 Left"),
+
+            MB_BAND_METERS("_0r", " 0 Right"),
+            MB_BAND_METERS("_1r", " 1 Right"),
+            MB_BAND_METERS("_2r", " 2 Right"),
+            MB_BAND_METERS("_3r", " 3 Right"),
+            MB_BAND_METERS("_4r", " 4 Right"),
+            MB_BAND_METERS("_5r", " 5 Right"),
+            MB_BAND_METERS("_6r", " 6 Right"),
+            MB_BAND_METERS("_7r", " 7 Right"),
 
             PORTS_END
         };
@@ -354,23 +428,41 @@ namespace lsp
             MB_SPLIT("_6s", " 6 Side", 1.0f, 3984.0f),
             MB_SPLIT("_7s", " 7 Side", 0.0f, 10000.0f),
 
-            MB_STEREO_BAND("_0m", " 0 Mid", 0, 8, 10.0f, 40.0f),
-            MB_STEREO_BAND("_1m", " 1 Mid", 1, 8, 40.0f, 100.0f),
-            MB_STEREO_BAND("_2m", " 2 Mid", 2, 8, 100.0f, 252.0f),
-            MB_STEREO_BAND("_3m", " 3 Mid", 3, 8, 252.0f, 632.0f),
-            MB_STEREO_BAND("_4m", " 4 Mid", 4, 8, 632.0f, 1587.0f),
-            MB_STEREO_BAND("_5m", " 5 Mid", 5, 8, 1587.0f, 3984.0f),
-            MB_STEREO_BAND("_6m", " 6 Mid", 6, 8, 3984.0f, 10000.0f),
-            MB_STEREO_BAND("_7m", " 7 Mid", 7, 8, 10000.0f, 20000.0f),
+            MB_SPLIT_BAND("_0m", " 0 Mid", 0, 8, 10.0f, 40.0f),
+            MB_SPLIT_BAND("_1m", " 1 Mid", 1, 8, 40.0f, 100.0f),
+            MB_SPLIT_BAND("_2m", " 2 Mid", 2, 8, 100.0f, 252.0f),
+            MB_SPLIT_BAND("_3m", " 3 Mid", 3, 8, 252.0f, 632.0f),
+            MB_SPLIT_BAND("_4m", " 4 Mid", 4, 8, 632.0f, 1587.0f),
+            MB_SPLIT_BAND("_5m", " 5 Mid", 5, 8, 1587.0f, 3984.0f),
+            MB_SPLIT_BAND("_6m", " 6 Mid", 6, 8, 3984.0f, 10000.0f),
+            MB_SPLIT_BAND("_7m", " 7 Mid", 7, 8, 10000.0f, 20000.0f),
 
-            MB_STEREO_BAND("_0s", " 0 Side", 0, 8, 10.0f, 40.0f),
-            MB_STEREO_BAND("_1s", " 1 Side", 1, 8, 40.0f, 100.0f),
-            MB_STEREO_BAND("_2s", " 2 Side", 2, 8, 100.0f, 252.0f),
-            MB_STEREO_BAND("_3s", " 3 Side", 3, 8, 252.0f, 632.0f),
-            MB_STEREO_BAND("_4s", " 4 Side", 4, 8, 632.0f, 1587.0f),
-            MB_STEREO_BAND("_5s", " 5 Side", 5, 8, 1587.0f, 3984.0f),
-            MB_STEREO_BAND("_6s", " 6 Side", 6, 8, 3984.0f, 10000.0f),
-            MB_STEREO_BAND("_7s", " 7 Side", 7, 8, 10000.0f, 20000.0f),
+            MB_SPLIT_BAND("_0s", " 0 Side", 0, 8, 10.0f, 40.0f),
+            MB_SPLIT_BAND("_1s", " 1 Side", 1, 8, 40.0f, 100.0f),
+            MB_SPLIT_BAND("_2s", " 2 Side", 2, 8, 100.0f, 252.0f),
+            MB_SPLIT_BAND("_3s", " 3 Side", 3, 8, 252.0f, 632.0f),
+            MB_SPLIT_BAND("_4s", " 4 Side", 4, 8, 632.0f, 1587.0f),
+            MB_SPLIT_BAND("_5s", " 5 Side", 5, 8, 1587.0f, 3984.0f),
+            MB_SPLIT_BAND("_6s", " 6 Side", 6, 8, 3984.0f, 10000.0f),
+            MB_SPLIT_BAND("_7s", " 7 Side", 7, 8, 10000.0f, 20000.0f),
+
+            MB_BAND_METERS("_0m", " 0 Mid"),
+            MB_BAND_METERS("_1m", " 1 Mid"),
+            MB_BAND_METERS("_2m", " 2 Mid"),
+            MB_BAND_METERS("_3m", " 3 Mid"),
+            MB_BAND_METERS("_4m", " 4 Mid"),
+            MB_BAND_METERS("_5m", " 5 Mid"),
+            MB_BAND_METERS("_6m", " 6 Mid"),
+            MB_BAND_METERS("_7m", " 7 Mid"),
+
+            MB_BAND_METERS("_0s", " 0 Side"),
+            MB_BAND_METERS("_1s", " 1 Side"),
+            MB_BAND_METERS("_2s", " 2 Side"),
+            MB_BAND_METERS("_3s", " 3 Side"),
+            MB_BAND_METERS("_4s", " 4 Side"),
+            MB_BAND_METERS("_5s", " 5 Side"),
+            MB_BAND_METERS("_6s", " 6 Side"),
+            MB_BAND_METERS("_7s", " 7 Side"),
 
             PORTS_END
         };
@@ -401,6 +493,15 @@ namespace lsp
             MB_SC_MONO_BAND("_6", " 6", 6, 8, 3984.0f, 10000.0f),
             MB_SC_MONO_BAND("_7", " 7", 7, 8, 10000.0f, 20000.0f),
 
+            MB_BAND_METERS("_0", " 0"),
+            MB_BAND_METERS("_1", " 1"),
+            MB_BAND_METERS("_2", " 2"),
+            MB_BAND_METERS("_3", " 3"),
+            MB_BAND_METERS("_4", " 4"),
+            MB_BAND_METERS("_5", " 5"),
+            MB_BAND_METERS("_6", " 6"),
+            MB_BAND_METERS("_7", " 7"),
+
             PORTS_END
         };
 
@@ -409,7 +510,7 @@ namespace lsp
             PORTS_STEREO_PLUGIN,
             PORTS_STEREO_SIDECHAIN,
             MB_COMMON(mb_comp_sc_bands),
-            MB_CHANNEL("", ""),
+            MB_STEREO_CHANNEL,
             MB_FFT_METERS("_l", " Left"),
             MB_CHANNEL_METERS("_l", " Left"),
             MB_FFT_METERS("_r", " Right"),
@@ -431,6 +532,24 @@ namespace lsp
             MB_SC_STEREO_BAND("_5", " 5", 5, 8, 1587.0f, 3984.0f),
             MB_SC_STEREO_BAND("_6", " 6", 6, 8, 3984.0f, 10000.0f),
             MB_SC_STEREO_BAND("_7", " 7", 7, 8, 10000.0f, 20000.0f),
+
+            MB_BAND_METERS("_0l", " 0 Left"),
+            MB_BAND_METERS("_1l", " 1 Left"),
+            MB_BAND_METERS("_2l", " 2 Left"),
+            MB_BAND_METERS("_3l", " 3 Left"),
+            MB_BAND_METERS("_4l", " 4 Left"),
+            MB_BAND_METERS("_5l", " 5 Left"),
+            MB_BAND_METERS("_6l", " 6 Left"),
+            MB_BAND_METERS("_7l", " 7 Left"),
+
+            MB_BAND_METERS("_0r", " 0 Right"),
+            MB_BAND_METERS("_1r", " 1 Right"),
+            MB_BAND_METERS("_2r", " 2 Right"),
+            MB_BAND_METERS("_3r", " 3 Right"),
+            MB_BAND_METERS("_4r", " 4 Right"),
+            MB_BAND_METERS("_5r", " 5 Right"),
+            MB_BAND_METERS("_6r", " 6 Right"),
+            MB_BAND_METERS("_7r", " 7 Right"),
 
             PORTS_END
         };
@@ -463,23 +582,41 @@ namespace lsp
             MB_SPLIT("_6r", " 6 Right", 1.0f, 3984.0f),
             MB_SPLIT("_7r", " 7 Right", 0.0f, 10000.0f),
 
-            MB_SC_STEREO_BAND("_0l", " 0 Left", 0, 8, 10.0f, 40.0f),
-            MB_SC_STEREO_BAND("_1l", " 1 Left", 1, 8, 40.0f, 100.0f),
-            MB_SC_STEREO_BAND("_2l", " 2 Left", 2, 8, 100.0f, 252.0f),
-            MB_SC_STEREO_BAND("_3l", " 3 Left", 3, 8, 252.0f, 632.0f),
-            MB_SC_STEREO_BAND("_4l", " 4 Left", 4, 8, 632.0f, 1587.0f),
-            MB_SC_STEREO_BAND("_5l", " 5 Left", 5, 8, 1587.0f, 3984.0f),
-            MB_SC_STEREO_BAND("_6l", " 6 Left", 6, 8, 3984.0f, 10000.0f),
-            MB_SC_STEREO_BAND("_7l", " 7 Left", 7, 8, 10000.0f, 20000.0f),
+            MB_SC_SPLIT_BAND("_0l", " 0 Left", 0, 8, 10.0f, 40.0f),
+            MB_SC_SPLIT_BAND("_1l", " 1 Left", 1, 8, 40.0f, 100.0f),
+            MB_SC_SPLIT_BAND("_2l", " 2 Left", 2, 8, 100.0f, 252.0f),
+            MB_SC_SPLIT_BAND("_3l", " 3 Left", 3, 8, 252.0f, 632.0f),
+            MB_SC_SPLIT_BAND("_4l", " 4 Left", 4, 8, 632.0f, 1587.0f),
+            MB_SC_SPLIT_BAND("_5l", " 5 Left", 5, 8, 1587.0f, 3984.0f),
+            MB_SC_SPLIT_BAND("_6l", " 6 Left", 6, 8, 3984.0f, 10000.0f),
+            MB_SC_SPLIT_BAND("_7l", " 7 Left", 7, 8, 10000.0f, 20000.0f),
 
-            MB_SC_STEREO_BAND("_0r", " 0 Right", 0, 8, 10.0f, 40.0f),
-            MB_SC_STEREO_BAND("_1r", " 1 Right", 1, 8, 40.0f, 100.0f),
-            MB_SC_STEREO_BAND("_2r", " 2 Right", 2, 8, 100.0f, 252.0f),
-            MB_SC_STEREO_BAND("_3r", " 3 Right", 3, 8, 252.0f, 632.0f),
-            MB_SC_STEREO_BAND("_4r", " 4 Right", 4, 8, 632.0f, 1587.0f),
-            MB_SC_STEREO_BAND("_5r", " 5 Right", 5, 8, 1587.0f, 3984.0f),
-            MB_SC_STEREO_BAND("_6r", " 6 Right", 6, 8, 3984.0f, 10000.0f),
-            MB_SC_STEREO_BAND("_7r", " 7 Right", 7, 8, 10000.0f, 20000.0f),
+            MB_SC_SPLIT_BAND("_0r", " 0 Right", 0, 8, 10.0f, 40.0f),
+            MB_SC_SPLIT_BAND("_1r", " 1 Right", 1, 8, 40.0f, 100.0f),
+            MB_SC_SPLIT_BAND("_2r", " 2 Right", 2, 8, 100.0f, 252.0f),
+            MB_SC_SPLIT_BAND("_3r", " 3 Right", 3, 8, 252.0f, 632.0f),
+            MB_SC_SPLIT_BAND("_4r", " 4 Right", 4, 8, 632.0f, 1587.0f),
+            MB_SC_SPLIT_BAND("_5r", " 5 Right", 5, 8, 1587.0f, 3984.0f),
+            MB_SC_SPLIT_BAND("_6r", " 6 Right", 6, 8, 3984.0f, 10000.0f),
+            MB_SC_SPLIT_BAND("_7r", " 7 Right", 7, 8, 10000.0f, 20000.0f),
+
+            MB_BAND_METERS("_0l", " 0 Left"),
+            MB_BAND_METERS("_1l", " 1 Left"),
+            MB_BAND_METERS("_2l", " 2 Left"),
+            MB_BAND_METERS("_3l", " 3 Left"),
+            MB_BAND_METERS("_4l", " 4 Left"),
+            MB_BAND_METERS("_5l", " 5 Left"),
+            MB_BAND_METERS("_6l", " 6 Left"),
+            MB_BAND_METERS("_7l", " 7 Left"),
+
+            MB_BAND_METERS("_0r", " 0 Right"),
+            MB_BAND_METERS("_1r", " 1 Right"),
+            MB_BAND_METERS("_2r", " 2 Right"),
+            MB_BAND_METERS("_3r", " 3 Right"),
+            MB_BAND_METERS("_4r", " 4 Right"),
+            MB_BAND_METERS("_5r", " 5 Right"),
+            MB_BAND_METERS("_6r", " 6 Right"),
+            MB_BAND_METERS("_7r", " 7 Right"),
 
             PORTS_END
         };
@@ -512,23 +649,41 @@ namespace lsp
             MB_SPLIT("_6s", " 6 Side", 1.0f, 3984.0f),
             MB_SPLIT("_7s", " 7 Side", 0.0f, 10000.0f),
 
-            MB_SC_STEREO_BAND("_0m", " 0 Mid", 0, 8, 10.0f, 40.0f),
-            MB_SC_STEREO_BAND("_1m", " 1 Mid", 1, 8, 40.0f, 100.0f),
-            MB_SC_STEREO_BAND("_2m", " 2 Mid", 2, 8, 100.0f, 252.0f),
-            MB_SC_STEREO_BAND("_3m", " 3 Mid", 3, 8, 252.0f, 632.0f),
-            MB_SC_STEREO_BAND("_4m", " 4 Mid", 4, 8, 632.0f, 1587.0f),
-            MB_SC_STEREO_BAND("_5m", " 5 Mid", 5, 8, 1587.0f, 3984.0f),
-            MB_SC_STEREO_BAND("_6m", " 6 Mid", 6, 8, 3984.0f, 10000.0f),
-            MB_SC_STEREO_BAND("_7m", " 7 Mid", 7, 8, 10000.0f, 20000.0f),
+            MB_SC_SPLIT_BAND("_0m", " 0 Mid", 0, 8, 10.0f, 40.0f),
+            MB_SC_SPLIT_BAND("_1m", " 1 Mid", 1, 8, 40.0f, 100.0f),
+            MB_SC_SPLIT_BAND("_2m", " 2 Mid", 2, 8, 100.0f, 252.0f),
+            MB_SC_SPLIT_BAND("_3m", " 3 Mid", 3, 8, 252.0f, 632.0f),
+            MB_SC_SPLIT_BAND("_4m", " 4 Mid", 4, 8, 632.0f, 1587.0f),
+            MB_SC_SPLIT_BAND("_5m", " 5 Mid", 5, 8, 1587.0f, 3984.0f),
+            MB_SC_SPLIT_BAND("_6m", " 6 Mid", 6, 8, 3984.0f, 10000.0f),
+            MB_SC_SPLIT_BAND("_7m", " 7 Mid", 7, 8, 10000.0f, 20000.0f),
 
-            MB_SC_STEREO_BAND("_0s", " 0 Side", 0, 8, 10.0f, 40.0f),
-            MB_SC_STEREO_BAND("_1s", " 1 Side", 1, 8, 40.0f, 100.0f),
-            MB_SC_STEREO_BAND("_2s", " 2 Side", 2, 8, 100.0f, 252.0f),
-            MB_SC_STEREO_BAND("_3s", " 3 Side", 3, 8, 252.0f, 632.0f),
-            MB_SC_STEREO_BAND("_4s", " 4 Side", 4, 8, 632.0f, 1587.0f),
-            MB_SC_STEREO_BAND("_5s", " 5 Side", 5, 8, 1587.0f, 3984.0f),
-            MB_SC_STEREO_BAND("_6s", " 6 Side", 6, 8, 3984.0f, 10000.0f),
-            MB_SC_STEREO_BAND("_7s", " 7 Side", 7, 8, 10000.0f, 20000.0f),
+            MB_SC_SPLIT_BAND("_0s", " 0 Side", 0, 8, 10.0f, 40.0f),
+            MB_SC_SPLIT_BAND("_1s", " 1 Side", 1, 8, 40.0f, 100.0f),
+            MB_SC_SPLIT_BAND("_2s", " 2 Side", 2, 8, 100.0f, 252.0f),
+            MB_SC_SPLIT_BAND("_3s", " 3 Side", 3, 8, 252.0f, 632.0f),
+            MB_SC_SPLIT_BAND("_4s", " 4 Side", 4, 8, 632.0f, 1587.0f),
+            MB_SC_SPLIT_BAND("_5s", " 5 Side", 5, 8, 1587.0f, 3984.0f),
+            MB_SC_SPLIT_BAND("_6s", " 6 Side", 6, 8, 3984.0f, 10000.0f),
+            MB_SC_SPLIT_BAND("_7s", " 7 Side", 7, 8, 10000.0f, 20000.0f),
+
+            MB_BAND_METERS("_0m", " 0 Mid"),
+            MB_BAND_METERS("_1m", " 1 Mid"),
+            MB_BAND_METERS("_2m", " 2 Mid"),
+            MB_BAND_METERS("_3m", " 3 Mid"),
+            MB_BAND_METERS("_4m", " 4 Mid"),
+            MB_BAND_METERS("_5m", " 5 Mid"),
+            MB_BAND_METERS("_6m", " 6 Mid"),
+            MB_BAND_METERS("_7m", " 7 Mid"),
+
+            MB_BAND_METERS("_0s", " 0 Side"),
+            MB_BAND_METERS("_1s", " 1 Side"),
+            MB_BAND_METERS("_2s", " 2 Side"),
+            MB_BAND_METERS("_3s", " 3 Side"),
+            MB_BAND_METERS("_4s", " 4 Side"),
+            MB_BAND_METERS("_5s", " 5 Side"),
+            MB_BAND_METERS("_6s", " 6 Side"),
+            MB_BAND_METERS("_7s", " 7 Side"),
 
             PORTS_END
         };

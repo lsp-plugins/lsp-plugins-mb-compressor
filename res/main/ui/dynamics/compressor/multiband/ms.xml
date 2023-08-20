@@ -75,8 +75,8 @@
 						<mesh id="bfc_${i}m" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}m" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}m" fcolor.a="0.9" visibility=":flt_m and :cbe_${i}m"/>
 						<mesh id="bfc_${i}s" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}s" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}s" fcolor.a="0.9" visibility=":flt_s and :cbe_${i}s"/>
 					</ui:for>
-					<mesh id="ifg_m" width="3" color="mid_in" visibility=":ife_m"/>
-					<mesh id="ifg_s" width="3" color="side_in" visibility=":ife_s"/>
+					<mesh id="ifg_m" width="0" color="mid_in" color.a="0.8" fcolor.a="0.8" fill="true" fcolor="mid_in" visibility=":ife_m"/>
+					<mesh id="ifg_s" width="0" color="side_in" color.a="0.8" fcolor.a="0.8" fill="true" fcolor="side_in" visibility=":ife_s"/>
 					<mesh id="ofg_m" width="3" color="mid" visibility=":ofe_m"/>
 					<mesh id="ofg_s" width="3" color="side" visibility=":ofe_s"/>
 

@@ -69,7 +69,7 @@
 					<ui:for id="i" first="1" last="7">
 						<mesh id="bfc_${i}" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}" fcolor.a="0.9" visibility=":flt and :cbe_${i}"/>
 					</ui:for>
-					<mesh id="ifg" width="3" color="mono_in" visibility=":ife"/>
+					<mesh id="ifg" width="0" color="mono_in" color.a="0.8" fcolor.a="0.8" fill="true" fcolor="mono_in" visibility=":ife"/>
 					<mesh id="ofg" width="3" color="mono" visibility=":ofe"/>
 
 					<mesh id="ag" width="3" color="left" smooth="true"/>

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2021 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -31,6 +31,7 @@
 #include <lsp-plug.in/dsp-units/filters/Filter.h>
 #include <lsp-plug.in/dsp-units/util/Analyzer.h>
 #include <lsp-plug.in/dsp-units/util/Delay.h>
+#include <lsp-plug.in/dsp-units/util/FFTCrossover.h>
 #include <lsp-plug.in/dsp-units/util/MeterGraph.h>
 #include <lsp-plug.in/dsp-units/util/Sidechain.h>
 
@@ -54,6 +55,13 @@ namespace lsp
                     MBCM_MS
                 };
 
+                enum xover_mode_t
+                {
+                    XOVER_CLASSIC,                              // Classic mode
+                    XOVER_MODERN,                               // Modern mode
+                    XOVER_LINEAR_PHASE                          // Linear phase mode
+                };
+
             protected:
                 enum sync_t
                 {
@@ -73,6 +81,7 @@ namespace lsp
                     dspu::Filter            sAllFilter;         // All-pass filter for phase compensation
                     dspu::Delay             sScDelay;           // Sidechain delay for lookahead purpose
 
+                    float                  *vBuffer;            // Crossover band data
                     float                  *vTr;                // Transfer function
                     float                  *vVCA;               // Voltage-controlled amplification value for each band
                     float                   fScPreamp;          // Sidechain preamp
@@ -97,6 +106,7 @@ namespace lsp
 
                     plug::IPort            *pExtSc;             // External sidechain
                     plug::IPort            *pScSource;          // Sidechain source
+                    plug::IPort            *pScSpSource;        // Sidechain split source
                     plug::IPort            *pScMode;            // Sidechain mode
                     plug::IPort            *pScLook;            // Sidechain lookahead
                     plug::IPort            *pScReact;           // Sidechain reactivity
@@ -142,7 +152,11 @@ namespace lsp
                     dspu::Bypass            sBypass;            // Bypass
                     dspu::Filter            sEnvBoost[2];       // Envelope boost filter
                     dspu::Delay             sDelay;             // Delay for lookahead compensation purpose
+                    dspu::Delay             sDryDelay;          // Delay for dry signal
+                    dspu::Delay             sAnDelay;           // Delay for analyzer
+                    dspu::Delay             sXOverDelay;        // Delay for crossover
                     dspu::Equalizer         sDryEq;             // Dry equalizer
+                    dspu::FFTCrossover      sFFTXOver;          // FFT crossover for linear phase
 
                     comp_band_t             vBands[meta::mb_compressor_metadata::BANDS_MAX];     // Compressor bands
                     split_t                 vSplit[meta::mb_compressor_metadata::BANDS_MAX-1];   // Split bands
@@ -185,7 +199,8 @@ namespace lsp
                 size_t                  nMode;                  // Compressor mode
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
-                bool                    bModern;                // Modern mode
+                xover_mode_t            enXOver;                // Crossover mode
+                bool                    bStereoSplit;           // Stereo split mode
                 size_t                  nEnvBoost;              // Envelope boost
                 channel_t              *vChannels;              // Compressor channels
                 float                   fInGain;                // Input gain
@@ -215,10 +230,14 @@ namespace lsp
                 plug::IPort            *pShiftGain;             // Shift gain port
                 plug::IPort            *pZoom;                  // Zoom port
                 plug::IPort            *pEnvBoost;              // Envelope adjust
+                plug::IPort            *pStereoSplit;           // Split left/right independently
 
             protected:
                 static bool compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2);
-                static dspu::compressor_mode_t    decode_mode(int mode);
+                static dspu::compressor_mode_t      decode_mode(int mode);
+                static dspu::sidechain_source_t     decode_sidechain_source(int source, bool split, size_t channel);
+                static size_t                       select_fft_rank(size_t sample_rate);
+                static void                         process_band(void *object, void *subject, size_t band, const float *data, size_t sample, size_t count);
 
             public:
                 explicit mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode);
@@ -237,7 +256,8 @@ namespace lsp
 
                 virtual void        dump(dspu::IStateDumper *v) const;
         };
-    } // namespace plugins
-} // namespace lsp
+
+    } /* namespace plugins */
+} /* namespace lsp */
 
 #endif /* PRIVATE_PLUGINS_MB_COMPRESSOR_H_ */
