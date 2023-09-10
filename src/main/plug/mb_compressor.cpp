@@ -132,6 +132,7 @@ namespace lsp
 
         mb_compressor::~mb_compressor()
         {
+            do_destroy();
         }
 
         bool mb_compressor::compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2)
@@ -201,6 +202,12 @@ namespace lsp
 
         void mb_compressor::destroy()
         {
+            plug::Module::destroy();
+            do_destroy();
+        }
+
+        void mb_compressor::do_destroy()
+        {
             // Determine number of channels
             size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
 
@@ -256,9 +263,6 @@ namespace lsp
 
             // Destroy analyzer
             sAnalyzer.destroy();
-
-            // Destroy plugin
-            plug::Module::destroy();
         }
 
         void mb_compressor::init(plug::IWrapper *wrapper, plug::IPort **ports)

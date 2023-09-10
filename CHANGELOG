@@ -2,6 +2,9 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.15 ===
+* Updated build scripts and dependencies.
+
 === 1.0.14 ===
 * Implemented L/R split mode for stereo versions of compressor.
 * Implemented Linear Phase operating mode.

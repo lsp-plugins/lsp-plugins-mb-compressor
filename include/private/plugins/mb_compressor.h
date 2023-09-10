@@ -239,22 +239,25 @@ namespace lsp
                 static size_t                       select_fft_rank(size_t sample_rate);
                 static void                         process_band(void *object, void *subject, size_t band, const float *data, size_t sample, size_t count);
 
+            protected:
+                void                do_destroy();
+
             public:
                 explicit mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode);
-                virtual ~mb_compressor();
+                virtual ~mb_compressor() override;
 
-                virtual void        init(plug::IWrapper *wrapper, plug::IPort **ports);
-                virtual void        destroy();
+                virtual void        init(plug::IWrapper *wrapper, plug::IPort **ports) override;
+                virtual void        destroy() override;
 
             public:
-                virtual void        update_settings();
-                virtual void        update_sample_rate(long sr);
-                virtual void        ui_activated();
+                virtual void        update_settings() override;
+                virtual void        update_sample_rate(long sr) override;
+                virtual void        ui_activated() override;
 
-                virtual void        process(size_t samples);
-                virtual bool        inline_display(plug::ICanvas *cv, size_t width, size_t height);
+                virtual void        process(size_t samples) override;
+                virtual bool        inline_display(plug::ICanvas *cv, size_t width, size_t height) override;
 
-                virtual void        dump(dspu::IStateDumper *v) const;
+                virtual void        dump(dspu::IStateDumper *v) const override;
         };
 
     } /* namespace plugins */
