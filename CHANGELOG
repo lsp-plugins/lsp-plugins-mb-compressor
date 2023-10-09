@@ -3,6 +3,7 @@
 *******************************************************************************
 
 === 1.0.16 ===
+* Implemented SIMD-optimized curve and gain processing.
 * Updated build scripts and dependencies.
 
 === 1.0.15 ===
