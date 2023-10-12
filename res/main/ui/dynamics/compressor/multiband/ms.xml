@@ -427,7 +427,7 @@
 								<knob id="sclf_${i}m" size="16" ssize="3" scolor="(:sclc_${i}m ieq 0) ? 'cycle_inactive' : 'cycle'" pad.v="4" scolor.hue=":hue_${i}m" bg.bright="(:sclc_${i}m ieq 0) ? :const_bg_darken : 1.0"/>
 								<value id="sclf_${i}m" bg.bright="(:sclc_${i}m ieq 0) ? :const_bg_darken : 1.0" bright="(:sclc_${i}m ieq 0) ? 0.75 : 1.0" width.min="30"/>
 
-								<knob id="schf_${i}m" size="16" ssize="3" scolor="(:sclc_${i}m ieq 0) ? 'cycle_inactive' : 'cycle'" pad.v="4" scolor.hue=":hue_${i}m" bg.bright="(:schc_${i}m ieq 0) ? :const_bg_darken : 1.0"/>
+								<knob id="schf_${i}m" size="16" ssize="3" scolor="(:schc_${i}m ieq 0) ? 'cycle_inactive' : 'cycle'" pad.v="4" scolor.hue=":hue_${i}m" bg.bright="(:schc_${i}m ieq 0) ? :const_bg_darken : 1.0"/>
 								<value id="schf_${i}m" pad.r="6" bg.bright="(:schc_${i}m ieq 0) ? :const_bg_darken : 1.0" bright="(:schc_${i}m ieq 0) ? 0.75 : 1.0" width.min="30"/>
 
 								<cell cols="8"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
