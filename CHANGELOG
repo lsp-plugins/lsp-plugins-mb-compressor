@@ -4,6 +4,7 @@
 
 === 1.0.17 ===
 * Reduced CPU consumption for Linear Phase and Modern modes.
+* Reduced the rate of the gain curve update.
 
 === 1.0.16 ===
 * Implemented SIMD-optimized curve and gain processing.
