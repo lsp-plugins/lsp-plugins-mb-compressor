@@ -28,7 +28,7 @@
 #include <lsp-plug.in/dsp-units/units.h>
 #include <lsp-plug.in/shared/id_colors.h>
 
-#define MBC_BUFFER_SIZE         0x400
+#define MBC_BUFFER_SIZE         0x400U
 
 namespace lsp
 {
@@ -290,6 +290,8 @@ namespace lsp
             sAnalyzer.set_window(meta::mb_compressor_metadata::FFT_WINDOW);
             sAnalyzer.set_rate(meta::mb_compressor_metadata::REFRESH_RATE);
 
+            sCounter.set_frequency(meta::mb_compressor_metadata::REFRESH_RATE, true);
+
             size_t filter_mesh_size = align_size(meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float), DEFAULT_ALIGN);
 
             // Allocate float buffer data
@@ -317,6 +319,7 @@ namespace lsp
                         (
                             MBC_BUFFER_SIZE * sizeof(float) + // vBuffer of each band
                             MBC_BUFFER_SIZE * sizeof(float) + // vVCA of each band
+                            meta::mb_compressor_metadata::FFT_MESH_POINTS * 2 * sizeof(float) + // vSc transfer function for each band
                             meta::mb_compressor_metadata::FFT_MESH_POINTS * 2 * sizeof(float) // vTr transfer function for each band
                         ) * meta::mb_compressor_metadata::BANDS_MAX
                     ) * channels;
@@ -457,6 +460,8 @@ namespace lsp
                     ptr            += MBC_BUFFER_SIZE * sizeof(float);
                     b->vVCA         = reinterpret_cast<float *>(ptr);
                     ptr            += MBC_BUFFER_SIZE * sizeof(float);
+                    b->vSc          = reinterpret_cast<float *>(ptr);
+                    ptr            += meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float) * 2;
                     b->vTr          = reinterpret_cast<float *>(ptr);
                     ptr            += meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float) * 2;
 
@@ -1001,7 +1006,7 @@ namespace lsp
                         comp_band_t *b  = c->vPlan[j];
                         size_t band     = b - c->vBands;
                         b->pFreqEnd->set_value(b->fFreqEnd);
-                        b->nSync       |= S_EQ_CURVE;
+                        b->nSync       |= S_EQ_CURVE | S_BAND_CURVE;
 
     //                    lsp_trace("plan[%d] start=%f, end=%f, fft=%s",
     //                            int(j), b->fFreqStart, b->fFreqEnd,
@@ -1036,8 +1041,8 @@ namespace lsp
                         }
 
                         // Update transfer function for equalizer
-                        b->sEQ[0].freq_chart(b->vTr, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::pcomplex_mod(b->vTr, b->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        b->sEQ[0].freq_chart(b->vSc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        dsp::pcomplex_mod(b->vSc, b->vSc, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
                         // Update filter parameters, depending on operating mode
                         if (enXOver == XOVER_MODERN)
@@ -1217,6 +1222,7 @@ namespace lsp
             // Update analyzer's sample rate
             sAnalyzer.set_sample_rate(sr);
             sFilters.set_sample_rate(sr);
+            sCounter.set_sample_rate(sr, true);
             bEnvUpdate          = true;
 
             // Update channels
@@ -1326,10 +1332,10 @@ namespace lsp
             }
 
             // Do processing
-            while (samples > 0)
+            for (size_t offset = 0; offset < samples; )
             {
                 // Determine buffer size for processing
-                size_t to_process   = (samples > MBC_BUFFER_SIZE) ? MBC_BUFFER_SIZE : samples;
+                size_t to_process   = lsp_min(MBC_BUFFER_SIZE, samples - offset);
 
                 // Measure input signal level
                 for (size_t i=0; i<channels; ++i)
@@ -1552,65 +1558,80 @@ namespace lsp
                     if (c->vScIn != NULL)
                         c->vScIn           += to_process;
                 }
-                samples    -= to_process;
-            } // while (samples > 0)
+                offset     += to_process;
+            }
+
+            sCounter.submit(samples);
 
             // Output FFT curves for each channel
             for (size_t i=0; i<channels; ++i)
             {
                 channel_t *c     = &vChannels[i];
 
-                // Calculate transfer function for the compressor
-                if (enXOver == XOVER_MODERN)
+                // Update transfer function, limit the number of updates to the refresh rate
+                if (sCounter.fired())
                 {
-                    dsp::pcomplex_fill_ri(c->vTr, 1.0f, 0.0f, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-
-                    // Calculate transfer function
-                    for (size_t j=0; j<c->nPlanSize; ++j)
+                    if (enXOver == XOVER_MODERN)
                     {
-                        comp_band_t *b      = c->vPlan[j];
-                        sFilters.freq_chart(b->nFilterID, vTr, vFreqs, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::pcomplex_mul2(c->vTr, vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                    }
-                    dsp::pcomplex_mod(c->vTrMem, c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                }
-                else if (enXOver == XOVER_CLASSIC)
-                {
-                    dsp::pcomplex_fill_ri(vTr, 1.0f, 0.0f, meta::mb_compressor_metadata::FFT_MESH_POINTS);   // vBuffer
-                    dsp::fill_zero(c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS*2);                 // c->vBuffer
+                        dsp::pcomplex_fill_ri(c->vTr, 1.0f, 0.0f, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
-                    // Calculate transfer function
-                    for (size_t j=0; j<c->nPlanSize; ++j)
+                        // Calculate transfer function
+                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        {
+                            comp_band_t *b      = c->vPlan[j];
+                            sFilters.freq_chart(b->nFilterID, vTr, vFreqs, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                            dsp::pcomplex_mul2(c->vTr, vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        }
+                        dsp::pcomplex_mod(c->vTrMem, c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                    }
+                    else if (enXOver == XOVER_CLASSIC)
                     {
-                        comp_band_t *b      = c->vPlan[j];
+                        // Calculate transfer function
+                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        {
+                            comp_band_t *bp     = (j > 0) ? c->vPlan[j-1] : NULL;
+                            comp_band_t *b      = c->vPlan[j];
 
-                        // Apply all-pass characteristics
-                        b->sAllFilter.freq_chart(vPFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::pcomplex_mul2(c->vTr, vPFc, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                            if (b->nSync & S_BAND_CURVE)
+                            {
+                                if (bp)
+                                {
+                                    bp->sRejFilter.freq_chart(vRFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                                    b->sPassFilter.freq_chart(vPFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                                    dsp::pcomplex_mul2(vPFc, vRFc, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                                }
+                                else
+                                    b->sPassFilter.freq_chart(vPFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
-                        // Apply lo-pass filter characteristics
-                        b->sPassFilter.freq_chart(vPFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::pcomplex_mul2(vPFc, vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::fmadd_k3(c->vTr, vPFc, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS*2);
-
-                        // Apply hi-pass filter characteristics
-                        b->sRejFilter.freq_chart(vRFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::pcomplex_mul2(vTr, vRFc, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                                dsp::pcomplex_mod(b->vTr, vPFc, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                                b->nSync           &= ~size_t(S_BAND_CURVE);
+                            }
+                            if (j == 0)
+                                dsp::mul_k3(c->vTr, b->vTr, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                            else
+                                dsp::fmadd_k3(c->vTr, b->vTr, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        }
+                        dsp::copy(c->vTrMem, c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                     }
-                    dsp::pcomplex_mod(c->vTrMem, c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                }
-                else // enXOver == XOVER_LINEAR_PHASE
-                {
-                    dsp::fill_zero(c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                    // Calculate transfer function
-                    for (size_t j=0; j<c->nPlanSize; ++j)
+                    else // enXOver == XOVER_LINEAR_PHASE
                     {
-                        comp_band_t *b      = c->vPlan[j];
-                        size_t band         = b - c->vBands;
-                        c->sFFTXOver.freq_chart(band, vPFc, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
-                        dsp::fmadd_k3(c->vTr, vPFc, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        // Calculate transfer function
+                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        {
+                            comp_band_t *b      = c->vPlan[j];
+                            size_t band         = b - c->vBands;
+                            if (b->nSync & S_BAND_CURVE)
+                            {
+                                c->sFFTXOver.freq_chart(band, b->vTr, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                                b->nSync           &= ~size_t(S_BAND_CURVE);
+                            }
+                            if (j == 0)
+                                dsp::mul_k3(c->vTr, b->vTr, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                            else
+                                dsp::fmadd_k3(c->vTr, b->vTr, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        }
+                        dsp::copy(c->vTrMem, c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                     }
-                    dsp::copy(c->vTrMem, c->vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                 }
 
                 // Output FFT curve, compression curve and FFT spectrogram for each band
@@ -1635,11 +1656,11 @@ namespace lsp
 
                             // Fill mesh
                             dsp::copy(&mesh->pvData[0][1], vFreqs, meta::mb_compressor_metadata::MESH_POINTS);
-                            dsp::mul_k3(&mesh->pvData[1][1], b->vTr, b->fScPreamp, meta::mb_compressor_metadata::MESH_POINTS);
+                            dsp::mul_k3(&mesh->pvData[1][1], b->vSc, b->fScPreamp, meta::mb_compressor_metadata::MESH_POINTS);
                             mesh->data(2, meta::mb_compressor_metadata::FILTER_MESH_POINTS);
 
                             // Mark mesh as synchronized
-                            b->nSync           &= ~S_EQ_CURVE;
+                            b->nSync           &= ~size_t(S_EQ_CURVE);
                         }
                     }
 
@@ -1664,7 +1685,7 @@ namespace lsp
                                 mesh->data(2, 0);
 
                             // Mark mesh as synchronized
-                            b->nSync           &= ~S_COMP_CURVE;
+                            b->nSync           &= ~size_t(S_COMP_CURVE);
                         }
                     }
                 }
@@ -1721,8 +1742,10 @@ namespace lsp
             } // for channel
 
             // Request for redraw
-            if (pWrapper != NULL)
+            if ((pWrapper != NULL) && (sCounter.fired()))
                 pWrapper->query_display_draw();
+
+            sCounter.commit();
         }
 
         bool mb_compressor::inline_display(plug::ICanvas *cv, size_t width, size_t height)
@@ -1832,6 +1855,7 @@ namespace lsp
 
             v->write_object("sAnalyzer", &sAnalyzer);
             v->write_object("sFilters", &sFilters);
+            v->write_object("sCounter", &sCounter);
             v->write("nMode", nMode);
             v->write("bSidechain", bSidechain);
             v->write("bEnvUpdate", bEnvUpdate);
@@ -1870,6 +1894,7 @@ namespace lsp
                             v->write_object("sAllFilter", &b->sAllFilter);
                             v->write_object("sScDelay", &b->sScDelay);
 
+                            v->write("vSc", b->vSc);
                             v->write("vTr", b->vTr);
                             v->write("vVCA", b->vVCA);
                             v->write("fScPreamp", b->fScPreamp);

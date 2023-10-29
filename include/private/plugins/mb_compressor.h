@@ -25,6 +25,7 @@
 #include <lsp-plug.in/plug-fw/plug.h>
 #include <lsp-plug.in/plug-fw/core/IDBuffer.h>
 #include <lsp-plug.in/dsp-units/ctl/Bypass.h>
+#include <lsp-plug.in/dsp-units/ctl/Counter.h>
 #include <lsp-plug.in/dsp-units/dynamics/Compressor.h>
 #include <lsp-plug.in/dsp-units/filters/DynamicFilters.h>
 #include <lsp-plug.in/dsp-units/filters/Equalizer.h>
@@ -67,8 +68,9 @@ namespace lsp
                 {
                     S_COMP_CURVE    = 1 << 0,
                     S_EQ_CURVE      = 1 << 1,
+                    S_BAND_CURVE    = 1 << 2,
 
-                    S_ALL           = S_COMP_CURVE | S_EQ_CURVE
+                    S_ALL           = S_COMP_CURVE | S_EQ_CURVE | S_BAND_CURVE
                 };
 
                 typedef struct comp_band_t
@@ -82,7 +84,8 @@ namespace lsp
                     dspu::Delay             sScDelay;           // Sidechain delay for lookahead purpose
 
                     float                  *vBuffer;            // Crossover band data
-                    float                  *vTr;                // Transfer function
+                    float                  *vSc;                // Transfer function for sidechain
+                    float                  *vTr;                // Transfer function for band
                     float                  *vVCA;               // Voltage-controlled amplification value for each band
                     float                   fScPreamp;          // Sidechain preamp
 
@@ -196,6 +199,7 @@ namespace lsp
             protected:
                 dspu::Analyzer          sAnalyzer;              // Analyzer
                 dspu::DynamicFilters    sFilters;               // Dynamic filters for each band in 'modern' mode
+                dspu::Counter           sCounter;               // Sync counter
                 size_t                  nMode;                  // Compressor mode
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
