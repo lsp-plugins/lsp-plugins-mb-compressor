@@ -2,6 +2,9 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.18 ===
+
+
 === 1.0.17 ===
 * Reduced CPU consumption for Linear Phase and Modern modes.
 * Reduced the rate of the gain curve update.
