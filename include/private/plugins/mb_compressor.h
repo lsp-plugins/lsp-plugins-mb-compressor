@@ -177,7 +177,6 @@ namespace lsp
                     float                  *vTr;                // Transfer function
                     float                  *vTrMem;             // Transfer buffer (memory)
                     float                  *vInAnalyze;         // Input signal analysis
-                    float                  *vOutAnalyze;        // Input signal analysis
 
                     size_t                  nAnInChannel;       // Analyzer channel used for input signal analysis
                     size_t                  nAnOutChannel;      // Analyzer channel used for output signal analysis
