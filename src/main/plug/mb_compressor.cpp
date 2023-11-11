@@ -1471,12 +1471,22 @@ namespace lsp
                         // Originally, there is no signal
                         c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature, store into vBuffer
                         dsp::copy(vBuffer, c->vInBuffer, to_process);
-                        dsp::fill_zero(c->vBuffer, to_process);                 // Clear the channel buffer
 
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        comp_band_t *b      = c->vPlan[0];
+                        // First step
+                        // Process the signal with all-pass
+                        b->sAllFilter.process(c->vBuffer, c->vBuffer, to_process);
+                        // Filter frequencies from input
+                        b->sPassFilter.process(vEnv, vBuffer, to_process);
+                        // Apply VCA gain and add to the channel buffer
+                        dsp::mul3(c->vBuffer, vEnv, b->vVCA, to_process);
+                        // Filter frequencies from input
+                        b->sRejFilter.process(vBuffer, vBuffer, to_process);
+
+                        // All other steps
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
-
+                            b                   = c->vPlan[j];
                             // Process the signal with all-pass
                             b->sAllFilter.process(c->vBuffer, c->vBuffer, to_process);
                             // Filter frequencies from input
@@ -1500,11 +1510,15 @@ namespace lsp
                         // Apply delay to unprocessed signal to compensate lookahead + crossover delay
                         c->sXOverDelay.process(c->vInBuffer, c->vBuffer, to_process);
                         c->sFFTXOver.process(c->vBuffer, to_process);
-                        dsp::fill_zero(c->vBuffer, to_process);                 // Clear the channel buffer
 
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        // First step
+                        comp_band_t *b      = c->vPlan[0];
+                        dsp::mul3(c->vBuffer, b->vVCA, b->vBuffer, to_process);
+
+                        // All other steps
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
+                            b                   = c->vPlan[j];
                             dsp::fmadd3(c->vBuffer, b->vVCA, b->vBuffer, to_process);
                         }
                     }
