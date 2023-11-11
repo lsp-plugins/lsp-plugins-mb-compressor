@@ -1446,12 +1446,16 @@ namespace lsp
                     for (size_t i=0; i<channels; ++i)
                     {
                         channel_t *c        = &vChannels[i];
-                        c->sDelay.process(c->vBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature
-                        dsp::copy(c->vInBuffer, c->vBuffer, to_process);
+                        c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature
 
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        // Process first band
+                        comp_band_t *b      = c->vPlan[0];
+                        sFilters.process(b->nFilterID, c->vBuffer, c->vInBuffer, b->vVCA, to_process);
+
+                        // Process other bands
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
+                            b                   = c->vPlan[j];
                             sFilters.process(b->nFilterID, c->vBuffer, c->vBuffer, b->vVCA, to_process);
                         }
                     }
@@ -1465,18 +1469,15 @@ namespace lsp
 
                         // Originally, there is no signal
                         c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature, store into vBuffer
-                        dsp::copy(vBuffer, c->vInBuffer, to_process);
 
-                        comp_band_t *b      = c->vPlan[0];
                         // First step
-                        // Process the signal with all-pass
-                        b->sAllFilter.process(c->vBuffer, c->vBuffer, to_process);
+                        comp_band_t *b      = c->vPlan[0];
                         // Filter frequencies from input
-                        b->sPassFilter.process(vEnv, vBuffer, to_process);
+                        b->sPassFilter.process(vEnv, c->vInBuffer, to_process);
                         // Apply VCA gain and add to the channel buffer
                         dsp::mul3(c->vBuffer, vEnv, b->vVCA, to_process);
                         // Filter frequencies from input
-                        b->sRejFilter.process(vBuffer, vBuffer, to_process);
+                        b->sRejFilter.process(vBuffer, c->vInBuffer, to_process);
 
                         // All other steps
                         for (size_t j=1; j<c->nPlanSize; ++j)
@@ -1582,12 +1583,13 @@ namespace lsp
                 {
                     if (enXOver == XOVER_MODERN)
                     {
-                        dsp::pcomplex_fill_ri(c->vTr, 1.0f, 0.0f, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        comp_band_t *b      = c->vPlan[0];
+                        sFilters.freq_chart(b->nFilterID, c->vTr, vFreqs, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
                         // Calculate transfer function
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
+                            b                   = c->vPlan[j];
                             sFilters.freq_chart(b->nFilterID, vTr, vFreqs, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                             dsp::pcomplex_mul2(c->vTr, vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                         }
