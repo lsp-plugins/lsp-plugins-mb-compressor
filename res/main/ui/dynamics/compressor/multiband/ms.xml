@@ -650,9 +650,8 @@
 											height="19"
 											pad.h="6"
 											pad.v="4"/>
-										<hbox>
-											<label/>
-											<vbox height.min="40" fill="false">
+											<hbox height="36" vreduce="true">
+												<vbox >
 												<label text="0" width.min="32"/>
 												<value id="fre_${ch}" width.min="32" sline="true" detailed="false"/>
 											</vbox>
