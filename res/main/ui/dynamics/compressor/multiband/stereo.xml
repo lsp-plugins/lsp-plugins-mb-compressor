@@ -308,7 +308,7 @@
 							</ui:if>
 
 							<cell cols="2" pad.h="6" bg.color="bg_schema">
-								<grid rows="2" cols="1" hspacing="4">
+								<grid rows="2" cols="1" hspacing="4" vreduce="true">
 									<button
 										id="ce_${i}"
 										text="labels.chan.on"

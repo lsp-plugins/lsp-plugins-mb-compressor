@@ -324,7 +324,7 @@
 									<knob id="sf_${ch}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${ch}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${ch}"/>
 								</ui:if>
 								<cell cols="2" pad.h="6" bg.color="bg_schema">
-									<grid rows="2" cols="1" hspacing="4">
+									<grid rows="2" cols="1" hspacing="4" vreduce="true">
 										<button
 											id="ce_${ch}"
 											text="labels.chan.on"
