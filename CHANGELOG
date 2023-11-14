@@ -4,6 +4,7 @@
 
 === 1.0.18 ===
 * Implemented automatic scale of spectrum graph switch.
+* Aligned the height of the blocks in "cgroup".
 
 
 === 1.0.17 ===

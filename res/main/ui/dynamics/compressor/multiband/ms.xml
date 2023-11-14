@@ -244,7 +244,7 @@
 		<!-- down part -->
 		<hbox>
 
-			<cgroup id="bsel" embed.h=":bsel ilt 2" embed.b=":bsel ilt 2">
+			<cgroup id="bsel" embed.h=":bsel ilt 2" embed.b=":bsel ilt 2" width.min="861" height.min="424">
 				<ui:for id="c" first="0" last="1">
 					<ui:eval id="channel" value="(:c ieq 0) ? 'num_id_M_id' : 'num_id_S_ide'"/>
 
