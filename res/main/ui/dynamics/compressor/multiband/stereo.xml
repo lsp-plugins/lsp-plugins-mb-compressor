@@ -276,7 +276,7 @@
 									<button text="labels.chan.num_id" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
 								</cell>
 								<cell cols="2" fill="false">
-									<vbox height.min="40">
+									<vbox height="36" vreduce="true">
 										<label text="0"/>
 										<value id="fre_${i}" width.min="30" sline="true" detailed="false"/>
 									</vbox>
@@ -346,7 +346,7 @@
 
 							<!-- Column 2 -->
 							<ui:if test=":i ine 0">
-								<vbox>
+								<vbox height="36" vreduce="true">
 									<value id="sf_${i}" width.min="30" detailed="false" visibility=":cbe_${i}"/>
 									<value id="fre_${i}" detailed="false"/>
 									<label text="labels.chan.off" visibility="not :cbe_${i}"/>

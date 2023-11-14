@@ -293,7 +293,7 @@
 											pad.v="4"/>
 									</cell>
 									<cell cols="2" fill="false">
-										<vbox height.min="40">
+										<vbox height="36" vreduce="true">
 											<label text="0"/>
 											<value id="fre_${ch}" width.min="30" sline="true" detailed="false"/>
 										</vbox>
@@ -362,7 +362,7 @@
 
 								<!-- Column 2 -->
 								<ui:if test=":i ine 0">
-									<vbox>
+									<vbox height="36" vreduce="true">
 										<value id="sf_${ch}" width.min="30" detailed="false" visibility=":cbe_${ch}"/>
 										<value id="fre_${ch}" detailed="false"/>
 										<label text="labels.chan.off" visibility="not :cbe_${ch}"/>
