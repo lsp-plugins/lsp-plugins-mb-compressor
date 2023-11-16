@@ -1,5 +1,5 @@
 <plugin resizable="true">
-<vbox spacing="4">
+	<vbox spacing="4">
 		<grid rows="2" cols="5" vspacing="4" hspacing="4" expand="true">
 
 			<group ui:inject="GraphGroup" ipadding="0" expand="true" fill="true" text="labels.graphs.spectrum">
@@ -95,20 +95,20 @@
 
 					<!-- Text -->
 					<ui:with ox="0" oy="2" y="0" halign="1" valign="1">
-					  <text x="10" text="graph.units.hz"/>
-					  <text x="20" text="20"/>
-					  <text x="30" text="30"/>
-					  <text x="50" text="50"/>
-					  <text x="100" text="100"/>
-					  <text x="200" text="200"/>
-					  <text x="300" text="300"/>
-					  <text x="500" text="500"/>
-					  <text x="1000" text="graph.values.x_k" text:value="1"/>
-					  <text x="2000" text="graph.values.x_k" text:value="2"/>
-					  <text x="3000" text="graph.values.x_k" text:value="3"/>
-					  <text x="5000" text="graph.values.x_k" text:value="5"/>
-					  <text x="10000" text="graph.values.x_k" text:value="10"/>
-					  <text x="20000" text="graph.values.x_k" text:value="20"/>
+						<text x="10" text="graph.units.hz"/>
+						<text x="20" text="20"/>
+						<text x="30" text="30"/>
+						<text x="50" text="50"/>
+						<text x="100" text="100"/>
+						<text x="200" text="200"/>
+						<text x="300" text="300"/>
+						<text x="500" text="500"/>
+						<text x="1000" text="graph.values.x_k" text:value="1"/>
+						<text x="2000" text="graph.values.x_k" text:value="2"/>
+						<text x="3000" text="graph.values.x_k" text:value="3"/>
+						<text x="5000" text="graph.values.x_k" text:value="5"/>
+						<text x="10000" text="graph.values.x_k" text:value="10"/>
+						<text x="20000" text="graph.values.x_k" text:value="20"/>
 					</ui:with>
 
 					<ui:with x="10" halign="1" valign="1">
@@ -244,11 +244,11 @@
 		<!-- down part -->
 		<hbox>
 
-			<cgroup id="bsel" embed.h=":bsel ilt 2" embed.b=":bsel ilt 2" width.min="861" height.min="424">
+			<cgroup id="bsel" embed.h=":bsel ilt 2" embed.b=":bsel ilt 2" width.min="870" height.min="424">
 				<ui:for id="c" first="0" last="1">
 					<ui:eval id="channel" value="(:c ieq 0) ? 'num_id_L_eft' : 'num_id_R_ight'"/>
 
-					<grid rows="11" cols="25" transpose="true">
+					<grid rows="13" cols="25" transpose="true">
 						<!-- Labels -->
 						<label text="labels.band" pad.v="4" bg.color="bg_schema" hreduce="true"/>
 						<vbox pad.v="4">
@@ -268,29 +268,22 @@
 						<cell rows="2" pad.v="4">
 							<label text="labels.release:db_ms" bg.color="bg_schema"/>
 						</cell>
+						<cell rows="2">
+							<void bg.color="bg_schema"/>
+						</cell>
 
 						<!-- Bands -->
 						<ui:for id="i" first="0" last="7">
 							<ui:set id="ch" value="${:i}${(:c ieq 0) ? 'l' : 'r'}"/>
 
-							<ui:with bright="((${i} ieq 0) or :cbe_${ch}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${ch}) ? 1.0 : :const_bg_darken">
-								<!-- Column 1 -->
-								<ui:if test=":i ieq 0">
-									<!-- Separator -->
-									<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+							<!-- Column 1 -->
+							<ui:if test=":i ieq 0">
+								<!-- Separator -->
+								<cell rows="13"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
 
+								<ui:with bright="((${i} ieq 0) or :cbe_${ch}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${ch}) ? 1.0 : :const_bg_darken">
 									<cell cols="2" bg.color="bg_schema">
-										<button
-											text="labels.chan.${channel}"
-											text:id="${i}"
-											value="1"
-											editable="false"
-											pointer="arrow"
-											hfill="true"
-											ui:inject="Button_ne_Cycle"
-											height="19"
-											pad.h="6"
-											pad.v="4"/>
+										<button text="labels.chan.${channel}" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
 									</cell>
 									<cell cols="2" fill="false">
 										<vbox height="36" vreduce="true">
@@ -298,12 +291,14 @@
 											<value id="fre_${ch}" width.min="30" sline="true" detailed="false"/>
 										</vbox>
 									</cell>
-								</ui:if>
+								</ui:with>
+							</ui:if>
 
-								<ui:if test=":i ine 0">
-									<!-- Separator -->
-									<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+							<ui:if test=":i ine 0">
+								<!-- Separator -->
+								<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
 
+								<ui:with bright="((${i} ieq 0) or :cbe_${ch}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${ch}) ? 1.0 : :const_bg_darken">
 									<cell cols="2" bg.color="bg_schema">
 										<button
 											id="cbe_${ch}"
@@ -322,7 +317,10 @@
 											pad.v="4"/>
 									</cell>
 									<knob id="sf_${ch}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${ch}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${ch}"/>
-								</ui:if>
+								</ui:with>
+							</ui:if>
+
+							<ui:with bright="((${i} ieq 0) or :cbe_${ch}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${ch}) ? 1.0 : :const_bg_darken">
 								<cell cols="2" pad.h="6" bg.color="bg_schema">
 									<grid rows="2" cols="1" hspacing="4" vreduce="true">
 										<button
@@ -359,6 +357,11 @@
 								<value id="al_${ch}" pad.b="4" detailed="false"/>
 								<knob id="rrl_${ch}" size="16" ssize="3" pad.t="4" scolor="((${i} ieq 0) or :cbe_${ch}) ? 'release' : 'release_inactive'" bg.color="bg_schema"/>
 								<value id="rrl_${ch}" pad.b="4" detailed="false" bg.color="bg_schema"/>
+
+								<ui:if test=":i ieq 0">
+									<cell cols="23"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+									<cell cols="23"><void expand="true"/></cell>
+								</ui:if>
 
 								<!-- Column 2 -->
 								<ui:if test=":i ine 0">
@@ -621,7 +624,7 @@
 								<cell cols="6"><void bg.color="bg" height="4" vreduce="true"/></cell>
 								<vsep hreduce="true"/>
 								<cell cols="6"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
-								<cell rows="2"><vsep  hreduce="true" /></cell>
+								<cell rows="2"><vsep hreduce="true"/></cell>
 
 								<label text="labels.channel" pad.v="4" vreduce="true"/>
 								<label text="labels.band"/>
@@ -640,18 +643,9 @@
 
 									<label text="labels.chan.${chan_col}" pad.v="4" vreduce="true"/>
 									<ui:if test=":i ieq 0">
-										<button text="labels.chan.active_${channel}"
-											text:id="${i}"
-											value="1"
-											editable="false"
-											pointer="arrow"
-											hfill="true"
-											ui:inject="Button_ne_${chan_col}"
-											height="19"
-											pad.h="6"
-											pad.v="4"/>
+										<button text="labels.chan.active_${channel}" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_${chan_col}" height="19" pad.h="6" pad.v="4"/>
 										<hbox height="36" vreduce="true">
-												<vbox >
+											<vbox >
 												<label text="0" width.min="32"/>
 												<value id="fre_${ch}" width.min="32" sline="true" detailed="false"/>
 											</vbox>

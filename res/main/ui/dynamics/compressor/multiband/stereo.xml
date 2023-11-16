@@ -90,20 +90,20 @@
 
 					<!-- Text -->
 					<ui:with ox="0" oy="2" y="0" halign="1" valign="1">
-					  <text x="10" text="graph.units.hz"/>
-					  <text x="20" text="20"/>
-					  <text x="30" text="30"/>
-					  <text x="50" text="50"/>
-					  <text x="100" text="100"/>
-					  <text x="200" text="200"/>
-					  <text x="300" text="300"/>
-					  <text x="500" text="500"/>
-					  <text x="1000" text="graph.values.x_k" text:value="1"/>
-					  <text x="2000" text="graph.values.x_k" text:value="2"/>
-					  <text x="3000" text="graph.values.x_k" text:value="3"/>
-					  <text x="5000" text="graph.values.x_k" text:value="5"/>
-					  <text x="10000" text="graph.values.x_k" text:value="10"/>
-					  <text x="20000" text="graph.values.x_k" text:value="20"/>
+						<text x="10" text="graph.units.hz"/>
+						<text x="20" text="20"/>
+						<text x="30" text="30"/>
+						<text x="50" text="50"/>
+						<text x="100" text="100"/>
+						<text x="200" text="200"/>
+						<text x="300" text="300"/>
+						<text x="500" text="500"/>
+						<text x="1000" text="graph.values.x_k" text:value="1"/>
+						<text x="2000" text="graph.values.x_k" text:value="2"/>
+						<text x="3000" text="graph.values.x_k" text:value="3"/>
+						<text x="5000" text="graph.values.x_k" text:value="5"/>
+						<text x="10000" text="graph.values.x_k" text:value="10"/>
+						<text x="20000" text="graph.values.x_k" text:value="20"/>
 					</ui:with>
 
 					<ui:with x="10" halign="1" valign="1">
@@ -231,7 +231,7 @@
 						<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
 					</hbox>
 				</align>
-				<vsep pad.h="2" bg.color="bg" reduce="true" />
+				<vsep pad.h="2" bg.color="bg" reduce="true"/>
 				<hbox bg.color="bg_schema" hreduce="true" pad.h="6">
 					<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
 				</hbox>
@@ -266,11 +266,12 @@
 					<!-- Bands -->
 					<ui:for id="i" first="0" last="7">
 
-						<ui:with bright="((${i} ieq 0) or :cbe_${i}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${i}) ? 1.0 : :const_bg_darken">
-							<!-- Column 1 -->
-							<ui:if test=":i ieq 0">
-								<!-- Separator -->
-								<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+						<!-- Column 1 -->
+						<ui:if test=":i ieq 0">
+							<!-- Separator -->
+							<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+
+							<ui:with bright="((${i} ieq 0) or :cbe_${i}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${i}) ? 1.0 : :const_bg_darken">
 
 								<cell cols="2" bg.color="bg_schema">
 									<button text="labels.chan.num_id" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
@@ -281,11 +282,14 @@
 										<value id="fre_${i}" width.min="30" sline="true" detailed="false"/>
 									</vbox>
 								</cell>
-							</ui:if>
+							</ui:with>
+						</ui:if>
 
-							<ui:if test=":i ine 0">
-								<!-- Separator -->
-								<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+						<ui:if test=":i ine 0">
+							<!-- Separator -->
+							<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+
+							<ui:with bright="((${i} ieq 0) or :cbe_${i}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${i}) ? 1.0 : :const_bg_darken">
 
 								<cell cols="2" bg.color="bg_schema">
 									<button
@@ -305,8 +309,10 @@
 										pad.v="4"/>
 								</cell>
 								<knob id="sf_${i}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
-							</ui:if>
+							</ui:with>
+						</ui:if>
 
+						<ui:with bright="((${i} ieq 0) or :cbe_${i}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${i}) ? 1.0 : :const_bg_darken">
 							<cell cols="2" pad.h="6" bg.color="bg_schema">
 								<grid rows="2" cols="1" hspacing="4" vreduce="true">
 									<button
@@ -394,17 +400,21 @@
 										<cell rows="2">
 											<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
 												<combo id="scm_${i}" fill="true"/>
-												<combo id="scs_${i}" fill="true" visibility="!:ssplit" />
-												<combo id="sscs_${i}" fill="true" visibility=":ssplit" />
-												<button text="labels.chan.external_sc" id="sce_${i}" ui:inject="Button_Cycle"
-												hfill="true"
-												height="19"
-												down.color.hue=":hue_${i}"
-												down.hover.color.hue=":hue_${i}"
-												text.down.color.hue=":hue_${i}"
-												text.down.hover.color.hue=":hue_${i}"
-												border.down.color.hue=":hue_${i}"
-												border.down.hover.color.hue=":hue_${i}" visibility="ex :sce_${i}"/>
+												<combo id="scs_${i}" fill="true" visibility="!:ssplit"/>
+												<combo id="sscs_${i}" fill="true" visibility=":ssplit"/>
+												<button
+													text="labels.chan.external_sc"
+													id="sce_${i}"
+													ui:inject="Button_Cycle"
+													hfill="true"
+													height="19"
+													down.color.hue=":hue_${i}"
+													down.hover.color.hue=":hue_${i}"
+													text.down.color.hue=":hue_${i}"
+													text.down.hover.color.hue=":hue_${i}"
+													border.down.color.hue=":hue_${i}"
+													border.down.hover.color.hue=":hue_${i}"
+													visibility="ex :sce_${i}"/>
 											</vbox>
 										</cell>
 										<knob id="sla_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
