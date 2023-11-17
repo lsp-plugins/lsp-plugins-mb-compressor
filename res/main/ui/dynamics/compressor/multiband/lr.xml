@@ -360,7 +360,7 @@
 
 								<ui:if test=":i ieq 0">
 									<cell cols="23"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
-									<cell cols="23"><void expand="true"/></cell>
+									<cell cols="23"><void height="30"/></cell>
 								</ui:if>
 
 								<!-- Column 2 -->
