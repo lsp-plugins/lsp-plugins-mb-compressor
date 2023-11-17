@@ -77,8 +77,8 @@
 					</ui:for>
 					<mesh id="ifg_m" oy=":_ui_zoomable_spectrum_graph ? 1 : 3" width="0" color="mid_in" color.a="0.8" fcolor.a="0.8" fill="true" fcolor="mid_in" visibility=":ife_m"/>
 					<mesh id="ifg_s" oy=":_ui_zoomable_spectrum_graph ? 1 : 3" width="0" color="side_in" color.a="0.8" fcolor.a="0.8" fill="true" fcolor="side_in" visibility=":ife_s"/>
-					<mesh id="ofg_m" oy=":_ui_zoomable_spectrum_graph ? 1 : 3" width="3" color="mid" visibility=":ofe_m"/>
-					<mesh id="ofg_s" oy=":_ui_zoomable_spectrum_graph ? 1 : 3" width="3" color="side" visibility=":ofe_s"/>
+					<mesh id="ofg_m" oy=":_ui_zoomable_spectrum_graph ? 1 : 3" width="2" color="mid" visibility=":ofe_m"/>
+					<mesh id="ofg_s" oy=":_ui_zoomable_spectrum_graph ? 1 : 3" width="2" color="side" visibility=":ofe_s"/>
 
 					<mesh id="ag_m" width="3" color="mid" smooth="true"/>
 					<mesh id="ag_s" width="3" color="side" smooth="true"/>
