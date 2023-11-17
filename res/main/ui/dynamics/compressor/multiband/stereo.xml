@@ -398,7 +398,7 @@
 										<cell cols="8"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
 
 										<cell rows="2">
-											<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
+											<vbox vfill="false" spacing="4" pad.l="6" pad.v="4" width.min="97">
 												<combo id="scm_${i}" fill="true"/>
 												<combo id="scs_${i}" fill="true" visibility="!:ssplit"/>
 												<combo id="sscs_${i}" fill="true" visibility=":ssplit"/>
