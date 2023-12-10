@@ -33,7 +33,7 @@ namespace lsp
             protected:
                 typedef struct split_t
                 {
-                    mb_compressor_ui       *pUI;
+                    mb_compressor_ui   *pUI;
                     ui::IPort          *pFreq;
 
                     tk::GraphMarker    *wMarker;        // Graph marker for editing
