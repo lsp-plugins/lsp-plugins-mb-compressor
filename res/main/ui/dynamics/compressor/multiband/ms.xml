@@ -60,8 +60,8 @@
 						<marker id="fre_0m" color.hue=":hue_0m" hcolor.hue=":hue_0m" lborder="16" lcolor.hue=":hue_0m" hlborder="16" hlcolor.hue=":hue_0m"/>
 						<marker id="fre_0s" color.hue=":hue_0s" hcolor.hue=":hue_0s" lborder="16" lcolor.hue=":hue_0s" hlborder="16" hlcolor.hue=":hue_0s"/>
 						<ui:for id="i" first="1" last="7">
-							<marker id="sf_${i}m" visibility=":cbe_${i}m" editable="true" color.hue=":hue_${i}m" hcolor.hue=":hue_${i}m" rborder="16" rcolor.hue=":hue_${i}m" hrborder="16" hrcolor.hue=":hue_${i}m" pointer="hsize"/>
-							<marker id="sf_${i}s" visibility=":cbe_${i}s" editable="true" color.hue=":hue_${i}s" hcolor.hue=":hue_${i}s" rborder="16" rcolor.hue=":hue_${i}s" hrborder="16" hrcolor.hue=":hue_${i}s" pointer="hsize"/>
+							<marker id="sf_${i}m" ui:id="split_marker_${i}m" visibility=":cbe_${i}m" editable="true" color.hue=":hue_${i}m" hcolor.hue=":hue_${i}m" rborder="16" rcolor.hue=":hue_${i}m" hrborder="16" hrcolor.hue=":hue_${i}m" pointer="hsize"/>
+							<marker id="sf_${i}s" ui:id="split_marker_${i}s" visibility=":cbe_${i}s" editable="true" color.hue=":hue_${i}s" hcolor.hue=":hue_${i}s" rborder="16" rcolor.hue=":hue_${i}s" hrborder="16" hrcolor.hue=":hue_${i}s" pointer="hsize"/>
 							<marker id="fre_${i}m" visibility=":cbe_${i}m" color.hue=":hue_${i}m" hcolor.hue=":hue_${i}m" lborder="16" lcolor.hue=":hue_${i}m" hlborder="16" hlcolor.hue=":hue_${i}m"/>
 							<marker id="fre_${i}s" visibility=":cbe_${i}s" color.hue=":hue_${i}s" hcolor.hue=":hue_${i}s" lborder="16" lcolor.hue=":hue_${i}s" hlborder="16" hlcolor.hue=":hue_${i}s"/>
 						</ui:for>
@@ -123,6 +123,13 @@
 							<text y="${g} db" text="${g}" visibility=":zoom le -15 db"/>
 						</ui:for>
 					</ui:with>
+
+					<ui:for id="i" first="1" count="7">
+						<ui:with ox="0" oy="2" y="1" valign="-1" color="graph_marker_cycle" visibility="false" pad.h="4" font.bold="true">
+							<text ui:id="split_note_${i}m" x=":sf_${i}m" halign="(:sf_${i}m lt 500) ? 1 : -1" text.halign="(:sf_${i}m lt 500) ? -1 : 1" color.hue=":hue_${i}m"/>
+							<text ui:id="split_note_${i}s" x=":sf_${i}s" halign="(:sf_${i}s lt 500) ? 1 : -1" text.halign="(:sf_${i}s lt 500)s ? -1 : 1" color.hue=":hue_${i}s"/>
+						</ui:with>
+					</ui:for>
 				</graph>
 			</group>
 			<!-- zoom -->
