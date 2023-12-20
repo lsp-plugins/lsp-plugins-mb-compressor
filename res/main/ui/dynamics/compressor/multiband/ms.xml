@@ -707,8 +707,8 @@
 									<dot x.id="elm_${i}s" y.id="clm_${i}s" color="side" bcolor="side"/>
 
 									<!-- Markers -->
-									<marker id="al_${i}m" color="attack_1"/>
-									<marker id="al_${i}s" color="attack_2"/>
+									<marker id="al_${i}m" editable="true" width="2" pointer="hsize" color="attack_1" hcolor="attack_1"/>
+									<marker id="al_${i}s" editable="true" width="2" pointer="hsize" color="attack_2" hcolor="attack_2"/>
 									<marker id="rl_${i}m" color="release_1"/>
 									<marker id="rl_${i}s" color="release_2"/>
 

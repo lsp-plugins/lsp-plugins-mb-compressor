@@ -651,7 +651,7 @@
 									<dot x.id="elm_${i}r" y.id="clm_${i}r" color="right" bcolor="right" visibility=":ssplit"/>
 
 									<!-- Markers -->
-									<marker id="al_${i}" color="attack_1"/>
+									<marker id="al_${i}" editable="true" width="2" pointer="hsize" color="attack_1" hcolor="attack_1"/>
 									<marker id="rl_${i}" color="release_1"/>
 
 									<!-- Text -->
