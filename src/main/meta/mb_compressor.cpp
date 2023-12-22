@@ -26,7 +26,7 @@
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MAJOR       1
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MINOR       0
-#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       17
+#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       18
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION  \
     LSP_MODULE_VERSION( \
@@ -702,6 +702,7 @@ namespace lsp
         {
             "Multi-band Kompressor Mono x8",
             "Multiband Compressor Mono x8",
+            "MB Compressor Mono",
             "MBK8M",
             &developers::v_sadovnikov,
             "mb_compressor_mono",
@@ -726,6 +727,7 @@ namespace lsp
         {
             "Multi-band Kompressor Stereo x8",
             "Multiband Compressor Stereo x8",
+            "MB Compressor Stereo",
             "MBK8S",
             &developers::v_sadovnikov,
             "mb_compressor_stereo",
@@ -750,6 +752,7 @@ namespace lsp
         {
             "Multi-band Kompressor LeftRight x8",
             "Multiband Compressor LeftRight x8",
+            "MB Compressor L/R",
             "MBK8LR",
             &developers::v_sadovnikov,
             "mb_compressor_lr",
@@ -774,6 +777,7 @@ namespace lsp
         {
             "Multi-band Kompressor MidSide x8",
             "Multiband Compressor MidSide x8",
+            "MB Compressor M/S",
             "MBK8MS",
             &developers::v_sadovnikov,
             "mb_compressor_ms",
@@ -799,6 +803,7 @@ namespace lsp
         {
             "Sidechain Multi-band Kompressor Mono x8",
             "Sidechain Multiband Compressor Mono x8",
+            "SC MB Compressor Mono",
             "SCMBK8M",
             &developers::v_sadovnikov,
             "sc_mb_compressor_mono",
@@ -823,6 +828,7 @@ namespace lsp
         {
             "Sidechain Multi-band Kompressor Stereo x8",
             "Sidechain Multiband Compressor Stereo x8",
+            "SC MB Compressor Stereo",
             "SCMBK8S",
             &developers::v_sadovnikov,
             "sc_mb_compressor_stereo",
@@ -847,6 +853,7 @@ namespace lsp
         {
             "Sidechain Multi-band Kompressor LeftRight x8",
             "Sidechain Multiband Compressor LeftRight x8",
+            "SC MB Compressor L/R",
             "SCMBK8LR",
             &developers::v_sadovnikov,
             "sc_mb_compressor_lr",
@@ -871,6 +878,7 @@ namespace lsp
         {
             "Sidechain Multi-band Kompressor MidSide x8",
             "Sidechain Multiband Compressor MidSide x8",
+            "SC MB Compressor M/S",
             "SCMBK8MS",
             &developers::v_sadovnikov,
             "sc_mb_compressor_ms",

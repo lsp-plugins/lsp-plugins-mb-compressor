@@ -2,6 +2,13 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.18 ===
+* Implemented automatic scale of spectrum graph switch.
+* Aligned the height of the blocks in "cgroup".
+* Implemented split frequency display.
+* Threshold markers are now editable.
+* Updated build scripts and dependencies.
+
 === 1.0.17 ===
 * Reduced CPU consumption for Linear Phase and Modern modes.
 * Reduced the rate of the gain curve update.

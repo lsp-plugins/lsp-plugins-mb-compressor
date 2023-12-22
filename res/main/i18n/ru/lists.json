@@ -16,6 +16,19 @@
 		"linear_phase": "Линейная фаза",
 		"modern": "Современный",
 		"split": "Разделение",
+		"splits": {
+			"index": {
+				"split_id": "Раздел №{@id}",
+				"left_id": "Левый №{@id}",
+				"mid_id": "Середина №{@id}",
+				"right_id": "Правый №{@id}",
+				"side_id": "Сторона №{@id}"
+			}
+		},
+		"notes": {
+			"full": "{@id}\n{@frequency} Гц\n{@note}{@octave}{@cents}",
+			"unknown": "{@id}\n{@frequency} Гц"
+		},
 		"split_left": "Разделение левого",
 		"split_middle": "Разделение центра",
 		"split_right": "Разделение правого",

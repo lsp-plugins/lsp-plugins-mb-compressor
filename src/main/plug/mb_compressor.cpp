@@ -26,6 +26,7 @@
 #include <lsp-plug.in/dsp/dsp.h>
 #include <lsp-plug.in/dsp-units/misc/envelope.h>
 #include <lsp-plug.in/dsp-units/units.h>
+#include <lsp-plug.in/shared/debug.h>
 #include <lsp-plug.in/shared/id_colors.h>
 
 #define MBC_BUFFER_SIZE         0x400U
@@ -34,12 +35,6 @@ namespace lsp
 {
     namespace plugins
     {
-        static plug::IPort *TRACE_PORT(plug::IPort *p)
-        {
-            lsp_trace("  port id=%s", (p)->metadata()->id);
-            return p;
-        }
-
         //-------------------------------------------------------------------------
         // Plugin factory
         typedef struct plugin_settings_t
@@ -314,7 +309,7 @@ namespace lsp
                         MBC_BUFFER_SIZE * sizeof(float) + // vBuffer for each channel
                         MBC_BUFFER_SIZE * sizeof(float) + // vScBuffer for each channel
                         ((bSidechain) ? MBC_BUFFER_SIZE * sizeof(float) : 0) + // vExtScBuffer for each channel
-                        MBC_BUFFER_SIZE * sizeof(float) * 2 + // vInAnalyze + vOutAnalyze for each channel
+                        MBC_BUFFER_SIZE * sizeof(float) + // vInAnalyze for each channel
                         // Band buffers
                         (
                             MBC_BUFFER_SIZE * sizeof(float) + // vBuffer of each band
@@ -410,13 +405,11 @@ namespace lsp
                 ptr            += filter_mesh_size;
                 c->vInAnalyze   = reinterpret_cast<float *>(ptr);
                 ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                c->vOutAnalyze  = reinterpret_cast<float *>(ptr);
-                ptr            += MBC_BUFFER_SIZE * sizeof(float);
 
                 c->nAnInChannel = an_cid++;
                 c->nAnOutChannel= an_cid++;
-                vAnalyze[c->nAnInChannel]   = c->vInAnalyze;
-                vAnalyze[c->nAnOutChannel]  = c->vOutAnalyze;
+                vAnalyze[c->nAnInChannel]   = NULL;
+                vAnalyze[c->nAnOutChannel]  = NULL;
 
                 c->bInFft       = false;
                 c->bOutFft      = false;
@@ -538,34 +531,34 @@ namespace lsp
             // Input ports
             lsp_trace("Binding input ports");
             for (size_t i=0; i<channels; ++i)
-                vChannels[i].pIn        = TRACE_PORT(ports[port_id++]);
+                vChannels[i].pIn        = trace_port(ports[port_id++]);
 
             // Input ports
             lsp_trace("Binding output ports");
             for (size_t i=0; i<channels; ++i)
-                vChannels[i].pOut       = TRACE_PORT(ports[port_id++]);
+                vChannels[i].pOut       = trace_port(ports[port_id++]);
 
             // Input ports
             if (bSidechain)
             {
                 lsp_trace("Binding sidechain ports");
                 for (size_t i=0; i<channels; ++i)
-                    vChannels[i].pScIn      = TRACE_PORT(ports[port_id++]);
+                    vChannels[i].pScIn      = trace_port(ports[port_id++]);
             }
 
             // Common ports
             lsp_trace("Binding common ports");
-            pBypass                 = TRACE_PORT(ports[port_id++]);
-            pMode                   = TRACE_PORT(ports[port_id++]);
-            pInGain                 = TRACE_PORT(ports[port_id++]);
-            pOutGain                = TRACE_PORT(ports[port_id++]);
-            pDryGain                = TRACE_PORT(ports[port_id++]);
-            pWetGain                = TRACE_PORT(ports[port_id++]);
-            pReactivity             = TRACE_PORT(ports[port_id++]);
-            pShiftGain              = TRACE_PORT(ports[port_id++]);
-            pZoom                   = TRACE_PORT(ports[port_id++]);
-            pEnvBoost               = TRACE_PORT(ports[port_id++]);
-            TRACE_PORT(ports[port_id++]); // Skip band selector
+            pBypass                 = trace_port(ports[port_id++]);
+            pMode                   = trace_port(ports[port_id++]);
+            pInGain                 = trace_port(ports[port_id++]);
+            pOutGain                = trace_port(ports[port_id++]);
+            pDryGain                = trace_port(ports[port_id++]);
+            pWetGain                = trace_port(ports[port_id++]);
+            pReactivity             = trace_port(ports[port_id++]);
+            pShiftGain              = trace_port(ports[port_id++]);
+            pZoom                   = trace_port(ports[port_id++]);
+            pEnvBoost               = trace_port(ports[port_id++]);
+            trace_port(ports[port_id++]); // Skip band selector
 
             lsp_trace("Binding channel ports");
             for (size_t i=0; i<channels; ++i)
@@ -573,24 +566,24 @@ namespace lsp
                 channel_t *c    = &vChannels[i];
 
                 if ((i == 0) || (nMode == MBCM_LR) || (nMode == MBCM_MS))
-                    TRACE_PORT(ports[port_id++]); // Skip filter switch
+                    trace_port(ports[port_id++]); // Skip filter switch
 
-                c->pAmpGraph            = TRACE_PORT(ports[port_id++]);
+                c->pAmpGraph            = trace_port(ports[port_id++]);
             }
             if (nMode == MBCM_STEREO)
-                pStereoSplit            = TRACE_PORT(ports[port_id++]);
+                pStereoSplit            = trace_port(ports[port_id++]);
 
             lsp_trace("Binding meters");
             for (size_t i=0; i<channels; ++i)
             {
                 channel_t *c    = &vChannels[i];
 
-                c->pFftInSw             = TRACE_PORT(ports[port_id++]);
-                c->pFftOutSw            = TRACE_PORT(ports[port_id++]);
-                c->pFftIn               = TRACE_PORT(ports[port_id++]);
-                c->pFftOut              = TRACE_PORT(ports[port_id++]);
-                c->pInLvl               = TRACE_PORT(ports[port_id++]);
-                c->pOutLvl              = TRACE_PORT(ports[port_id++]);
+                c->pFftInSw             = trace_port(ports[port_id++]);
+                c->pFftOutSw            = trace_port(ports[port_id++]);
+                c->pFftIn               = trace_port(ports[port_id++]);
+                c->pFftOut              = trace_port(ports[port_id++]);
+                c->pInLvl               = trace_port(ports[port_id++]);
+                c->pOutLvl              = trace_port(ports[port_id++]);
             }
 
             // Split frequencies
@@ -609,8 +602,8 @@ namespace lsp
                     }
                     else
                     {
-                        s->pEnabled     = TRACE_PORT(ports[port_id++]);
-                        s->pFreq        = TRACE_PORT(ports[port_id++]);
+                        s->pEnabled     = trace_port(ports[port_id++]);
+                        s->pFreq        = trace_port(ports[port_id++]);
                     }
                 }
             }
@@ -661,41 +654,41 @@ namespace lsp
                     else
                     {
                         if (bSidechain)
-                            b->pExtSc       = TRACE_PORT(ports[port_id++]);
+                            b->pExtSc       = trace_port(ports[port_id++]);
                         if (nMode != MBCM_MONO)
-                            b->pScSource    = TRACE_PORT(ports[port_id++]);
+                            b->pScSource    = trace_port(ports[port_id++]);
                         if (nMode == MBCM_STEREO)
-                            b->pScSpSource  = TRACE_PORT(ports[port_id++]);
+                            b->pScSpSource  = trace_port(ports[port_id++]);
 
-                        b->pScMode      = TRACE_PORT(ports[port_id++]);
-                        b->pScLook      = TRACE_PORT(ports[port_id++]);
-                        b->pScReact     = TRACE_PORT(ports[port_id++]);
-                        b->pScPreamp    = TRACE_PORT(ports[port_id++]);
-                        b->pScLpfOn     = TRACE_PORT(ports[port_id++]);
-                        b->pScHpfOn     = TRACE_PORT(ports[port_id++]);
-                        b->pScLcfFreq   = TRACE_PORT(ports[port_id++]);
-                        b->pScHcfFreq   = TRACE_PORT(ports[port_id++]);
-                        b->pScFreqChart = TRACE_PORT(ports[port_id++]);
+                        b->pScMode      = trace_port(ports[port_id++]);
+                        b->pScLook      = trace_port(ports[port_id++]);
+                        b->pScReact     = trace_port(ports[port_id++]);
+                        b->pScPreamp    = trace_port(ports[port_id++]);
+                        b->pScLpfOn     = trace_port(ports[port_id++]);
+                        b->pScHpfOn     = trace_port(ports[port_id++]);
+                        b->pScLcfFreq   = trace_port(ports[port_id++]);
+                        b->pScHcfFreq   = trace_port(ports[port_id++]);
+                        b->pScFreqChart = trace_port(ports[port_id++]);
 
-                        b->pMode        = TRACE_PORT(ports[port_id++]);
-                        b->pEnable      = TRACE_PORT(ports[port_id++]);
-                        b->pSolo        = TRACE_PORT(ports[port_id++]);
-                        b->pMute        = TRACE_PORT(ports[port_id++]);
-                        b->pAttLevel    = TRACE_PORT(ports[port_id++]);
-                        b->pAttTime     = TRACE_PORT(ports[port_id++]);
-                        b->pRelLevel    = TRACE_PORT(ports[port_id++]);
-                        b->pRelTime     = TRACE_PORT(ports[port_id++]);
-                        b->pRatio       = TRACE_PORT(ports[port_id++]);
-                        b->pKnee        = TRACE_PORT(ports[port_id++]);
-                        b->pBThresh     = TRACE_PORT(ports[port_id++]);
-                        b->pBoost       = TRACE_PORT(ports[port_id++]);
-                        b->pMakeup      = TRACE_PORT(ports[port_id++]);
+                        b->pMode        = trace_port(ports[port_id++]);
+                        b->pEnable      = trace_port(ports[port_id++]);
+                        b->pSolo        = trace_port(ports[port_id++]);
+                        b->pMute        = trace_port(ports[port_id++]);
+                        b->pAttLevel    = trace_port(ports[port_id++]);
+                        b->pAttTime     = trace_port(ports[port_id++]);
+                        b->pRelLevel    = trace_port(ports[port_id++]);
+                        b->pRelTime     = trace_port(ports[port_id++]);
+                        b->pRatio       = trace_port(ports[port_id++]);
+                        b->pKnee        = trace_port(ports[port_id++]);
+                        b->pBThresh     = trace_port(ports[port_id++]);
+                        b->pBoost       = trace_port(ports[port_id++]);
+                        b->pMakeup      = trace_port(ports[port_id++]);
 
-                        TRACE_PORT(ports[port_id++]); // Skip hue
+                        trace_port(ports[port_id++]); // Skip hue
 
-                        b->pFreqEnd     = TRACE_PORT(ports[port_id++]);
-                        b->pCurveGraph  = TRACE_PORT(ports[port_id++]);
-                        b->pRelLevelOut = TRACE_PORT(ports[port_id++]);
+                        b->pFreqEnd     = trace_port(ports[port_id++]);
+                        b->pCurveGraph  = trace_port(ports[port_id++]);
+                        b->pRelLevelOut = trace_port(ports[port_id++]);
                     }
                 }
             }
@@ -708,9 +701,9 @@ namespace lsp
                 {
                     comp_band_t *b  = &vChannels[i].vBands[j];
 
-                    b->pEnvLvl      = TRACE_PORT(ports[port_id++]);
-                    b->pCurveLvl    = TRACE_PORT(ports[port_id++]);
-                    b->pMeterGain   = TRACE_PORT(ports[port_id++]);
+                    b->pEnvLvl      = trace_port(ports[port_id++]);
+                    b->pCurveLvl    = trace_port(ports[port_id++]);
+                    b->pMeterGain   = trace_port(ports[port_id++]);
                 }
             }
 
@@ -1385,6 +1378,7 @@ namespace lsp
                         c->sEnvBoost[1].process(c->vExtScBuffer, c->vExtScBuffer, to_process);
 
                     c->sAnDelay.process(c->vInAnalyze, c->vBuffer, to_process);
+                    vAnalyze[c->nAnInChannel] = c->vInAnalyze;
                 }
 
                 // MAIN PLUGIN STUFF
@@ -1451,12 +1445,16 @@ namespace lsp
                     for (size_t i=0; i<channels; ++i)
                     {
                         channel_t *c        = &vChannels[i];
-                        c->sDelay.process(c->vBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature
-                        dsp::copy(c->vInBuffer, c->vBuffer, to_process);
+                        c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature
 
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        // Process first band
+                        comp_band_t *b      = c->vPlan[0];
+                        sFilters.process(b->nFilterID, c->vBuffer, c->vInBuffer, b->vVCA, to_process);
+
+                        // Process other bands
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
+                            b                   = c->vPlan[j];
                             sFilters.process(b->nFilterID, c->vBuffer, c->vBuffer, b->vVCA, to_process);
                         }
                     }
@@ -1470,13 +1468,20 @@ namespace lsp
 
                         // Originally, there is no signal
                         c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature, store into vBuffer
-                        dsp::copy(vBuffer, c->vInBuffer, to_process);
-                        dsp::fill_zero(c->vBuffer, to_process);                 // Clear the channel buffer
 
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        // First step
+                        comp_band_t *b      = c->vPlan[0];
+                        // Filter frequencies from input
+                        b->sPassFilter.process(vEnv, c->vInBuffer, to_process);
+                        // Apply VCA gain and add to the channel buffer
+                        dsp::mul3(c->vBuffer, vEnv, b->vVCA, to_process);
+                        // Filter frequencies from input
+                        b->sRejFilter.process(vBuffer, c->vInBuffer, to_process);
+
+                        // All other steps
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
-
+                            b                   = c->vPlan[j];
                             // Process the signal with all-pass
                             b->sAllFilter.process(c->vBuffer, c->vBuffer, to_process);
                             // Filter frequencies from input
@@ -1500,11 +1505,15 @@ namespace lsp
                         // Apply delay to unprocessed signal to compensate lookahead + crossover delay
                         c->sXOverDelay.process(c->vInBuffer, c->vBuffer, to_process);
                         c->sFFTXOver.process(c->vBuffer, to_process);
-                        dsp::fill_zero(c->vBuffer, to_process);                 // Clear the channel buffer
 
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        // First step
+                        comp_band_t *b      = c->vPlan[0];
+                        dsp::mul3(c->vBuffer, b->vVCA, b->vBuffer, to_process);
+
+                        // All other steps
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
+                            b                   = c->vPlan[j];
                             dsp::fmadd3(c->vBuffer, b->vVCA, b->vBuffer, to_process);
                         }
                     }
@@ -1516,7 +1525,7 @@ namespace lsp
                 for (size_t i=0; i<channels; ++i)
                 {
                     channel_t *c        = &vChannels[i];
-                    dsp::copy(c->vOutAnalyze, c->vBuffer, to_process);
+                    vAnalyze[c->nAnOutChannel]  = c->vBuffer;
                 }
 
                 sAnalyzer.process(vAnalyze, to_process);
@@ -1573,12 +1582,13 @@ namespace lsp
                 {
                     if (enXOver == XOVER_MODERN)
                     {
-                        dsp::pcomplex_fill_ri(c->vTr, 1.0f, 0.0f, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                        comp_band_t *b      = c->vPlan[0];
+                        sFilters.freq_chart(b->nFilterID, c->vTr, vFreqs, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
 
                         // Calculate transfer function
-                        for (size_t j=0; j<c->nPlanSize; ++j)
+                        for (size_t j=1; j<c->nPlanSize; ++j)
                         {
-                            comp_band_t *b      = c->vPlan[j];
+                            b                   = c->vPlan[j];
                             sFilters.freq_chart(b->nFilterID, vTr, vFreqs, b->fGainLevel, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                             dsp::pcomplex_mul2(c->vTr, vTr, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                         }
@@ -1981,7 +1991,6 @@ namespace lsp
                     v->write("vTr", c->vTr);
                     v->write("vTrMem", c->vTrMem);
                     v->write("vInAnalyze", c->vInAnalyze);
-                    v->write("vOutAnalyze", c->vOutAnalyze);
 
                     v->write("nAnInChannel", c->nAnInChannel);
                     v->write("nAnOutChannel", c->nAnOutChannel);
