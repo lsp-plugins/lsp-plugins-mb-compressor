@@ -156,7 +156,6 @@ namespace lsp
                     dspu::Filter            sEnvBoost[2];       // Envelope boost filter
                     dspu::Delay             sDelay;             // Delay for lookahead compensation purpose
                     dspu::Delay             sDryDelay;          // Delay for dry signal
-                    dspu::Delay             sAnDelay;           // Delay for analyzer
                     dspu::Delay             sXOverDelay;        // Delay for crossover
                     dspu::Equalizer         sDryEq;             // Dry equalizer
                     dspu::FFTCrossover      sFFTXOver;          // FFT crossover for linear phase
@@ -170,13 +169,13 @@ namespace lsp
                     float                  *vOut;               // Output data buffer
                     float                  *vScIn;              // Sidechain data buffer (if present)
 
+                    float                  *vInAnalyze;         // Input signal analysis
                     float                  *vInBuffer;          // Input buffer
                     float                  *vBuffer;            // Common data processing buffer
                     float                  *vScBuffer;          // Sidechain buffer
                     float                  *vExtScBuffer;       // External sidechain buffer
                     float                  *vTr;                // Transfer function
                     float                  *vTrMem;             // Transfer buffer (memory)
-                    float                  *vInAnalyze;         // Input signal analysis
 
                     size_t                  nAnInChannel;       // Analyzer channel used for input signal analysis
                     size_t                  nAnOutChannel;      // Analyzer channel used for output signal analysis

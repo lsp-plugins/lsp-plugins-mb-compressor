@@ -217,7 +217,6 @@ namespace lsp
                     c->sEnvBoost[1].destroy();
                     c->sDelay.destroy();
                     c->sDryDelay.destroy();
-                    c->sAnDelay.destroy();
                     c->sXOverDelay.destroy();
                     c->sDryEq.destroy();
                     c->sFFTXOver.destroy();
@@ -275,15 +274,6 @@ namespace lsp
 
             // Initialize analyzer
             size_t an_cid       = 0;
-            if (!sAnalyzer.init(2*channels, meta::mb_compressor_metadata::FFT_RANK,
-                                MAX_SAMPLE_RATE, meta::mb_compressor_metadata::REFRESH_RATE))
-                return;
-
-            sAnalyzer.set_rank(meta::mb_compressor_metadata::FFT_RANK);
-            sAnalyzer.set_activity(false);
-            sAnalyzer.set_envelope(dspu::envelope::WHITE_NOISE);
-            sAnalyzer.set_window(meta::mb_compressor_metadata::FFT_WINDOW);
-            sAnalyzer.set_rate(meta::mb_compressor_metadata::REFRESH_RATE);
 
             sCounter.set_frequency(meta::mb_compressor_metadata::REFRESH_RATE, true);
 
@@ -305,11 +295,11 @@ namespace lsp
                         MBC_BUFFER_SIZE * sizeof(float) + // Global vSc[] for each channel
                         2 * filter_mesh_size + // vTr of each channel
                         filter_mesh_size + // vTrMem of each channel
+                        MBC_BUFFER_SIZE * sizeof(float) + // vInAnalyze for each channel
                         MBC_BUFFER_SIZE * sizeof(float) + // vInBuffer for each channel
                         MBC_BUFFER_SIZE * sizeof(float) + // vBuffer for each channel
                         MBC_BUFFER_SIZE * sizeof(float) + // vScBuffer for each channel
                         ((bSidechain) ? MBC_BUFFER_SIZE * sizeof(float) : 0) + // vExtScBuffer for each channel
-                        MBC_BUFFER_SIZE * sizeof(float) + // vInAnalyze for each channel
                         // Band buffers
                         (
                             MBC_BUFFER_SIZE * sizeof(float) + // vBuffer of each band
@@ -366,7 +356,6 @@ namespace lsp
                 c->sEnvBoost[1].construct();
                 c->sDelay.construct();
                 c->sDryDelay.construct();
-                c->sAnDelay.construct();
                 c->sXOverDelay.construct();
                 c->sDryEq.construct();
                 c->sFFTXOver.construct();
@@ -387,6 +376,8 @@ namespace lsp
                 c->vOut         = NULL;
                 c->vScIn        = NULL;
 
+                c->vInAnalyze   = reinterpret_cast<float *>(ptr);
+                ptr            += MBC_BUFFER_SIZE * sizeof(float);
                 c->vInBuffer    = reinterpret_cast<float *>(ptr);
                 ptr            += MBC_BUFFER_SIZE * sizeof(float);
                 c->vBuffer      = reinterpret_cast<float *>(ptr);
@@ -403,8 +394,6 @@ namespace lsp
                 ptr            += 2 * filter_mesh_size;
                 c->vTrMem       = reinterpret_cast<float *>(ptr);
                 ptr            += filter_mesh_size;
-                c->vInAnalyze   = reinterpret_cast<float *>(ptr);
-                ptr            += MBC_BUFFER_SIZE * sizeof(float);
 
                 c->nAnInChannel = an_cid++;
                 c->nAnOutChannel= an_cid++;
@@ -1165,7 +1154,7 @@ namespace lsp
                 }
                 c->sDelay.set_delay(latency);
                 c->sDryDelay.set_delay(latency + xover_latency);
-                c->sAnDelay.set_delay(xover_latency);
+                sAnalyzer.set_channel_delay(c->nAnInChannel, xover_latency);
                 c->sXOverDelay.set_delay(latency + xover_latency);
             }
 
@@ -1213,7 +1202,19 @@ namespace lsp
             size_t max_delay    = bins + dspu::millis_to_samples(sr, meta::mb_compressor_metadata::LOOKAHEAD_MAX);
 
             // Update analyzer's sample rate
+            sAnalyzer.init(
+                2*channels,
+                meta::mb_compressor_metadata::FFT_RANK,
+                MAX_SAMPLE_RATE,
+                meta::mb_compressor_metadata::REFRESH_RATE,
+                bins);
             sAnalyzer.set_sample_rate(sr);
+            sAnalyzer.set_rank(meta::mb_compressor_metadata::FFT_RANK);
+            sAnalyzer.set_activity(false);
+            sAnalyzer.set_envelope(dspu::envelope::WHITE_NOISE);
+            sAnalyzer.set_window(meta::mb_compressor_metadata::FFT_WINDOW);
+            sAnalyzer.set_rate(meta::mb_compressor_metadata::REFRESH_RATE);
+
             sFilters.set_sample_rate(sr);
             sCounter.set_sample_rate(sr, true);
             bEnvUpdate          = true;
@@ -1225,7 +1226,6 @@ namespace lsp
                 c->sBypass.init(sr);
                 c->sDelay.init(max_delay);
                 c->sDryDelay.init(max_delay);
-                c->sAnDelay.init(bins);
                 c->sXOverDelay.init(max_delay);
                 c->sDryEq.set_sample_rate(sr);
 
@@ -1341,16 +1341,16 @@ namespace lsp
                 // Pre-process channel data
                 if (nMode == MBCM_MS)
                 {
-                    dsp::lr_to_ms(vChannels[0].vBuffer, vChannels[1].vBuffer, vChannels[0].vIn, vChannels[1].vIn, to_process);
-                    dsp::mul_k2(vChannels[0].vBuffer, fInGain, to_process);
-                    dsp::mul_k2(vChannels[1].vBuffer, fInGain, to_process);
+                    dsp::lr_to_ms(vChannels[0].vInAnalyze, vChannels[1].vInAnalyze, vChannels[0].vIn, vChannels[1].vIn, to_process);
+                    dsp::mul_k2(vChannels[0].vInAnalyze, fInGain, to_process);
+                    dsp::mul_k2(vChannels[1].vInAnalyze, fInGain, to_process);
                 }
                 else if (nMode == MBCM_MONO)
-                    dsp::mul_k3(vChannels[0].vBuffer, vChannels[0].vIn, fInGain, to_process);
+                    dsp::mul_k3(vChannels[0].vInAnalyze, vChannels[0].vIn, fInGain, to_process);
                 else
                 {
-                    dsp::mul_k3(vChannels[0].vBuffer, vChannels[0].vIn, fInGain, to_process);
-                    dsp::mul_k3(vChannels[1].vBuffer, vChannels[1].vIn, fInGain, to_process);
+                    dsp::mul_k3(vChannels[0].vInAnalyze, vChannels[0].vIn, fInGain, to_process);
+                    dsp::mul_k3(vChannels[1].vInAnalyze, vChannels[1].vIn, fInGain, to_process);
                 }
                 if (bSidechain)
                 {
@@ -1373,11 +1373,10 @@ namespace lsp
                 for (size_t i=0; i<channels; ++i)
                 {
                     channel_t *c        = &vChannels[i];
-                    c->sEnvBoost[0].process(c->vScBuffer, c->vBuffer, to_process);
+                    c->sEnvBoost[0].process(c->vScBuffer, c->vInAnalyze, to_process);
                     if (bSidechain)
                         c->sEnvBoost[1].process(c->vExtScBuffer, c->vExtScBuffer, to_process);
 
-                    c->sAnDelay.process(c->vInAnalyze, c->vBuffer, to_process);
                     vAnalyze[c->nAnInChannel] = c->vInAnalyze;
                 }
 
@@ -1445,7 +1444,7 @@ namespace lsp
                     for (size_t i=0; i<channels; ++i)
                     {
                         channel_t *c        = &vChannels[i];
-                        c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature
+                        c->sDelay.process(c->vInBuffer, c->vInAnalyze, to_process); // Apply delay to compensate lookahead feature
 
                         // Process first band
                         comp_band_t *b      = c->vPlan[0];
@@ -1467,7 +1466,7 @@ namespace lsp
                         channel_t *c        = &vChannels[i];
 
                         // Originally, there is no signal
-                        c->sDelay.process(c->vInBuffer, c->vBuffer, to_process); // Apply delay to compensate lookahead feature, store into vBuffer
+                        c->sDelay.process(c->vInBuffer, c->vInAnalyze, to_process); // Apply delay to compensate lookahead feature, store into vBuffer
 
                         // First step
                         comp_band_t *b      = c->vPlan[0];
@@ -1501,7 +1500,7 @@ namespace lsp
                         channel_t *c        = &vChannels[i];
 
                         // Apply delay to compensate lookahead feature
-                        c->sDelay.process(c->vBuffer, c->vBuffer, to_process);
+                        c->sDelay.process(c->vBuffer, c->vInAnalyze, to_process);
                         // Apply delay to unprocessed signal to compensate lookahead + crossover delay
                         c->sXOverDelay.process(c->vInBuffer, c->vBuffer, to_process);
                         c->sFFTXOver.process(c->vBuffer, to_process);
@@ -1886,7 +1885,6 @@ namespace lsp
                     v->end_array();
                     v->write_object("sDelay", &c->sDelay);
                     v->write_object("sDryDelay", &c->sDryDelay);
-                    v->write_object("sAnDelay", &c->sAnDelay);
                     v->write_object("sXOverDelay", &c->sXOverDelay);
                     v->write_object("sDryEq", &c->sDryEq);
                     v->write_object("sFFTXOver", &c->sFFTXOver);
@@ -1985,13 +1983,13 @@ namespace lsp
                     v->write("vOut", c->vOut);
                     v->write("vScIn", c->vScIn);
 
+                    v->write("vInAnalyze", c->vInAnalyze);
                     v->write("vInBuffer", c->vInBuffer);
                     v->write("vBuffer", c->vBuffer);
                     v->write("vScBuffer", c->vScBuffer);
                     v->write("vExtScBuffer", c->vExtScBuffer);
                     v->write("vTr", c->vTr);
                     v->write("vTrMem", c->vTrMem);
-                    v->write("vInAnalyze", c->vInAnalyze);
 
                     v->write("nAnInChannel", c->nAnInChannel);
                     v->write("nAnOutChannel", c->nAnOutChannel);
