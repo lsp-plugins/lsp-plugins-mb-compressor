@@ -1,6 +1,6 @@
 <plugin resizable="true">
 	<vbox spacing="4">
-		<grid rows="2" cols="5" vspacing="4" hspacing="4" expand="true">
+		<grid rows="1" cols="4" vspacing="4" hspacing="4" expand="true">
 
 			<group ui:inject="GraphGroup" ipadding="0" expand="true" fill="true" text.show="false" text="labels.graphs.spectrum">
 				<graph width.min="640" height.min="320" expand="true" fill="true">
@@ -149,7 +149,6 @@
 				</graph>
 			</group>
 
-
 			<!-- Zoom Fader -->
 			<cell rows="2">
 				<vbox vexpand="true" bg.color="bg_schema">
@@ -187,81 +186,6 @@
 					</vbox>
 				</hbox>
 			</cell>
-
-			<!-- signal -->
-			<cell rows="2">
-				<vbox spacing="4">
-					<group text="groups.signal" expand="true">
-						<grid rows="2" cols="2" hspacing="4">
-							<knob id="g_dry" scolor="dry" pad.r="4"/>
-							<vbox vfill="false">
-								<label text="labels.signal.dry" halign="0"/>
-								<value id="g_dry" width.min="50" sline="true" halign="0"/>
-							</vbox>
-
-							<knob id="g_wet" scolor="wet" pad.r="4"/>
-							<vbox vfill="false">
-								<label text="labels.signal.wet" halign="0"/>
-								<value id="g_wet" width.min="50" sline="true" halign="0"/>
-							</vbox>
-						</grid>
-					</group>
-
-					<!-- Analysis -->
-					<group text="groups.analysis" expand="true" ipadding="0">
-						<vbox>
-							<grid rows="4" cols="2">
-								<align halign="-1" pad.t="4" pad.l="6">
-									<label text="labels.fft.fft_in"/>
-								</align>
-								<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ife_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
-									<button id="ife_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
-
-								<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
-
-								<align halign="-1" pad.t="4" pad.l="6">
-									<label text="labels.fft.fft_out" halign="0"/>
-								</align>
-								<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ofe_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
-									<button id="ofe_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
-
-								<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
-							</grid>
-
-							<grid rows="2" cols="2" transpose="false" expand="true" hspacing="4">
-								<knob id="react" size="20" pad.r="4" pad.l="6"/>
-								<vbox vfill="false" pad.r="6">
-									<label text="labels.metering.reactivity" halign="0"/>
-									<value id="react" width.min="50" sline="true" halign="0"/>
-								</vbox>
-
-								<knob id="shift" size="20" pad.r="4" pad.l="6"/>
-								<vbox vfill="false" pad.r="6">
-									<label text="labels.metering.shift" halign="0"/>
-									<value id="shift" width.min="50" sline="true" halign="0"/>
-								</vbox>
-							</grid>
-						</vbox>
-					</group>
-				</vbox>
-			</cell>
-
-			<!-- bottom line -->
-			<hbox vreduce="true">
-				<align halign="-1" vreduce="true">
-					<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
-						<label text="labels.mode:"/>
-						<combo id="mode" pad.r="8" pad.v="4"/>
-						<label text="labels.sc_boost:"/>
-						<combo id="envb" pad.r="8"/>
-						<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
-					</hbox>
-				</align>
-				<vsep pad.h="2" bg.color="bg" reduce="true"/>
-				<hbox bg.color="bg_schema" hreduce="true" pad.h="6">
-					<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
-				</hbox>
-			</hbox>
 		</grid>
 
 		<!-- Bottom part -->
@@ -301,20 +225,21 @@
 					</hbox>
 
 					<ui:if test=":i ieq 0">
-						<vbox width="78" pad.v="2" fill="false">
+						<hbox width="78" pad.v="2" fill="false">
 							<label text="0"/>
+							<label text="-" />
 							<value id="fre_${i}" sline="true" detailed="false"/>
-						</vbox>
+						</hbox>
 					</ui:if>
 
 					<ui:if test=":i ine 0">
 						<hbox fill="false" pad.h="6">
 							<knob id="sf_${i}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
-							<vbox fill="false" pad.l="6">
+							<hbox fill="false" pad.l="6">
 								<value id="sf_${i}" width.min="32" detailed="false" visibility=":cbe_${i}"/>
 								<value id="fre_${i}" detailed="false" width.min="32"/>
 								<label text="labels.chan.off" width.min="32" visibility="not :cbe_${i}"/>
-							</vbox>
+							</hbox>
 						</hbox>
 					</ui:if>
 					<hbox fill="true" spacing="4">
@@ -507,6 +432,62 @@
 						</vbox>
 					</vbox>
 
+					<!-- signal -->
+					<vbox spacing="4">
+						<group text="groups.signal" expand="true">
+							<grid rows="2" cols="2" hspacing="4">
+								<knob id="g_dry" scolor="dry" pad.r="4"/>
+								<vbox vfill="false">
+									<label text="labels.signal.dry" halign="0"/>
+									<value id="g_dry" width.min="50" sline="true" halign="0"/>
+								</vbox>
+
+								<knob id="g_wet" scolor="wet" pad.r="4"/>
+								<vbox vfill="false">
+									<label text="labels.signal.wet" halign="0"/>
+									<value id="g_wet" width.min="50" sline="true" halign="0"/>
+								</vbox>
+							</grid>
+						</group>
+
+						<!-- Analysis -->
+						<group text="groups.analysis" expand="true" ipadding="0">
+							<vbox>
+								<grid rows="4" cols="2">
+									<align halign="-1" pad.t="4" pad.l="6">
+										<label text="labels.fft.fft_in"/>
+									</align>
+									<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ife_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
+										<button id="ife_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
+
+									<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+
+									<align halign="-1" pad.t="4" pad.l="6">
+										<label text="labels.fft.fft_out" halign="0"/>
+									</align>
+									<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ofe_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
+										<button id="ofe_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
+
+									<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+								</grid>
+
+								<grid rows="2" cols="2" transpose="false" expand="true" hspacing="4">
+									<knob id="react" size="20" pad.r="4" pad.l="6"/>
+									<vbox vfill="false" pad.r="6">
+										<label text="labels.metering.reactivity" halign="0"/>
+										<value id="react" width.min="50" sline="true" halign="0"/>
+									</vbox>
+
+									<knob id="shift" size="20" pad.r="4" pad.l="6"/>
+									<vbox vfill="false" pad.r="6">
+										<label text="labels.metering.shift" halign="0"/>
+										<value id="shift" width.min="50" sline="true" halign="0"/>
+									</vbox>
+								</grid>
+							</vbox>
+						</group>
+					</vbox>
+
 					<!-- <vbox>
 						<label text="labels.release"/>
 						<label text="labels.thresh_old"/>
@@ -514,6 +495,23 @@
 						<value id="rrl_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
 					</vbox> -->
 				</ui:with>
+			</hbox>
+		</hbox>
+
+		<!-- bottom line -->
+		<hbox vreduce="true">
+			<align halign="-1" vreduce="true">
+				<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
+					<label text="Algorithm"/>
+					<combo id="mode" pad.r="8" pad.v="4"/>
+					<label text="labels.sc_boost:"/>
+					<combo id="envb" pad.r="8"/>
+					<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
+				</hbox>
+			</align>
+			<vsep pad.h="2" bg.color="bg" reduce="true"/>
+			<hbox bg.color="bg_schema" hreduce="true" pad.h="6">
+				<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
 			</hbox>
 		</hbox>
 	</vbox>
