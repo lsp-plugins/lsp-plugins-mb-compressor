@@ -90,7 +90,7 @@
 					<ui:for id="i" first="1" last="5" step="2">
 						<ui:with pointer="drag" x.editable="true" y.editable="true" z.editable="true">
 							<dot
-								ui:id="filter_dot_${i}"
+								ui:id="band_dot_${i}"
 								x="(:sf_${i} * :fre_${i}) ** 0.5" y.id="mk_${i}" z.id="cr_${i}"
 								size="1 + 4*:_ui_filter_point_thickness"
 								hover.size="1 + 4*:_ui_filter_point_thickness"
@@ -190,321 +190,321 @@
 							</ledmeter>
 						</hbox>
 						<value id="g_out" halign="0"/>
-						<value id="frd_1" halign="0"/>
+						<value id="current_band" halign="0"/>
 					</vbox>
 				</hbox>
 			</cell>
 		</grid>
 
 		<!-- Bottom part -->
-		<!-- TODO: Implement "current band" logic -->
-		<ui:eval id="i" value="0" />
 
-		<hbox spacing="4" bg.color="bg">
-			<ui:with expand="true" bg.color="bg_schema">
-				<vbox vexpand="true" hexpand="false" bg.color="bg_schema">
-					<label text="labels.band"/>
-					<ui:if test=":i ieq 0">
-						<button text="labels.chan.active_num_id" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
-					</ui:if>
+		<ui:for id="i" first="0" count="7">
+			<ui:with visibility="${i} ieq :current_band + 1">
+				<hbox spacing="4" bg.color="bg">
+					<ui:with expand="true" bg.color="bg_schema">
+						<vbox vexpand="true" hexpand="false" bg.color="bg_schema">
+							<label text="labels.band"/>
 
-					<ui:if test=":i ine 0">
-						<button
-							id="cbe_${i}"
-							text="labels.chan.active_num_id"
-							text:id="${i}"
-							ui:inject="Button_Cycle"
-							hfill="true"
-							height="19"
-							pad.h="6"
-							pad.v="4"
-							down.color.hue=":hue_${i}"
-							down.hover.color.hue=":hue_${i}"
-							text.down.color.hue=":hue_${i}"
-							text.down.hover.color.hue=":hue_${i}"
-							border.down.color.hue=":hue_${i}"
-							border.down.hover.color.hue=":hue_${i}"/>
-					</ui:if>
+							<ui:if test=":i ieq 0">
+								<button text="labels.chan.active_num_id" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
+							</ui:if>
+							<ui:if test=":i ine 0">
+								<button
+									id="cbe_${i}"
+									text="labels.chan.active_num_id"
+									text:id="${i}"
+									ui:inject="Button_Cycle"
+									hfill="true"
+									height="19"
+									pad.h="6"
+									pad.v="4"
+									down.color.hue=":hue_${i}"
+									down.hover.color.hue=":hue_${i}"
+									text.down.color.hue=":hue_${i}"
+									text.down.hover.color.hue=":hue_${i}"
+									border.down.color.hue=":hue_${i}"
+									border.down.hover.color.hue=":hue_${i}"/>
+							</ui:if>
 
-					<hsep bg.color="bg" pad.v="2" vreduce="true"/>
-					<hbox fill="false" pad.h="6" pad.t="4">
-						<label text="labels.range" pad.r="4"/>
-						<label text="labels.units.:hz"/>
-					</hbox>
-
-					<ui:if test=":i ieq 0">
-						<hbox width="78" pad.v="2" fill="false">
-							<label text="0"/>
-							<label text="-" />
-							<value id="fre_${i}" sline="true" detailed="false"/>
-						</hbox>
-					</ui:if>
-
-					<ui:if test=":i ine 0">
-						<hbox fill="false" pad.h="6">
-							<knob id="sf_${i}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
-							<hbox fill="false" pad.l="6">
-								<value id="sf_${i}" width.min="32" detailed="false" visibility=":cbe_${i}"/>
-								<value id="fre_${i}" detailed="false" width.min="32"/>
-								<label text="labels.chan.off" width.min="32" visibility="not :cbe_${i}"/>
+							<hsep bg.color="bg" pad.v="2" vreduce="true"/>
+							<hbox fill="false" pad.h="6" pad.t="4">
+								<label text="labels.range" pad.r="4"/>
+								<label text="labels.units.:hz"/>
 							</hbox>
-						</hbox>
-					</ui:if>
-					<hbox fill="true" spacing="4">
-						<button
-							id="ce_${i}"
-							text="labels.chan.on"
-							ui:inject="Button_Cycle_8"
-							hfill="true"
-							height="19"
-							hexpand="true"
-							down.color.hue=":hue_${i}"
-							down.hover.color.hue=":hue_${i}"
-							text.down.color.hue=":hue_${i}"
-							text.down.hover.color.hue=":hue_${i}"
-							border.down.color.hue=":hue_${i}"
-							border.down.hover.color.hue=":hue_${i}"/>
-						<button id="bs_${i}" text="labels.chan.S_olo" ui:inject="Button_green_8" hfill="true" height="19" hexpand="true"/>
-						<button id="bm_${i}" text="labels.chan.M_ute" ui:inject="Button_red_8" hfill="true" height="19" hexpand="true"/>
-					</hbox>
 
-					<label text="labels.mode" pad.v="4" vreduce="true"/>
+							<ui:if test=":i ieq 0">
+								<hbox width="78" pad.v="2" fill="false">
+									<label text="0"/>
+									<label text="-" />
+									<value id="fre_${i}" sline="true" detailed="false"/>
+								</hbox>
+							</ui:if>
+							<ui:if test=":i ine 0">
+								<hbox fill="false" pad.h="6">
+									<knob id="sf_${i}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
+									<hbox fill="false" pad.l="6">
+										<value id="sf_${i}" width.min="32" detailed="false" visibility=":cbe_${i}"/>
+										<value id="fre_${i}" detailed="false" width.min="32"/>
+										<label text="labels.chan.off" width.min="32" visibility="not :cbe_${i}"/>
+									</hbox>
+								</hbox>
+							</ui:if>
 
-					<combo id="scm_${i}" fill="true"/>
-					<combo id="scs_${i}" fill="true" visibility="!:ssplit"/>
-					<combo id="sscs_${i}" fill="true" visibility=":ssplit"/>
-					<button
-						text="labels.chan.external_sc"
-						id="sce_${i}"
-						ui:inject="Button_Cycle"
-						hfill="true"
-						height="19"
-						down.color.hue=":hue_${i}"
-						down.hover.color.hue=":hue_${i}"
-						text.down.color.hue=":hue_${i}"
-						text.down.hover.color.hue=":hue_${i}"
-						border.down.color.hue=":hue_${i}"
-						border.down.hover.color.hue=":hue_${i}"
-						visibility="ex :sce_${i}"/>
-
-						<label text="labels.mode"/>
-						<combo id="cm_${i}" fill="true"/>
-				</vbox>
-			</ui:with>
-
-			<hbox vexpand="true" bg.color="bg_schema">
-				<ui:with>
-					<vbox>
-						<vbox>
-							<label text="labels.sc.lookahead"/>
-							<knob id="sla_${i}" size="24" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
-							<value id="sla_${i}"/>
-						</vbox>
-
-						<vbox>
-							<label text="labels.sc.reactivity"/>
-							<knob id="scr_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
-							<value id="scr_${i}"/>
-						</vbox>
-					</vbox>
-
-					<vbox>
-						<vbox>
-							<label text="labels.ratio"/>
-							<knob id="cr_${i}" size="40" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
-							<hbox fill="false" pad.h="6" pad.v="4" width.min="30">
-								<value id="cr_${i}" detailed="false"/>
-								<label text=":"/>
-								<label text="1"/>
+							<hbox fill="true" spacing="4">
+								<button
+									id="ce_${i}"
+									text="labels.chan.on"
+									ui:inject="Button_Cycle_8"
+									hfill="true"
+									height="19"
+									hexpand="true"
+									down.color.hue=":hue_${i}"
+									down.hover.color.hue=":hue_${i}"
+									text.down.color.hue=":hue_${i}"
+									text.down.hover.color.hue=":hue_${i}"
+									border.down.color.hue=":hue_${i}"
+									border.down.hover.color.hue=":hue_${i}"/>
+								<button id="bs_${i}" text="labels.chan.S_olo" ui:inject="Button_green_8" hfill="true" height="19" hexpand="true"/>
+								<button id="bm_${i}" text="labels.chan.M_ute" ui:inject="Button_red_8" hfill="true" height="19" hexpand="true"/>
 							</hbox>
-						</vbox>
 
+							<label text="labels.mode" pad.v="4" vreduce="true"/>
+
+							<combo id="scm_${i}" fill="true"/>
+							<combo id="scs_${i}" fill="true" visibility="!:ssplit"/>
+							<combo id="sscs_${i}" fill="true" visibility=":ssplit"/>
+							<button
+								text="labels.chan.external_sc"
+								id="sce_${i}"
+								ui:inject="Button_Cycle"
+								hfill="true"
+								height="19"
+								down.color.hue=":hue_${i}"
+								down.hover.color.hue=":hue_${i}"
+								text.down.color.hue=":hue_${i}"
+								text.down.hover.color.hue=":hue_${i}"
+								border.down.color.hue=":hue_${i}"
+								border.down.hover.color.hue=":hue_${i}"
+								visibility="ex :sce_${i}"/>
+
+								<label text="labels.mode"/>
+								<combo id="cm_${i}" fill="true"/>
+						</vbox>
+					</ui:with>
+
+					<hbox vexpand="true" bg.color="bg_schema">
 						<vbox>
-							<label text="labels.knee"/>
-							<knob id="kn_${i}" size="24" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
-							<value id="kn_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
-						</vbox>
-					</vbox>
-
-					<vbox>
-						<vbox>
-							<label text="labels.makeup"/>
-							<knob id="mk_${i}" size="30" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
-							<value id="mk_${i}"/>
-						</vbox>
-
-						<vbox visibility="not (((:cm_${i} ieq 0) and (:cm_${i} ieq 0)))">
-							<label text="labels.boost" />
-							<hbox>
-								<knob id="bth_${i}" size="16" ssize="3" pad.t="4" scolor="cycle" scolor.hue=":hue_${i}" visibility=":cm_${i} ine 2"/>
-								<knob id="bsa_${i}" size="16" ssize="3" pad.t="4" scolor="cycle" scolor.hue=":hue_${i}" visibility=":cm_${i} ieq 2"/>
-							</hbox>
-							<hbox pad.h="6" pad.v="4" width.min="54">
-								<value id="bth_${i}" sline="true" visibility=":cm_${i} ine 2"/>
-								<value id="bsa_${i}" sline="true" visibility=":cm_${i} ieq 2"/>
-							</hbox>
-						</vbox>
-					</vbox>
-
-					<!-- Compression graph -->
-
-					<vbox>
-						<void bg.color="bg" height="4" vreduce="true"/>
-
-						<group ui:inject="GraphGroup" ipadding="0" expand="true" fill="true" text.show="false">
-							<graph width.min="256" height.min="256" expand="false">
-								<origin hpos="-1" vpos="-1" visible="false"/>
-
-								<!-- Gray grid -->
-								<ui:for id="g" first="-60" last="12" step="24">
-									<marker v="${g} db" color="graph_alt_1"/>
-									<marker v="${g} db" ox="1" oy="0" color="graph_alt_1"/>
-								</ui:for>
-
-								<!-- Yellow grid -->
-								<ui:for id="g" first="-48" last="-24" step="24">
-									<marker v="${g} db" color="graph_sec"/>
-									<marker v="${g} db" ox="1" oy="0" color="graph_sec"/>
-								</ui:for>
-
-								<!-- Axes and boundaries -->
-								<marker v="1" ox="1" oy="0" dv="1" dx=":_a_width" dy=":_a_height" color="graph_alt_1" width="2" smooth="true"/>
-								<marker v="24 db" color="graph_alt_1" visibility="false"/>
-								<marker v="24 db" ox="1" oy="0" color="graph_alt_1" visibility="false"/>
-								<axis min="-72 db" max="24 db" color="graph_prim" angle="0.0" log="true" visibility="false"/>
-								<axis min="-72 db" max="24 db" color="graph_prim" angle="0.5" log="true" visibility="false"/>
-
-								<!-- 0 dB markers -->
-								<marker v="0 db" ox="0" oy="1" width="2" color="graph_prim"/>
-								<marker v="0 db" ox="1" oy="0" width="2" color="graph_prim"/>
-
-								<!-- Meshes -->
-								<mesh id="ccg_${i}" width="3" color="graph_mesh" smooth="true"/>
-								<dot x.id="elm_${i}l" y.id="clm_${i}l" color="graph_mesh" bcolor="graph_mesh" visibility="!:ssplit"/>
-								<dot x.id="elm_${i}l" y.id="clm_${i}l" color="left" bcolor="left" visibility=":ssplit"/>
-								<dot x.id="elm_${i}r" y.id="clm_${i}r" color="right" bcolor="right" visibility=":ssplit"/>
-
-								<!-- Markers -->
-								<marker id="al_${i}" editable="true" width="2" pointer="hsize" color="attack_1" hcolor="attack_1"/>
-								<marker id="rl_${i}" color="release_1"/>
-
-								<!-- Text -->
-								<text x="0 db" y="0 db" text="0" halign="1" valign="1"/>
-								<ui:attributes x="0 db" halign="1" valign="-1">
-									<text y="24 db" text="graph.units.db"/>
-									<text y="12 db" text="+12"/>
-									<text y="-12 db" text="-12"/>
-									<text y="-24 db" text="-24"/>
-									<text y="-36 db" text="-36"/>
-									<text y="-48 db" text="-48"/>
-									<text y="-60 db" text="-60"/>
-									<text y="-72 db" text="graph.axis.out" valign="1"/>
-								</ui:attributes>
-								<ui:attributes y="0 db" halign="-1" valign="1">
-									<text x="24 db" text="graph.units.db"/>
-									<text x="12 db" text="+12"/>
-									<text x="-12 db" text="-12"/>
-									<text x="-24 db" text="-24"/>
-									<text x="-36 db" text="-36"/>
-									<text x="-48 db" text="-48"/>
-									<text x="-60 db" text="-60"/>
-									<text x="-72 db" text="graph.axis.in" halign="1"/>
-								</ui:attributes>
-							</graph>
-						</group>
-					</vbox>
-
-					<!-- Gain Reduction -->
-					<vbox>
-						<void bg.color="bg" height="4" vreduce="true"/>
-						<label text="labels.gain_" bg.color="bg_schema" pad.v="4"/>
-						<ledmeter vexpand="true" height.min="256" angle="1">
-							<ledchannel id="rlm_${i}l" min="-72 db" max="24 db" log="true" balance="0 db" balance.visibility="true" type="peak" value.color="bright_blue"/>
-							<ledchannel id="rlm_${i}r" min="-72 db" max="24 db" log="true" balance="0 db" balance.visibility="true" type="peak" value.color="bright_blue"/>
-						</ledmeter>
-					</vbox>
-
-					<!-- Attack/Release -->
-
-					<vbox width.min="75" >
-						<vbox>
-							<label text="labels.attack" />
-							<knob id="at_${i}" size="30" ssize="3" scolor="pink" pad.t="4" />
-							<value id="at_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
-						</vbox>
-
-						<vbox>
-							<label text="labels.release"/>
-							<knob id="rt_${i}" size="30" ssize="3" scolor="release_1" pad.t="4" />
-							<value id="rt_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
-						</vbox>
-					</vbox>
-
-					<!-- signal -->
-					<vbox spacing="4">
-						<group text="groups.signal" expand="true">
-							<grid rows="2" cols="2" hspacing="4">
-								<knob id="g_dry" scolor="dry" pad.r="4"/>
-								<vbox vfill="false">
-									<label text="labels.signal.dry" halign="0"/>
-									<value id="g_dry" width.min="50" sline="true" halign="0"/>
-								</vbox>
-
-								<knob id="g_wet" scolor="wet" pad.r="4"/>
-								<vbox vfill="false">
-									<label text="labels.signal.wet" halign="0"/>
-									<value id="g_wet" width.min="50" sline="true" halign="0"/>
-								</vbox>
-							</grid>
-						</group>
-
-						<!-- Analysis -->
-						<group text="groups.analysis" expand="true" ipadding="0">
 							<vbox>
-								<grid rows="4" cols="2">
-									<align halign="-1" pad.t="4" pad.l="6">
-										<label text="labels.fft.fft_in"/>
-									</align>
-									<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ife_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
-										<button id="ife_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
-
-									<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
-
-									<align halign="-1" pad.t="4" pad.l="6">
-										<label text="labels.fft.fft_out" halign="0"/>
-									</align>
-									<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ofe_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
-										<button id="ofe_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
-
-									<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
-								</grid>
-
-								<grid rows="2" cols="2" transpose="false" expand="true" hspacing="4">
-									<knob id="react" size="20" pad.r="4" pad.l="6"/>
-									<vbox vfill="false" pad.r="6">
-										<label text="labels.metering.reactivity" halign="0"/>
-										<value id="react" width.min="50" sline="true" halign="0"/>
-									</vbox>
-
-									<knob id="shift" size="20" pad.r="4" pad.l="6"/>
-									<vbox vfill="false" pad.r="6">
-										<label text="labels.metering.shift" halign="0"/>
-										<value id="shift" width.min="50" sline="true" halign="0"/>
-									</vbox>
-								</grid>
+								<label text="labels.sc.lookahead"/>
+								<knob id="sla_${i}" size="24" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
+								<value id="sla_${i}"/>
 							</vbox>
-						</group>
-					</vbox>
 
-					<!-- <vbox>
-						<label text="labels.release"/>
-						<label text="labels.thresh_old"/>
-						<knob id="rrl_${i}" size="16" ssize="3" pad.t="4" scolor="release_1"/>
-						<value id="rrl_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
-					</vbox> -->
-				</ui:with>
-			</hbox>
-		</hbox>
+							<vbox>
+								<label text="labels.sc.reactivity"/>
+								<knob id="scr_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
+								<value id="scr_${i}"/>
+							</vbox>
+						</vbox>
+
+						<vbox>
+							<vbox>
+								<label text="labels.ratio"/>
+								<knob id="cr_${i}" size="40" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
+								<hbox fill="false" pad.h="6" pad.v="4" width.min="30">
+									<value id="cr_${i}" detailed="false"/>
+									<label text=":"/>
+									<label text="1"/>
+								</hbox>
+							</vbox>
+
+							<vbox>
+								<label text="labels.knee"/>
+								<knob id="kn_${i}" size="24" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
+								<value id="kn_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
+							</vbox>
+						</vbox>
+
+						<vbox>
+							<vbox>
+								<label text="labels.makeup"/>
+								<knob id="mk_${i}" size="30" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
+								<value id="mk_${i}"/>
+							</vbox>
+
+							<vbox visibility="not (((:cm_${i} ieq 0) and (:cm_${i} ieq 0)))">
+								<label text="labels.boost" />
+								<hbox>
+									<knob id="bth_${i}" size="16" ssize="3" pad.t="4" scolor="cycle" scolor.hue=":hue_${i}" visibility=":cm_${i} ine 2"/>
+									<knob id="bsa_${i}" size="16" ssize="3" pad.t="4" scolor="cycle" scolor.hue=":hue_${i}" visibility=":cm_${i} ieq 2"/>
+								</hbox>
+								<hbox pad.h="6" pad.v="4" width.min="54">
+									<value id="bth_${i}" sline="true" visibility=":cm_${i} ine 2"/>
+									<value id="bsa_${i}" sline="true" visibility=":cm_${i} ieq 2"/>
+								</hbox>
+							</vbox>
+						</vbox>
+
+						<!-- Compression graph -->
+
+						<vbox>
+							<void bg.color="bg" height="4" vreduce="true"/>
+
+							<group ui:inject="GraphGroup" ipadding="0" expand="true" fill="true" text.show="false">
+								<graph width.min="256" height.min="256" expand="false">
+									<origin hpos="-1" vpos="-1" visible="false"/>
+
+									<!-- Gray grid -->
+									<ui:for id="g" first="-60" last="12" step="24">
+										<marker v="${g} db" color="graph_alt_1"/>
+										<marker v="${g} db" ox="1" oy="0" color="graph_alt_1"/>
+									</ui:for>
+
+									<!-- Yellow grid -->
+									<ui:for id="g" first="-48" last="-24" step="24">
+										<marker v="${g} db" color="graph_sec"/>
+										<marker v="${g} db" ox="1" oy="0" color="graph_sec"/>
+									</ui:for>
+
+									<!-- Axes and boundaries -->
+									<marker v="1" ox="1" oy="0" dv="1" dx=":_a_width" dy=":_a_height" color="graph_alt_1" width="2" smooth="true"/>
+									<marker v="24 db" color="graph_alt_1" visibility="false"/>
+									<marker v="24 db" ox="1" oy="0" color="graph_alt_1" visibility="false"/>
+									<axis min="-72 db" max="24 db" color="graph_prim" angle="0.0" log="true" visibility="false"/>
+									<axis min="-72 db" max="24 db" color="graph_prim" angle="0.5" log="true" visibility="false"/>
+
+									<!-- 0 dB markers -->
+									<marker v="0 db" ox="0" oy="1" width="2" color="graph_prim"/>
+									<marker v="0 db" ox="1" oy="0" width="2" color="graph_prim"/>
+
+									<!-- Meshes -->
+									<mesh id="ccg_${i}" width="3" color="graph_mesh" smooth="true"/>
+									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="graph_mesh" bcolor="graph_mesh" visibility="!:ssplit"/>
+									<dot x.id="elm_${i}l" y.id="clm_${i}l" color="left" bcolor="left" visibility=":ssplit"/>
+									<dot x.id="elm_${i}r" y.id="clm_${i}r" color="right" bcolor="right" visibility=":ssplit"/>
+
+									<!-- Markers -->
+									<marker id="al_${i}" editable="true" width="2" pointer="hsize" color="attack_1" hcolor="attack_1"/>
+									<marker id="rl_${i}" color="release_1"/>
+
+									<!-- Text -->
+									<text x="0 db" y="0 db" text="0" halign="1" valign="1"/>
+									<ui:attributes x="0 db" halign="1" valign="-1">
+										<text y="24 db" text="graph.units.db"/>
+										<text y="12 db" text="+12"/>
+										<text y="-12 db" text="-12"/>
+										<text y="-24 db" text="-24"/>
+										<text y="-36 db" text="-36"/>
+										<text y="-48 db" text="-48"/>
+										<text y="-60 db" text="-60"/>
+										<text y="-72 db" text="graph.axis.out" valign="1"/>
+									</ui:attributes>
+									<ui:attributes y="0 db" halign="-1" valign="1">
+										<text x="24 db" text="graph.units.db"/>
+										<text x="12 db" text="+12"/>
+										<text x="-12 db" text="-12"/>
+										<text x="-24 db" text="-24"/>
+										<text x="-36 db" text="-36"/>
+										<text x="-48 db" text="-48"/>
+										<text x="-60 db" text="-60"/>
+										<text x="-72 db" text="graph.axis.in" halign="1"/>
+									</ui:attributes>
+								</graph>
+							</group>
+						</vbox>
+
+						<!-- Gain Reduction -->
+						<vbox>
+							<void bg.color="bg" height="4" vreduce="true"/>
+							<label text="labels.gain_" bg.color="bg_schema" pad.v="4"/>
+							<ledmeter vexpand="true" height.min="256" angle="1">
+								<ledchannel id="rlm_${i}l" min="-72 db" max="24 db" log="true" balance="0 db" balance.visibility="true" type="peak" value.color="bright_blue"/>
+								<ledchannel id="rlm_${i}r" min="-72 db" max="24 db" log="true" balance="0 db" balance.visibility="true" type="peak" value.color="bright_blue"/>
+							</ledmeter>
+						</vbox>
+
+						<!-- Attack/Release -->
+
+						<vbox width.min="75" >
+							<vbox>
+								<label text="labels.attack" />
+								<knob id="at_${i}" size="30" ssize="3" scolor="pink" pad.t="4" />
+								<value id="at_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
+							</vbox>
+
+							<vbox>
+								<label text="labels.release"/>
+								<knob id="rt_${i}" size="30" ssize="3" scolor="release_1" pad.t="4" />
+								<value id="rt_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
+							</vbox>
+						</vbox>
+
+						<!-- signal -->
+						<vbox spacing="4">
+							<group text="groups.signal" expand="true">
+								<grid rows="2" cols="2" hspacing="4">
+									<knob id="g_dry" scolor="dry" pad.r="4"/>
+									<vbox vfill="false">
+										<label text="labels.signal.dry" halign="0"/>
+										<value id="g_dry" width.min="50" sline="true" halign="0"/>
+									</vbox>
+
+									<knob id="g_wet" scolor="wet" pad.r="4"/>
+									<vbox vfill="false">
+										<label text="labels.signal.wet" halign="0"/>
+										<value id="g_wet" width.min="50" sline="true" halign="0"/>
+									</vbox>
+								</grid>
+							</group>
+
+							<!-- Analysis -->
+							<group text="groups.analysis" expand="true" ipadding="0">
+								<vbox>
+									<grid rows="4" cols="2">
+										<align halign="-1" pad.t="4" pad.l="6">
+											<label text="labels.fft.fft_in"/>
+										</align>
+										<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ife_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
+											<button id="ife_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
+
+										<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+
+										<align halign="-1" pad.t="4" pad.l="6">
+											<label text="labels.fft.fft_out" halign="0"/>
+										</align>
+										<hbox spacing="4" pad.v="4" pad.h="6" hfill="false"><button id="ofe_l" text="labels.chan.L_eft" size="19" ui:inject="Button_left_8"/>
+											<button id="ofe_r" text="labels.chan.R_ight" size="19" ui:inject="Button_right_8"/></hbox>
+
+										<cell cols="2"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+									</grid>
+
+									<grid rows="2" cols="2" transpose="false" expand="true" hspacing="4">
+										<knob id="react" size="20" pad.r="4" pad.l="6"/>
+										<vbox vfill="false" pad.r="6">
+											<label text="labels.metering.reactivity" halign="0"/>
+											<value id="react" width.min="50" sline="true" halign="0"/>
+										</vbox>
+
+										<knob id="shift" size="20" pad.r="4" pad.l="6"/>
+										<vbox vfill="false" pad.r="6">
+											<label text="labels.metering.shift" halign="0"/>
+											<value id="shift" width.min="50" sline="true" halign="0"/>
+										</vbox>
+									</grid>
+								</vbox>
+							</group>
+						</vbox>
+
+						<!-- <vbox>
+							<label text="labels.release"/>
+							<label text="labels.thresh_old"/>
+							<knob id="rrl_${i}" size="16" ssize="3" pad.t="4" scolor="release_1"/>
+							<value id="rrl_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
+						</vbox> -->
+					</hbox>
+				</hbox>
+			</ui:with>
+		</ui:for>
 
 		<!-- bottom line -->
 		<hbox vreduce="true">

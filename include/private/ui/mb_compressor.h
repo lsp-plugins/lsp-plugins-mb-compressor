@@ -56,11 +56,14 @@ namespace lsp
 
                     tk::GraphMarker    *wMarkerStart;   // Start marker
                     tk::GraphMarker    *wMarkerEnd;     // End marker
+
+                    tk::GraphDot       *wDot;           // Dot for editing
+
+                    size_t             id;              // Band ID
                 } band_t;
 
             protected:
                 ui::IPort              *pCurrentBand;   // Current band port
-                ui::IPort              *pDotFreqs[8];   // Current band port
 
                 lltl::darray<split_t>   vSplits;          // List of split widgets and ports
                 lltl::darray<band_t>    vBands;           // List of band widgets and ports
@@ -72,21 +75,23 @@ namespace lsp
 
                 static status_t slot_split_mouse_in(tk::Widget *sender, void *ptr, void *data);
                 static status_t slot_split_mouse_out(tk::Widget *sender, void *ptr, void *data);
+                static status_t slot_band_dot_mouse_down(tk::Widget *sender, void *ptr, void *data);
                 static ssize_t  compare_splits_by_freq(const split_t *a, const split_t *b);
 
             protected:
 
                 template <class T>
-                T              *find_split_widget(const char *fmt, const char *base, size_t id);
+                T              *find_widget(const char *fmt, const char *base, size_t id);
                 ui::IPort      *find_port(const char *fmt, const char *base, size_t id);
                 split_t        *find_split_by_widget(tk::Widget *widget);
                 split_t        *find_split_by_port(ui::IPort *port);
+                band_t         *find_band_by_widget(tk::Widget *widget);
 
             protected:
                 void            on_split_mouse_in(split_t *s);
                 void            on_split_mouse_out();
 
-                void            on_band_dot_mouse_down();
+                void            on_band_dot_mouse_down(band_t *b);
                 void            on_band_dot_move();
 
                 void            add_splits();

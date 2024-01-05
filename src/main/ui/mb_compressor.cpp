@@ -38,17 +38,6 @@ namespace lsp
         */
         static const meta::port_t current_band_port =
             INT_CONTROL_RANGE("current_band", "Current Band", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f);
-
-        static meta::port_t dot_freqs[] =
-        {
-            INT_CONTROL_RANGE("frd_0", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
-            INT_CONTROL_RANGE("frd_1", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
-            INT_CONTROL_RANGE("frd_2", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
-            INT_CONTROL_RANGE("frd_3", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
-            INT_CONTROL_RANGE("frd_4", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
-            INT_CONTROL_RANGE("frd_5", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
-            INT_CONTROL_RANGE("frd_6", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
-        };
     }
 
     namespace plugui
@@ -100,7 +89,7 @@ namespace lsp
         };
 
         template <class T>
-        T *mb_compressor_ui::find_split_widget(const char *fmt, const char *base, size_t id)
+        T *mb_compressor_ui::find_widget(const char *fmt, const char *base, size_t id)
         {
             char widget_id[64];
             ::snprintf(widget_id, sizeof(widget_id)/sizeof(char), fmt, base, int(id));
@@ -122,11 +111,6 @@ namespace lsp
 
             pCurrentBand  = NULL;
 
-            for (size_t i = 0; i < 8; i++)
-            {
-                pDotFreqs[i] = NULL;
-            }
-
             nCurrentBand    = -1;
         }
 
@@ -142,11 +126,6 @@ namespace lsp
                 return res;
 
             pCurrentBand = create_control_port(&meta::current_band_port);
-
-            for (size_t i = 0; i < 8; i++)
-            {
-                pDotFreqs[i] = create_control_port(&meta::dot_freqs[i]);
-            }
 
             return STATUS_OK;
         }
@@ -173,6 +152,20 @@ namespace lsp
                 return STATUS_BAD_STATE;
 
             ui->on_split_mouse_out();
+
+            return STATUS_OK;
+        }
+
+        status_t mb_compressor_ui::slot_band_dot_mouse_down(tk::Widget *sender, void *ptr, void *data)
+        {
+            // Fetch parameters
+            mb_compressor_ui *ui = static_cast<mb_compressor_ui *>(ptr);
+            if (ui == NULL)
+                return STATUS_BAD_STATE;
+
+            band_t *b = ui->find_band_by_widget(sender);
+            if (b != NULL)
+                ui->on_band_dot_mouse_down(b);
 
             return STATUS_OK;
         }
@@ -208,6 +201,18 @@ namespace lsp
             return NULL;
         }
 
+
+        mb_compressor_ui::band_t *mb_compressor_ui::find_band_by_widget(tk::Widget *widget)
+        {
+            for (size_t i=0, n=vBands.size(); i<n; ++i)
+            {
+                band_t *b = vBands.uget(i);
+                if (b->wDot == widget)
+                    return b;
+            }
+            return NULL;
+        }
+
         void mb_compressor_ui::on_split_mouse_in(split_t *s)
         {
             if (s->wNote != NULL)
@@ -227,6 +232,15 @@ namespace lsp
             }
         }
 
+        void mb_compressor_ui::on_band_dot_mouse_down(band_t *b)
+        {
+            if (pCurrentBand != NULL)
+            {
+                pCurrentBand->set_value(b->id);
+                pCurrentBand->notify_all(ui::PORT_USER_EDIT);
+            }
+        }
+
         void mb_compressor_ui::add_splits()
         {
             size_t channel      = 0;
@@ -238,8 +252,8 @@ namespace lsp
 
                     s.pUI           = this;
 
-                    s.wMarker       = find_split_widget<tk::GraphMarker>(*fmt, "split_marker", port_id);
-                    s.wNote         = find_split_widget<tk::GraphText>(*fmt, "split_note", port_id);
+                    s.wMarker       = find_widget<tk::GraphMarker>(*fmt, "split_marker", port_id);
+                    s.wNote         = find_widget<tk::GraphText>(*fmt, "split_note", port_id);
 
                     s.pFreq         = find_port(*fmt, "sf", port_id);
                     s.pOn           = find_port(*fmt, "cbe", port_id);
@@ -262,12 +276,14 @@ namespace lsp
                     vSplits.add(&s);
                 }
 
-                for (size_t port_id=1; port_id<meta::mb_compressor_metadata::BANDS_MAX-2; ++port_id)
+                for (size_t port_id=1; port_id<meta::mb_compressor_metadata::BANDS_MAX-1; ++port_id)
                 {
                     split_t *startSplit = vSplits.uget(channel + port_id-1);
                     split_t *endSplit   = vSplits.uget(channel + port_id);
 
                     band_t b;
+
+                    b.id            = port_id - 1;
 
                     b.pUI           = this;
                     b.pOn           = startSplit->pOn;
@@ -277,13 +293,18 @@ namespace lsp
 
                     // Logarithmic scale center point
                     b.fFreqCenter   = sqrtf(startSplit->fFreq * endSplit->fFreq);
-                    pDotFreqs[port_id - 1]->set_value(b.fFreqCenter);
-                    pDotFreqs[port_id - 1]->notify_all(ui::PORT_USER_EDIT);
 
 
                     b.nChannel      = &startSplit->nChannel;
                     b.splitStart    = startSplit;
                     b.splitEnd      = endSplit;
+
+                    b.wDot          = find_widget<tk::GraphDot>(*fmt, "band_dot", port_id);
+
+                    if (b.wDot != NULL)
+                    {
+                        b.wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_down, this);
+                    }
 
                     vBands.add(&b);
                 }
