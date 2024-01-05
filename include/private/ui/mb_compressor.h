@@ -65,9 +65,13 @@ namespace lsp
             protected:
                 ui::IPort              *pCurrentBand;   // Current band port
 
+                tk::Graph              *wGraph;
+
                 lltl::darray<split_t>   vSplits;          // List of split widgets and ports
                 lltl::darray<band_t>    vBands;           // List of band widgets and ports
                 lltl::parray<split_t>   vActiveSplits;    // List of split widgets and ports
+                ssize_t                 nXAxisIndex;
+                ssize_t                 nYAxisIndex;
                 size_t                  nCurrentBand;     // Current band
                 const char            **fmtStrings;       // List of format strings
 
@@ -76,6 +80,7 @@ namespace lsp
                 static status_t slot_split_mouse_in(tk::Widget *sender, void *ptr, void *data);
                 static status_t slot_split_mouse_out(tk::Widget *sender, void *ptr, void *data);
                 static status_t slot_band_dot_mouse_down(tk::Widget *sender, void *ptr, void *data);
+                static status_t slot_graph_dbl_click(tk::Widget *sender, void *ptr, void *data);
                 static ssize_t  compare_splits_by_freq(const split_t *a, const split_t *b);
 
             protected:
@@ -94,6 +99,9 @@ namespace lsp
                 void            on_band_dot_mouse_down(band_t *b);
                 void            on_band_dot_move();
 
+                void            on_graph_dbl_click(ssize_t x, ssize_t y);
+
+                ssize_t         find_axis(const char *id);
                 void            add_splits();
                 void            resort_active_splits();
                 void            update_split_note_text(split_t *s);

@@ -19,7 +19,7 @@
  * along with lsp-plugins-mb-compressor. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
+#include <lsp-plug.in/common/debug.h>
 #include <lsp-plug.in/plug-fw/ui.h>
 #include <lsp-plug.in/plug-fw/meta/ports.h>
 #include <lsp-plug.in/dsp-units/units.h>
@@ -110,8 +110,9 @@ namespace lsp
 
 
             pCurrentBand  = NULL;
+            wGraph        = NULL;
 
-            nCurrentBand    = -1;
+            nCurrentBand  = -1;
         }
 
         mb_compressor_ui::~mb_compressor_ui()
@@ -126,6 +127,8 @@ namespace lsp
                 return res;
 
             pCurrentBand = create_control_port(&meta::current_band_port);
+            pCurrentBand->set_value(-1.0f);
+            pCurrentBand->notify_all(ui::PORT_USER_EDIT);
 
             return STATUS_OK;
         }
@@ -166,6 +169,18 @@ namespace lsp
             band_t *b = ui->find_band_by_widget(sender);
             if (b != NULL)
                 ui->on_band_dot_mouse_down(b);
+
+            return STATUS_OK;
+        }
+
+        status_t mb_compressor_ui::slot_graph_dbl_click(tk::Widget *sender, void *ptr, void *data)
+        {
+            mb_compressor_ui *_this = static_cast<mb_compressor_ui *>(ptr);
+            if (_this == NULL)
+                return STATUS_BAD_STATE;
+
+            ws::event_t *ev = static_cast<ws::event_t *>(data);
+            _this->on_graph_dbl_click(ev->nLeft, ev->nTop);
 
             return STATUS_OK;
         }
@@ -237,6 +252,91 @@ namespace lsp
             if (pCurrentBand != NULL)
             {
                 pCurrentBand->set_value(b->id);
+                pCurrentBand->notify_all(ui::PORT_USER_EDIT);
+            }
+        }
+
+        void mb_compressor_ui::on_graph_dbl_click(ssize_t x, ssize_t y)
+        {
+            if ((wGraph == NULL) || (nXAxisIndex < 0) || (nYAxisIndex < 0))
+                return;
+
+            float freq = 0.0f;
+            if (wGraph->xy_to_axis(nXAxisIndex, &freq, x, y) != STATUS_OK)
+                return;
+
+            lsp_trace("Double click: x=%d, y=%d, freq=%.2f",
+                x, y, freq);
+
+            // Check if not inside any band
+            for (size_t i = 0; i < vBands.size(); i++) {
+                band_t *b = vBands.uget(i);
+                if (b->pOn->value() < 0.5f)
+                    continue;
+                if ((freq >= b->splitStart->fFreq) && (freq <= b->splitEnd->fFreq))
+                    return;
+            }
+
+            // Allocate new band index
+            ssize_t bidx         = -1;
+            for (size_t i = 0; i < vBands.size(); i++) {
+                band_t *b = vBands.uget(i);
+                if (b->pOn->value() < 0.5f) {
+                    bidx = i;
+                    break;
+                }
+            }
+
+            if (bidx < 0)
+            {
+                lsp_trace("Could not allocate new equalizer band");
+                return;
+            }
+
+            band_t *b = vBands.uget(bidx);
+
+            float min_freq = 0.0f;
+            float max_freq = 0.0f;
+
+            // Calculate logarithmic scale split frequencies based on cursor position
+            if (freq > 0.0f)
+            {
+                min_freq = freq / 2.0f;
+                max_freq = freq * 2.0f;
+            }
+
+            // Modify min_freq and max_freq frequencies to not overlap with other bands
+            // FIXME: This is not optimal and has a lot of bugs. Think of it like a sketch.
+            // for (size_t i = 0; i < vBands.size(); i++) {
+            //     band_t *b = vBands.uget(i);
+            //     if (b->pOn->value() < 0.5f)
+            //         continue;
+
+            //     if (lsp_min(b->splitStart->fFreq, b->splitEnd->fFreq) < min_freq && lsp_max(b->splitStart->fFreq, b->splitEnd->fFreq) > min_freq)
+            //         min_freq = b->splitEnd->fFreq + 1.0f;
+
+            //     if (lsp_min(b->splitStart->fFreq, b->splitEnd->fFreq) < max_freq && lsp_max(b->splitStart->fFreq, b->splitEnd->fFreq) > max_freq)
+            //         max_freq = b->splitStart->fFreq - 1.0f;
+            // }
+
+
+            // Set-up band params
+            b->splitStart->bOn = true;
+            b->splitStart->pOn->set_value(1.0f);
+            b->splitStart->pOn->notify_all(ui::PORT_USER_EDIT);
+            b->splitEnd->bOn = true;
+            b->splitEnd->pOn->set_value(1.0f);
+            b->splitEnd->pOn->notify_all(ui::PORT_USER_EDIT);
+            b->splitStart->pFreq->set_value(min_freq);
+            b->splitStart->pFreq->notify_all(ui::PORT_USER_EDIT);
+            b->splitEnd->pFreq->set_value(max_freq);
+            b->splitEnd->pFreq->notify_all(ui::PORT_USER_EDIT);
+            b->fFreqCenter = sqrtf(min_freq * max_freq);
+
+            // Make the band current
+            if (pCurrentBand != NULL)
+            {
+                pCurrentBand->set_value(bidx);
                 pCurrentBand->notify_all(ui::PORT_USER_EDIT);
             }
         }
@@ -418,6 +518,18 @@ namespace lsp
             if (res != STATUS_OK)
                 return res;
 
+            // Add subwidgets
+            ctl::Window *wnd    = pWrapper->controller();
+
+            // Bind graph handlers
+            wGraph              = wnd->widgets()->get<tk::Graph>("main_graph");
+            if (wGraph != NULL)
+            {
+                wGraph->slots()->bind(tk::SLOT_MOUSE_DBL_CLICK, slot_graph_dbl_click, this);
+                nXAxisIndex         = find_axis("spectrum_ox");
+                nYAxisIndex         = find_axis("spectrum_oy");
+            }
+
             // Add splits widgets
             add_splits();
 
@@ -456,19 +568,27 @@ namespace lsp
                 toggle_active_split_fequency(freq_initiator);
         }
 
-        // void mb_compressor_ui::on_band_dot_mouse_down(tk::Widget *sender, ssize_t x, ssize_t y)
-        // {
-        //     filter_t *dot = find_filter_by_widget(sender);
-        //     if (dot == NULL)
-        //         return;
+        ssize_t mb_compressor_ui::find_axis(const char *id)
+        {
+            if (wGraph == NULL)
+                return -1;
 
-        //     nCurrentFilter = vFilters.index_of(dot);
-        //     if (pCurrentFilter != NULL)
-        //     {
-        //         pCurrentFilter->set_value(nCurrentFilter);
-        //         pCurrentFilter->notify_all(ui::PORT_USER_EDIT);
-        //     }
-        // }
+            ctl::Window *wnd    = pWrapper->controller();
+            tk::GraphAxis *axis = tk::widget_cast<tk::GraphAxis>(wnd->widgets()->find(id));
+            if (axis == NULL)
+                return -1;
+
+            for (size_t i=0; ; ++i)
+            {
+                tk::GraphAxis *ax = wGraph->axis(i);
+                if (ax == NULL)
+                    break;
+                else if (ax == axis)
+                    return i;
+            }
+
+            return -1;
+        }
 
         void mb_compressor_ui::toggle_active_split_fequency(split_t *initiator)
         {

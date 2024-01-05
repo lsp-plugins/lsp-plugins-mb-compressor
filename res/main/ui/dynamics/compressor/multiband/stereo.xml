@@ -3,7 +3,7 @@
 		<grid rows="1" cols="4" vspacing="4" hspacing="4" expand="true">
 
 			<group ui:inject="GraphGroup" ipadding="0" expand="true" fill="true" text.show="false" text="labels.graphs.spectrum">
-				<graph width.min="640" height.min="320" expand="true" fill="true">
+				<graph ui:id="main_graph" width.min="640" height.min="320" expand="true" fill="true">
 					<origin hpos="-1" vpos="-1" visible="false"/>
 
 					<!-- Additional grid -->
@@ -55,16 +55,16 @@
 						hlcolor="graph_marker_cycle"
 						rcolor="graph_marker_cycle"
 						hrcolor="graph_marker_cycle">
-						<marker v="10" color.hue=":hue_0" hcolor.hue=":hue_0" rborder="16" rcolor.hue=":hue_0" hrborder="16" hrcolor.hue=":hue_0"/>
-						<marker id="fre_0" color.hue=":hue_1" hcolor.hue=":hue_1" lborder="16" lcolor.hue=":hue_1" hlborder="16" hlcolor.hue=":hue_1"/>
+						<!-- <marker v="10" color.hue=":hue_0" hcolor.hue=":hue_0" rborder="16" rcolor.hue=":hue_0" hrborder="16" hrcolor.hue=":hue_0"/> -->
+						<!-- <marker id="fre_0" color.hue=":hue_1" hcolor.hue=":hue_1" lborder="16" lcolor.hue=":hue_1" hlborder="16" hlcolor.hue=":hue_1"/> -->
 						<ui:for id="i" first="1" last="7" step="2">
 							<!-- FIXME: ilt is a hack -->
 							<!-- Start band split -->
 							<marker id="sf_${i}" ui:id="split_marker_${i}" visibility=":cbe_${i} and ${i} ilt 6" editable="true" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" rborder="16" rcolor.hue=":hue_${i}" hrborder="16" hrcolor.hue=":hue_${i}" pointer="hsize"/>
-							<marker id="fre_${i}" visibility=":cbe_${i} and ${i} ilt 6" color.hue=":hue_${:i + 1}" hcolor.hue=":hue_${i}" lborder="16" lcolor.hue=":hue_${i}" hlborder="16" hlcolor.hue=":hue_${i}"/>
+							<marker id="fre_${i}" visibility=":cbe_${i} and :fre_${i} ilt 10000" color.hue=":hue_${:i + 1}" hcolor.hue=":hue_${i}" lborder="16" lcolor.hue=":hue_${i}" hlborder="16" hlcolor.hue=":hue_${i}"/>
 							<!-- End band split -->
-							<marker id="sf_${:i + 1}" ui:id="split_marker_${:i + 1}" visibility=":cbe_${:i + 1} and ${i}" editable="true" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" rborder="16" rcolor.hue=":hue_${i}" hrborder="16" hrcolor.hue=":hue_${i}" pointer="hsize"/>
-							<marker id="fre_${:i + 1}" visibility=":cbe_${:i + 1} and ${i} ilt 5" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" lborder="16" lcolor.hue=":hue_${i}" hlborder="16" hlcolor.hue=":hue_${i}"/>
+							<marker id="sf_${:i + 1}" ui:id="split_marker_${:i + 1}" visibility=":cbe_${i} and ${i}" editable="true" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" rborder="16" rcolor.hue=":hue_${i}" hrborder="16" hrcolor.hue=":hue_${i}" pointer="hsize"/>
+							<marker id="fre_${:i + 1}" visibility=":cbe_${i} and :fre_${i} ilt 10000" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" lborder="16" lcolor.hue=":hue_${i}" hlborder="16" hlcolor.hue=":hue_${i}"/>
 						</ui:for>
 					</ui:with>
 
@@ -112,8 +112,8 @@
 					<marker v="24000" color="graph_prim" visibility="false"/>
 
 					<!-- Axis -->
-					<axis min="10" max="24000" angle="0.0" log="true" visibility="false"/>
-					<axis min="-72 db / (:zoom ** 3)" max="24 db * :zoom" color="graph_prim" angle="0.5" log="true"/>
+					<axis ui:id="spectrum_ox" min="10" max="24000" angle="0.0" log="true" visibility="false"/>
+					<axis ui:id="spectrum_oy" min="-72 db / (:zoom ** 3)" max="48 db * :zoom" color="graph_prim" angle="0.5" log="true"/>
 					<axis min="-1" max="1" visibility="false" angle="0.5"/>
 					<axis min="-72 db" max="24 db" color="graph_prim" angle="0.5" log="true" visibility="false"/>
 
