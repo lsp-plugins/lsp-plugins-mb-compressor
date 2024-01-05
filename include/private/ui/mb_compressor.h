@@ -45,10 +45,28 @@ namespace lsp
                     tk::GraphText      *wNote;          // Text with note and frequency
                 } split_t;
 
+                typedef struct band_t
+                {
+                    mb_compressor_ui   *pUI;
+                    ui::IPort          *pOn;            // Band enable port
+                    split_t            *splitStart;     // Split start port
+                    split_t            *splitEnd;       // Split end port
+                    size_t             *nChannel;       // Channel (left/right/mid/side)
+                    float               fFreqCenter;    // Band center frequency (for dot position)
+
+                    tk::GraphMarker    *wMarkerStart;   // Start marker
+                    tk::GraphMarker    *wMarkerEnd;     // End marker
+                } band_t;
+
             protected:
-                lltl::darray<split_t> vSplits;          // List of split widgets and ports
-                lltl::parray<split_t> vActiveSplits;    // List of split widgets and ports
-                const char          **fmtStrings;       // List of format strings
+                ui::IPort              *pCurrentBand;   // Current band port
+                ui::IPort              *pDotFreqs[8];   // Current band port
+
+                lltl::darray<split_t>   vSplits;          // List of split widgets and ports
+                lltl::darray<band_t>    vBands;           // List of band widgets and ports
+                lltl::parray<split_t>   vActiveSplits;    // List of split widgets and ports
+                size_t                  nCurrentBand;     // Current band
+                const char            **fmtStrings;       // List of format strings
 
             protected:
 
@@ -68,6 +86,9 @@ namespace lsp
                 void            on_split_mouse_in(split_t *s);
                 void            on_split_mouse_out();
 
+                void            on_band_dot_mouse_down();
+                void            on_band_dot_move();
+
                 void            add_splits();
                 void            resort_active_splits();
                 void            update_split_note_text(split_t *s);
@@ -77,6 +98,7 @@ namespace lsp
                 explicit mb_compressor_ui(const meta::plugin_t *meta);
                 virtual ~mb_compressor_ui() override;
 
+                virtual status_t    init(ui::IWrapper *wrapper, tk::Display *dpy) override;
                 virtual status_t    post_init() override;
 
                 virtual void        notify(ui::IPort *port, size_t flags) override;

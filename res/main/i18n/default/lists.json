@@ -26,8 +26,8 @@
 			}
 		},
 		"notes": {
-			"full": "{@id}\n{@frequency} Hz\n{@note}{@octave}{@cents}",
-			"unknown": "{@id}\n{@frequency} Hz"
+			"full": "{@frequency} Hz\n{@note}{@octave}{@cents}",
+			"unknown": "{@frequency} Hz"
 		},
 		"split_left": "Split Left",
 		"split_middle": "Split Mid",

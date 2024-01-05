@@ -21,8 +21,8 @@
 
 
 #include <lsp-plug.in/plug-fw/ui.h>
+#include <lsp-plug.in/plug-fw/meta/ports.h>
 #include <lsp-plug.in/dsp-units/units.h>
-
 #include <private/plugins/mb_compressor.h>
 #include <private/ui/mb_compressor.h>
 #include <lsp-plug.in/stdlib/string.h>
@@ -31,6 +31,26 @@
 
 namespace lsp
 {
+    namespace meta
+    {
+        /**
+         * Current band (last clicked one)
+        */
+        static const meta::port_t current_band_port =
+            INT_CONTROL_RANGE("current_band", "Current Band", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f);
+
+        static meta::port_t dot_freqs[] =
+        {
+            INT_CONTROL_RANGE("frd_0", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
+            INT_CONTROL_RANGE("frd_1", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
+            INT_CONTROL_RANGE("frd_2", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
+            INT_CONTROL_RANGE("frd_3", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
+            INT_CONTROL_RANGE("frd_4", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
+            INT_CONTROL_RANGE("frd_5", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
+            INT_CONTROL_RANGE("frd_6", "Dot frequency", U_NONE, 0.0f, 64.0f, 0.0f, 1.0f),
+        };
+    }
+
     namespace plugui
     {
         //---------------------------------------------------------------------
@@ -99,11 +119,36 @@ namespace lsp
                 fmtStrings      = fmt_strings_ms;
             }
 
+
+            pCurrentBand  = NULL;
+
+            for (size_t i = 0; i < 8; i++)
+            {
+                pDotFreqs[i] = NULL;
+            }
+
+            nCurrentBand    = -1;
         }
 
         mb_compressor_ui::~mb_compressor_ui()
         {
 
+        }
+
+        status_t mb_compressor_ui::init(ui::IWrapper *wrapper, tk::Display *dpy)
+        {
+            status_t res = Module::init(wrapper, dpy);
+            if (res != STATUS_OK)
+                return res;
+
+            pCurrentBand = create_control_port(&meta::current_band_port);
+
+            for (size_t i = 0; i < 8; i++)
+            {
+                pDotFreqs[i] = create_control_port(&meta::dot_freqs[i]);
+            }
+
+            return STATUS_OK;
         }
 
         status_t mb_compressor_ui::slot_split_mouse_in(tk::Widget *sender, void *ptr, void *data)
@@ -215,6 +260,32 @@ namespace lsp
                         s.pOn->bind(this);
 
                     vSplits.add(&s);
+                }
+
+                for (size_t port_id=1; port_id<meta::mb_compressor_metadata::BANDS_MAX-2; ++port_id)
+                {
+                    split_t *startSplit = vSplits.uget(channel + port_id-1);
+                    split_t *endSplit   = vSplits.uget(channel + port_id);
+
+                    band_t b;
+
+                    b.pUI           = this;
+                    b.pOn           = startSplit->pOn;
+
+                    b.wMarkerStart  = startSplit->wMarker;
+                    b.wMarkerEnd    = endSplit->wMarker;
+
+                    // Logarithmic scale center point
+                    b.fFreqCenter   = sqrtf(startSplit->fFreq * endSplit->fFreq);
+                    pDotFreqs[port_id - 1]->set_value(b.fFreqCenter);
+                    pDotFreqs[port_id - 1]->notify_all(ui::PORT_USER_EDIT);
+
+
+                    b.nChannel      = &startSplit->nChannel;
+                    b.splitStart    = startSplit;
+                    b.splitEnd      = endSplit;
+
+                    vBands.add(&b);
                 }
             }
 
@@ -363,6 +434,20 @@ namespace lsp
             if (freq_initiator != NULL)
                 toggle_active_split_fequency(freq_initiator);
         }
+
+        // void mb_compressor_ui::on_band_dot_mouse_down(tk::Widget *sender, ssize_t x, ssize_t y)
+        // {
+        //     filter_t *dot = find_filter_by_widget(sender);
+        //     if (dot == NULL)
+        //         return;
+
+        //     nCurrentFilter = vFilters.index_of(dot);
+        //     if (pCurrentFilter != NULL)
+        //     {
+        //         pCurrentFilter->set_value(nCurrentFilter);
+        //         pCurrentFilter->notify_all(ui::PORT_USER_EDIT);
+        //     }
+        // }
 
         void mb_compressor_ui::toggle_active_split_fequency(split_t *initiator)
         {
