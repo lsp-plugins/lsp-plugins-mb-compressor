@@ -55,16 +55,11 @@
 						hlcolor="graph_marker_cycle"
 						rcolor="graph_marker_cycle"
 						hrcolor="graph_marker_cycle">
-						<!-- <marker v="10" color.hue=":hue_0" hcolor.hue=":hue_0" rborder="16" rcolor.hue=":hue_0" hrborder="16" hrcolor.hue=":hue_0"/> -->
-						<!-- <marker id="fre_0" color.hue=":hue_1" hcolor.hue=":hue_1" lborder="16" lcolor.hue=":hue_1" hlborder="16" hlcolor.hue=":hue_1"/> -->
-						<ui:for id="i" first="1" last="7" step="2">
-							<!-- FIXME: ilt is a hack -->
-							<!-- Start band split -->
-							<marker id="sf_${i}" ui:id="split_marker_${i}" visibility=":cbe_${i} and ${i} ilt 6" editable="true" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" rborder="16" rcolor.hue=":hue_${i}" hrborder="16" hrcolor.hue=":hue_${i}" pointer="hsize"/>
-							<marker id="fre_${i}" visibility=":cbe_${i} and :fre_${i} ilt 10000" color.hue=":hue_${:i + 1}" hcolor.hue=":hue_${i}" lborder="16" lcolor.hue=":hue_${i}" hlborder="16" hlcolor.hue=":hue_${i}"/>
-							<!-- End band split -->
-							<marker id="sf_${:i + 1}" ui:id="split_marker_${:i + 1}" visibility=":cbe_${i} and ${i}" editable="true" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" rborder="16" rcolor.hue=":hue_${i}" hrborder="16" hrcolor.hue=":hue_${i}" pointer="hsize"/>
-							<marker id="fre_${:i + 1}" visibility=":cbe_${i} and :fre_${i} ilt 10000" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" lborder="16" lcolor.hue=":hue_${i}" hlborder="16" hlcolor.hue=":hue_${i}"/>
+						<marker v="10" color.hue=":hue_0" hcolor.hue=":hue_0" rborder="16" rcolor.hue=":hue_0" hrborder="16" hrcolor.hue=":hue_0"/>
+						<marker id="fre_0" color.hue=":hue_0" hcolor.hue=":hue_0" lborder="16" lcolor.hue=":hue_0" hlborder="16" hlcolor.hue=":hue_0"/>
+						<ui:for id="i" first="1" last="7">
+							<marker id="sf_${i}" ui:id="split_marker_${i}" visibility=":cbe_${i}" editable="true" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" rborder="16" rcolor.hue=":hue_${i}" hrborder="16" hrcolor.hue=":hue_${i}" pointer="hsize"/>
+							<marker id="fre_${i}" visibility=":cbe_${i}" color.hue=":hue_${i}" hcolor.hue=":hue_${i}" lborder="16" lcolor.hue=":hue_${i}" hlborder="16" hlcolor.hue=":hue_${i}"/>
 						</ui:for>
 					</ui:with>
 
@@ -87,11 +82,14 @@
 
 					<!-- Dots -->
 
-					<ui:for id="i" first="1" last="5" step="2">
+					<ui:for id="i" first="0" last="7">
 						<ui:with pointer="drag" x.editable="true" y.editable="true" z.editable="true">
 							<dot
 								ui:id="band_dot_${i}"
-								x="(:sf_${i} * :fre_${i}) ** 0.5" y.id="mk_${i}" z.id="cr_${i}"
+								x="(${i} igt 0) ? sqrt (:sf_${i}*:fre_${i}) : sqrt (10*:fre_0)" y.id="mk_${i}" z.id="cr_${i}"
+								x.editable="true"
+								x.min="10"
+								x.max="24000"
 								size="1 + 4*:_ui_filter_point_thickness"
 								hover.size="1 + 4*:_ui_filter_point_thickness"
 								color="graph_marker_cycle"
@@ -102,7 +100,7 @@
 								bcolor.hue=":hue_${i}"
 								hover.bcolor="graph_marker_cycle"
 								hover.bcolor.hue=":hue_${i}"
-								visibility=":cbe_${i}"
+								visibility="(${i} igt 0) ? :cbe_${i} : true"
 								x.astep="1" y.astep="1"/>
 						</ui:with>
 					</ui:for>

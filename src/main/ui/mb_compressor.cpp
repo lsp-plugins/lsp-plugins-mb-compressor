@@ -108,11 +108,13 @@ namespace lsp
                 fmtStrings      = fmt_strings_ms;
             }
 
+            nXAxisIndex     = -1;
+            nYAxisIndex     = -1;
 
-            pCurrentBand  = NULL;
-            wGraph        = NULL;
+            pCurrentBand    = NULL;
+            wGraph          = NULL;
 
-            nCurrentBand  = -1;
+            nCurrentBand    = -1;
         }
 
         mb_compressor_ui::~mb_compressor_ui()
@@ -256,6 +258,21 @@ namespace lsp
             }
         }
 
+        mb_compressor_ui::split_t *mb_compressor_ui::allocate_split()
+        {
+            for (lltl::iterator<split_t> it = vSplits.values(); it; ++it)
+            {
+                split_t *s = it.get();
+                if (!s->bAllocated)
+                {
+                    s->bAllocated = true;
+                    return s;
+                }
+            }
+
+            return NULL;
+        }
+
         void mb_compressor_ui::on_graph_dbl_click(ssize_t x, ssize_t y)
         {
             if ((wGraph == NULL) || (nXAxisIndex < 0) || (nYAxisIndex < 0))
@@ -268,77 +285,128 @@ namespace lsp
             lsp_trace("Double click: x=%d, y=%d, freq=%.2f",
                 x, y, freq);
 
-            // Check if not inside any band
-            for (size_t i = 0; i < vBands.size(); i++) {
-                band_t *b = vBands.uget(i);
-                if (b->pOn->value() < 0.5f)
-                    continue;
-                if ((freq >= b->splitStart->fFreq) && (freq <= b->splitEnd->fFreq))
-                    return;
-            }
-
-            // Allocate new band index
-            ssize_t bidx         = -1;
-            for (size_t i = 0; i < vBands.size(); i++) {
-                band_t *b = vBands.uget(i);
-                if (b->pOn->value() < 0.5f) {
-                    bidx = i;
+            // Lookup for split at left position and split at right position
+            split_t *left = NULL, *right = NULL;
+            for (lltl::iterator<split_t> it = vActiveSplits.values(); it; ++it)
+            {
+                split_t *s = it.get();
+                if (s->fFreq >= freq)
+                {
+                    right   = s;
                     break;
                 }
+                else
+                    left    = s;
             }
 
-            if (bidx < 0)
+            float f_left    = (left  != NULL) ? left->fFreq  : SPEC_FREQ_MIN;
+            float f_right   = (right != NULL) ? right->fFreq : SPEC_FREQ_MAX;
+
+            if ((f_left <= freq * 0.5f) && (f_right >= freq * 2.0f))
             {
-                lsp_trace("Could not allocate new equalizer band");
+                // Allocate two splits
+                left        = allocate_split();
+                right       = allocate_split();
+
+                if (left != NULL)
+                {
+                    left->pFreq->set_value_notify(freq * 0.5f, ui::PORT_NONE);
+                    left->pOn->set_value_notify(1.0f, ui::PORT_NONE);
+                }
+                if (right != NULL)
+                {
+                    right->pFreq->set_value_notify(freq * 2.0f, ui::PORT_NONE);
+                    right->pOn->set_value_notify(1.0f, ui::PORT_NONE);
+                }
+            }
+            else if (vActiveSplits.size() < 7)
+            {
+                left        = allocate_split();
+                if (left != NULL)
+                {
+                    left->pFreq->set_value_notify(freq, ui::PORT_NONE);
+                    left->pOn->set_value_notify(1.0f, ui::PORT_NONE);
+                }
+            }
+            else if ((left != NULL) && (!left->bOn))
+            {
+                left->pOn->set_value_notify(1.0f);
                 return;
             }
-
-            band_t *b = vBands.uget(bidx);
-
-            float min_freq = 0.0f;
-            float max_freq = 0.0f;
-
-            // Calculate logarithmic scale split frequencies based on cursor position
-            if (freq > 0.0f)
-            {
-                min_freq = freq / 2.0f;
-                max_freq = freq * 2.0f;
-            }
-
-            // Modify min_freq and max_freq frequencies to not overlap with other bands
-            // FIXME: This is not optimal and has a lot of bugs. Think of it like a sketch.
-            // for (size_t i = 0; i < vBands.size(); i++) {
-            //     band_t *b = vBands.uget(i);
-            //     if (b->pOn->value() < 0.5f)
-            //         continue;
-
-            //     if (lsp_min(b->splitStart->fFreq, b->splitEnd->fFreq) < min_freq && lsp_max(b->splitStart->fFreq, b->splitEnd->fFreq) > min_freq)
-            //         min_freq = b->splitEnd->fFreq + 1.0f;
-
-            //     if (lsp_min(b->splitStart->fFreq, b->splitEnd->fFreq) < max_freq && lsp_max(b->splitStart->fFreq, b->splitEnd->fFreq) > max_freq)
-            //         max_freq = b->splitStart->fFreq - 1.0f;
-            // }
-
-
-            // Set-up band params
-            b->splitStart->bOn = true;
-            b->splitStart->pOn->set_value(1.0f);
-            b->splitStart->pOn->notify_all(ui::PORT_USER_EDIT);
-            b->splitEnd->bOn = true;
-            b->splitEnd->pOn->set_value(1.0f);
-            b->splitEnd->pOn->notify_all(ui::PORT_USER_EDIT);
-            b->splitStart->pFreq->set_value(min_freq);
-            b->splitStart->pFreq->notify_all(ui::PORT_USER_EDIT);
-            b->splitEnd->pFreq->set_value(max_freq);
-            b->splitEnd->pFreq->notify_all(ui::PORT_USER_EDIT);
-            b->fFreqCenter = sqrtf(min_freq * max_freq);
-
-            // Make the band current
-            if (pCurrentBand != NULL)
-            {
-                pCurrentBand->set_value(bidx);
-                pCurrentBand->notify_all(ui::PORT_USER_EDIT);
-            }
+            else
+                return;
+//
+//            // Check if not inside any band
+//            for (size_t i = 0; i < vBands.size(); i++) {
+//                band_t *b = vBands.uget(i);
+//                if (b->pOn->value() < 0.5f)
+//                    continue;
+//                if ((freq >= b->splitStart->fFreq) && (freq <= b->splitEnd->fFreq))
+//                    return;
+//            }
+//
+//            // Allocate new band index
+//            ssize_t bidx         = -1;
+//            for (size_t i = 0; i < vBands.size(); i++) {
+//                band_t *b = vBands.uget(i);
+//                if (b->pOn->value() < 0.5f) {
+//                    bidx = i;
+//                    break;
+//                }
+//            }
+//
+//            if (bidx < 0)
+//            {
+//                lsp_trace("Could not allocate new equalizer band");
+//                return;
+//            }
+//
+//            band_t *b = vBands.uget(bidx);
+//
+//            float min_freq = 0.0f;
+//            float max_freq = 0.0f;
+//
+//            // Calculate logarithmic scale split frequencies based on cursor position
+//            if (freq > 0.0f)
+//            {
+//                min_freq = freq / 2.0f;
+//                max_freq = freq * 2.0f;
+//            }
+//
+//            // Modify min_freq and max_freq frequencies to not overlap with other bands
+//            // FIXME: This is not optimal and has a lot of bugs. Think of it like a sketch.
+//            // for (size_t i = 0; i < vBands.size(); i++) {
+//            //     band_t *b = vBands.uget(i);
+//            //     if (b->pOn->value() < 0.5f)
+//            //         continue;
+//
+//            //     if (lsp_min(b->splitStart->fFreq, b->splitEnd->fFreq) < min_freq && lsp_max(b->splitStart->fFreq, b->splitEnd->fFreq) > min_freq)
+//            //         min_freq = b->splitEnd->fFreq + 1.0f;
+//
+//            //     if (lsp_min(b->splitStart->fFreq, b->splitEnd->fFreq) < max_freq && lsp_max(b->splitStart->fFreq, b->splitEnd->fFreq) > max_freq)
+//            //         max_freq = b->splitStart->fFreq - 1.0f;
+//            // }
+//
+//
+//            // Set-up band params
+//            b->splitStart->bOn = true;
+//            b->splitStart->pOn->set_value(1.0f);
+//            b->splitStart->pOn->notify_all(ui::PORT_USER_EDIT);
+//            b->splitEnd->bOn = true;
+//            b->splitEnd->pOn->set_value(1.0f);
+//            b->splitEnd->pOn->notify_all(ui::PORT_USER_EDIT);
+//            b->splitStart->pFreq->set_value(min_freq);
+//            b->splitStart->pFreq->notify_all(ui::PORT_USER_EDIT);
+//            b->splitEnd->pFreq->set_value(max_freq);
+//            b->splitEnd->pFreq->notify_all(ui::PORT_USER_EDIT);
+//            b->fFreqCenter = sqrtf(min_freq * max_freq);
+//
+//            // Make the band current
+//            if (pCurrentBand != NULL)
+//            {
+//                pCurrentBand->set_value(bidx);
+//                pCurrentBand->notify_all(ui::PORT_USER_EDIT);
+//            }
         }
 
         void mb_compressor_ui::add_splits()
@@ -361,6 +429,7 @@ namespace lsp
                     s.nChannel      = channel;
                     s.fFreq         = (s.pFreq != NULL) ? s.pFreq->value() : 0.0f;
                     s.bOn           = (s.pOn != NULL) ? s.pOn->value() >= 0.5f : false;
+                    s.bAllocated    = s.bOn;
 
                     if (s.wMarker != NULL)
                     {
@@ -378,35 +447,38 @@ namespace lsp
 
                 for (size_t port_id=1; port_id<meta::mb_compressor_metadata::BANDS_MAX-1; ++port_id)
                 {
-                    split_t *startSplit = vSplits.uget(channel + port_id-1);
-                    split_t *endSplit   = vSplits.uget(channel + port_id);
+//                    split_t *startSplit = vSplits.uget(channel + port_id-1);
+//                    split_t *endSplit   = vSplits.uget(channel + port_id);
+//
+//                    band_t b;
+//
+//                    b.id            = port_id - 1;
+//
+//                    b.pUI           = this;
+//                    b.pOn           = startSplit->pOn;
+//
+//                    b.wMarkerStart  = startSplit->wMarker;
+//                    b.wMarkerEnd    = endSplit->wMarker;
+//
+//                    // Logarithmic scale center point
+//                    b.fFreqCenter   = sqrtf(startSplit->fFreq * endSplit->fFreq);
+//
+//
+//                    b.nChannel      = &startSplit->nChannel;
+//                    b.splitStart    = startSplit;
+//                    b.splitEnd      = endSplit;
+                    band_t *b       = vBands.add();
 
-                    band_t b;
+                    b->wDot         = find_widget<tk::GraphDot>(*fmt, "band_dot", port_id);
+                    b->wDot->heditable()->set(true);
+                    b->wDot->vvalue()->set(1000.0f);
 
-                    b.id            = port_id - 1;
-
-                    b.pUI           = this;
-                    b.pOn           = startSplit->pOn;
-
-                    b.wMarkerStart  = startSplit->wMarker;
-                    b.wMarkerEnd    = endSplit->wMarker;
-
-                    // Logarithmic scale center point
-                    b.fFreqCenter   = sqrtf(startSplit->fFreq * endSplit->fFreq);
+//                    if (b->wDot != NULL)
+//                    {
+//                        b->wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_down, this);
+//                    }
 
 
-                    b.nChannel      = &startSplit->nChannel;
-                    b.splitStart    = startSplit;
-                    b.splitEnd      = endSplit;
-
-                    b.wDot          = find_widget<tk::GraphDot>(*fmt, "band_dot", port_id);
-
-                    if (b.wDot != NULL)
-                    {
-                        b.wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_down, this);
-                    }
-
-                    vBands.add(&b);
                 }
             }
 

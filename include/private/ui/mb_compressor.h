@@ -40,6 +40,7 @@ namespace lsp
                     size_t              nChannel;       // Channel (left/right/mid/side)
                     float               fFreq;          // Split frequency
                     bool                bOn;            // Split is enabled
+                    bool                bAllocated;     // Split is allocated for some band
 
                     tk::GraphMarker    *wMarker;        // Graph marker for editing
                     tk::GraphText      *wNote;          // Text with note and frequency
@@ -91,6 +92,7 @@ namespace lsp
                 split_t        *find_split_by_widget(tk::Widget *widget);
                 split_t        *find_split_by_port(ui::IPort *port);
                 band_t         *find_band_by_widget(tk::Widget *widget);
+                split_t        *allocate_split();
 
             protected:
                 void            on_split_mouse_in(split_t *s);
