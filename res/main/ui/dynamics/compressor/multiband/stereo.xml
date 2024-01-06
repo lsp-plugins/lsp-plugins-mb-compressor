@@ -434,8 +434,11 @@
 
 							<vbox>
 								<label text="labels.release"/>
-								<knob id="rt_${i}" size="30" ssize="3" scolor="release_1" pad.t="4" />
-								<value id="rt_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
+								<knob visibility=":rm_${i} ieq 0" id="rt_${i}" size="30" ssize="3" scolor="release_1" pad.t="4" />
+								<!-- TODO: It will be convenient if the value also displays fraction time in ms -->
+								<value visibility=":rm_${i} ieq 0" id="rt_${i}" sline="true" pad.h="6" pad.v="4" width.min="48" />
+								<frac visibility=":rm_${i} ieq 1" id="rdf_${i}" den.id="rdd_${i}" color="green"/>
+								<button text="BPM" id="rm_${i}" ui:inject="Button_cyan" />
 							</vbox>
 						</vbox>
 

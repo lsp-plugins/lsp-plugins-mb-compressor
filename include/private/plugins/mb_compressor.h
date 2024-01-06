@@ -128,6 +128,9 @@ namespace lsp
                     plug::IPort            *pAttTime;           // Attack time
                     plug::IPort            *pRelLevel;          // Release level
                     plug::IPort            *pRelTime;           // Release time
+                    plug::IPort            *pRelMode;           // Release mode
+                    plug::IPort            *pRelFract;          // Release fraction
+                    plug::IPort            *pRelDenom;          // Release denominator
                     plug::IPort            *pRatio;             // Ratio
                     plug::IPort            *pKnee;              // Knee
                     plug::IPort            *pBThresh;           // Boost threshold

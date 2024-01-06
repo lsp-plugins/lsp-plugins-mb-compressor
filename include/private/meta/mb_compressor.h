@@ -52,6 +52,16 @@ namespace lsp
             static constexpr float  RELEASE_TIME_DFL        = 100.0f;
             static constexpr float  RELEASE_TIME_STEP       = 0.0025f;
 
+            static constexpr float  DENOMINATOR_MIN         = 1.0f;
+            static constexpr float  DENOMINATOR_MAX         = 64.0f;
+            static constexpr float  DENOMINATOR_STEP        = 1.0f;
+            static constexpr float  DENOMINATOR_DFL         = 4.0f;
+
+            static constexpr float  FRACTION_MIN            = 0.0f;
+            static constexpr float  FRACTION_MAX            = 2.0f;
+            static constexpr float  FRACTION_STEP           = 1.0f / 64.0f;
+            static constexpr float  FRACTION_DFL            = 0.0f;
+
             static constexpr float  KNEE_MIN                = GAIN_AMP_M_24_DB;
             static constexpr float  KNEE_MAX                = GAIN_AMP_0_DB;
             static constexpr float  KNEE_DFL                = GAIN_AMP_M_6_DB;

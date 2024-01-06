@@ -102,6 +102,14 @@ namespace lsp
             { NULL, NULL }
         };
 
+        static const port_item_t mb_comp_release_mode[] =
+        {
+            // TODO: Copy localization to mb_comp namespace
+            { "Time",       "slap_delay.modes.time" },
+            { "Notes",      "slap_delay.modes.notes" },
+            { NULL, NULL }
+        };
+
         static const port_item_t mb_comp_sc_bands[] =
         {
             { "Split",          "mb_comp.split" },
@@ -182,6 +190,9 @@ namespace lsp
                 LOG_CONTROL("at" id, "Attack time" label, U_MSEC, mb_compressor_metadata::ATTACK_TIME), \
                 LOG_CONTROL("rrl" id, "Release threshold" label, U_GAIN_AMP, mb_compressor_metadata::RELEASE_LVL), \
                 LOG_CONTROL("rt" id, "Release time" label, U_MSEC, mb_compressor_metadata::RELEASE_TIME), \
+                SWITCH("rm" id, "Use BPM fraction for release" label, 0.0f), \
+                CONTROL("rdf" id, "Release fraction", U_BAR, mb_compressor_metadata::FRACTION), \
+                INT_CONTROL("rdd" id, "Release denominator", U_BEAT, mb_compressor_metadata::DENOMINATOR), \
                 LOG_CONTROL("cr" id, "Ratio" label, U_NONE, mb_compressor_metadata::RATIO), \
                 LOG_CONTROL("kn" id, "Knee" label, U_GAIN_AMP, mb_compressor_metadata::KNEE), \
                 EXT_LOG_CONTROL("bth" id, "Boost threshold" label, U_GAIN_AMP, mb_compressor_metadata::BTH), \
