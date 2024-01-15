@@ -4,6 +4,7 @@
 
 === 1.0.19 ===
 * Updated behaviour of split editing in UI.
+* Updated build scripts and dependencies.
 
 === 1.0.18 ===
 * Implemented automatic scale of spectrum graph switch.
