@@ -332,6 +332,9 @@ namespace lsp
                 {
                     left->pFreq->set_value_notify(freq * 0.5f, ui::PORT_NONE);
                     left->pOn->set_value_notify(1.0f, ui::PORT_NONE);
+                    left->pLCF->set_value_notify(freq * 0.5f, ui::PORT_NONE);
+                    left->pHCF->set_value_notify(freq * 2.0f, ui::PORT_NONE);
+                    pCurrentBand->set_value_notify(left->id, ui::PORT_NONE);
                 }
                 if (right != NULL)
                 {
@@ -346,11 +349,15 @@ namespace lsp
                 {
                     left->pFreq->set_value_notify(freq, ui::PORT_NONE);
                     left->pOn->set_value_notify(1.0f, ui::PORT_NONE);
+                    left->pLCF->set_value_notify(freq, ui::PORT_NONE);
+                    // left->pHCF->set_value_notify(freq * 2.0f, ui::PORT_NONE);
+                    pCurrentBand->set_value_notify(left->id, ui::PORT_NONE);
                 }
             }
             else if ((left != NULL) && (!left->bOn))
             {
                 left->pOn->set_value_notify(1.0f);
+                pCurrentBand->set_value_notify(left->id, ui::PORT_NONE);
                 return;
             }
             else
@@ -448,6 +455,8 @@ namespace lsp
 
                     s.pFreq         = find_port(*fmt, "sf", port_id);
                     s.pOn           = find_port(*fmt, "cbe", port_id);
+                    s.pLCF          = find_port(*fmt, "sclf", port_id);
+                    s.pHCF          = find_port(*fmt, "schf", port_id);
 
                     s.nChannel      = channel;
                     s.fFreq         = (s.pFreq != NULL) ? s.pFreq->value() : 0.0f;
@@ -470,6 +479,10 @@ namespace lsp
                         s.pFreq->bind(this);
                     if (s.pOn != NULL)
                         s.pOn->bind(this);
+                    if (s.pLCF != NULL)
+                        s.pLCF->bind(this);
+                    if (s.pHCF != NULL)
+                        s.pHCF->bind(this);
 
                     vSplits.add(&s);
                 }

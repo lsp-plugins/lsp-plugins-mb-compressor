@@ -37,6 +37,9 @@ namespace lsp
                     ui::IPort          *pFreq;          // Split frequency port
                     ui::IPort          *pOn;            // Split enable port
 
+                    ui::IPort          *pLCF;           // Low cut frequency port
+                    ui::IPort          *pHCF;           // High cut frequency port
+
                     size_t              nChannel;       // Channel (left/right/mid/side)
                     float               fFreq;          // Split frequency
                     bool                bOn;            // Split is enabled

@@ -176,8 +176,7 @@ namespace lsp
                 CONTROL("sla" id, "Sidechain lookahead" label, U_MSEC, mb_compressor_metadata::LOOKAHEAD), \
                 LOG_CONTROL("scr" id, "Sidechain reactivity" label, U_MSEC, mb_compressor_metadata::REACTIVITY), \
                 AMP_GAIN100("scp" id, "Sidechain preamp" label, GAIN_AMP_0_DB), \
-                SWITCH("sclc" id, "Sidechain custom lo-cut" label, 0), \
-                SWITCH("schc" id, "Sidechain custom hi-cut" label, 0), \
+                SWITCH("scf" id, "Sidechain custom filter" label, 0), \
                 LOG_CONTROL_DFL("sclf" id, "Sidechain lo-cut frequency" label, U_HZ, mb_compressor_metadata::FREQ, fe), \
                 LOG_CONTROL_DFL("schf" id, "Sidechain hi-cut frequency" label, U_HZ, mb_compressor_metadata::FREQ, fs), \
                 MESH("bfc" id, "Side-chain band frequency chart" label, 2, mb_compressor_metadata::FILTER_MESH_POINTS), \

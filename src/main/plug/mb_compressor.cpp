@@ -473,8 +473,7 @@ namespace lsp
                     b->pScLook      = NULL;
                     b->pScReact     = NULL;
                     b->pScPreamp    = NULL;
-                    b->pScLpfOn     = NULL;
-                    b->pScHpfOn     = NULL;
+                    b->pScFilterOn  = NULL;
                     b->pScLcfFreq   = NULL;
                     b->pScHcfFreq   = NULL;
                     b->pScFreqChart = NULL;
@@ -518,8 +517,8 @@ namespace lsp
 
             lsp_assert(ptr <= &save[to_alloc]);
 
-            #define BIND_PORT(name) name = ports[port_id++]; lsp_trace("Binding port %s to %s", name->metadata()->id, #name)
-            #define SKIP_PORT(name) lsp_trace("Skipping port %s (%s)", ports[port_id]->metadata()->id, #name); ++port_id
+            // #define BIND_PORT(name) name = ports[port_id++]; lsp_trace("Binding port %s to %s", name->metadata()->id, #name)
+            // #define SKIP_PORT(name) lsp_trace("Skipping port %s (%s)", ports[port_id]->metadata()->id, #name); ++port_id
 
             // Bind ports
             size_t port_id              = 0;
@@ -628,8 +627,7 @@ namespace lsp
                         b->pScLook      = sb->pScLook;
                         b->pScReact     = sb->pScReact;
                         b->pScPreamp    = sb->pScPreamp;
-                        b->pScLpfOn     = sb->pScLpfOn;
-                        b->pScHpfOn     = sb->pScHpfOn;
+                        b->pScFilterOn  = sb->pScFilterOn;
                         b->pScLcfFreq   = sb->pScLcfFreq;
                         b->pScHcfFreq   = sb->pScHcfFreq;
                         b->pScFreqChart = sb->pScFreqChart;
@@ -674,8 +672,7 @@ namespace lsp
                         BIND_PORT(b->pScLook);
                         BIND_PORT(b->pScReact);
                         BIND_PORT(b->pScPreamp);
-                        BIND_PORT(b->pScLpfOn);
-                        BIND_PORT(b->pScHpfOn);
+                        BIND_PORT(b->pScFilterOn);
                         BIND_PORT(b->pScLcfFreq);
                         BIND_PORT(b->pScHcfFreq);
                         BIND_PORT(b->pScFreqChart);
@@ -863,8 +860,7 @@ namespace lsp
                     bool enabled    = b->pEnable->value() >= 0.5f;
                     if (enabled && (j > 0))
                         enabled         = c->vSplit[j-1].bEnabled;
-                    bool cust_lcf   = b->pScLpfOn->value() >= 0.5f;
-                    bool cust_hcf   = b->pScHpfOn->value() >= 0.5f;
+                    bool cust_flt   = b->pScFilterOn->value() >= 0.5f;
                     float sc_gain   = b->pScPreamp->value();
                     bool mute       = (b->pMute->value() >= 0.5f);
                     bool solo       = (enabled) && (b->pSolo->value() >= 0.5f);
@@ -929,19 +925,19 @@ namespace lsp
                         b->bMute        = mute;
                         b->nSync       |= S_COMP_CURVE;
                     }
-                    if (b->bCustLCF != cust_lcf)
+                    if (b->bCustLCF != cust_flt)
                     {
-                        b->bCustLCF     = cust_lcf;
+                        b->bCustLCF     = cust_flt;
                         b->nSync       |= S_COMP_CURVE;
                         c->nPlanSize    = 0;
                     }
-                    if (b->bCustHCF != cust_hcf)
+                    if (b->bCustHCF != cust_flt)
                     {
-                        b->bCustHCF     = cust_hcf;
+                        b->bCustHCF     = cust_flt;
                         b->nSync       |= S_COMP_CURVE;
                         c->nPlanSize    = 0;
                     }
-                    if (cust_lcf)
+                    if (cust_flt)
                     {
                         float lcf       = b->pScLcfFreq->value();
                         if (lcf != b->fFreqLCF)
@@ -949,9 +945,7 @@ namespace lsp
                             b->fFreqLCF     = lcf;
                             c->nPlanSize    = 0;
                         }
-                    }
-                    if (cust_hcf)
-                    {
+
                         float hcf       = b->pScHcfFreq->value();
                         if (hcf != b->fFreqHCF)
                         {
@@ -1967,8 +1961,7 @@ namespace lsp
                             v->write("pScLook", b->pScLook);
                             v->write("pScReact", b->pScReact);
                             v->write("pScPreamp", b->pScPreamp);
-                            v->write("pScLpfOn", b->pScLpfOn);
-                            v->write("pScHpfOn", b->pScHpfOn);
+                            v->write("pScFilterOn", b->pScFilterOn);
                             v->write("pScLcfFreq", b->pScLcfFreq);
                             v->write("pScHcfFreq", b->pScHcfFreq);
                             v->write("pScFreqChart", b->pScFreqChart);

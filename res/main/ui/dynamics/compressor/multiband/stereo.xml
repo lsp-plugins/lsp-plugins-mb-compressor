@@ -109,7 +109,7 @@
 
 					<!-- Lo-cut/Hi-cut filter manipulators -->
 					<ui:for id="i" first="0" last="7">
-						<ui:with visibility=":current_band ieq ${i} and :sclc_${i} and :schc_${i}">
+						<ui:with visibility=":current_band ieq ${i} and :scf_${i}">
 							<!-- Line -->
 							<line
 									x=":sclf_${i}"
@@ -252,22 +252,9 @@
 							<label text="labels.band"/>
 
 							<button
-								text="labels.flt.LCF"
+								text="Free"
 								pad.h="6"
-								id="sclc_${i}"
-								ui:inject="Button_Cycle"
-								hfill="true"
-								height="19"
-								down.color.hue=":hue_${i}"
-								down.hover.color.hue=":hue_${i}"
-								text.down.color.hue=":hue_${i}"
-								text.down.hover.color.hue=":hue_${i}"
-								border.down.color.hue=":hue_${i}"
-								border.down.hover.color.hue=":hue_${i}"/>
-							<button
-								text="labels.flt.HCF"
-								pad.h="6"
-								id="schc_${i}"
+								id="scf_${i}"
 								ui:inject="Button_Cycle"
 								hfill="true"
 								height="19"

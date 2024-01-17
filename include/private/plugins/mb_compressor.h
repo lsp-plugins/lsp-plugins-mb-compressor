@@ -114,8 +114,7 @@ namespace lsp
                     plug::IPort            *pScLook;            // Sidechain lookahead
                     plug::IPort            *pScReact;           // Sidechain reactivity
                     plug::IPort            *pScPreamp;          // Sidechain preamp
-                    plug::IPort            *pScLpfOn;           // Sidechain low-pass on
-                    plug::IPort            *pScHpfOn;           // Sidechain hi-pass on
+                    plug::IPort            *pScFilterOn;        // Sidechain filter on
                     plug::IPort            *pScLcfFreq;         // Sidechain low-cut frequency
                     plug::IPort            *pScHcfFreq;         // Sidechain hi-cut frequency
                     plug::IPort            *pScFreqChart;       // Sidechain band frequency chart
