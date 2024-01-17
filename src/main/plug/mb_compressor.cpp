@@ -890,13 +890,9 @@ namespace lsp
 
                     if (b->pRelMode->value() >= 0.5f)
                     {
-                        // FIXME: Copilot's code, needs to be verified
                         float bpm         = pWrapper->position()->beatsPerMinute;
-                        float beat_time   = 60.0f / bpm;
-                        release_time      = beat_time * b->pRelFract->value() / b->pRelDenom->value();
-
-                        if (release_time < 0.001f)
-                            release_time = 0.001f;
+                        float fraction    = b->pRelFract->value() / b->pRelDenom->value();
+                        release_time      = dspu::time_signature_to_period(fraction, bpm);
                     }
 
                     b->sComp.set_mode(mode);
