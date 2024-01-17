@@ -87,7 +87,7 @@
 							<dot
 								ui:id="band_dot_${i}"
 								x="(${i} igt 0) ? sqrt (:sf_${i}*:fre_${i}) : sqrt (10*:fre_0)" y.id="mk_${i}" z.id="cr_${i}"
-								x.editable="true"
+								x.editable="${i} igt 0"
 								x.min="10"
 								x.max="24000"
 								size="1 + 4*:_ui_filter_point_thickness"

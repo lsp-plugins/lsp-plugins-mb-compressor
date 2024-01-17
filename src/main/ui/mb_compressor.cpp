@@ -28,6 +28,7 @@
 #include <lsp-plug.in/stdlib/string.h>
 #include <lsp-plug.in/stdlib/stdio.h>
 #include <lsp-plug.in/stdlib/locale.h>
+#include <iostream>
 
 namespace lsp
 {
@@ -115,6 +116,9 @@ namespace lsp
             wGraph          = NULL;
 
             nCurrentBand    = -1;
+
+            sEditingBand.splitStart = NULL;
+            sEditingBand.splitEnd   = NULL;
         }
 
         mb_compressor_ui::~mb_compressor_ui()
@@ -171,6 +175,18 @@ namespace lsp
             split_t *s = ui->find_split_by_widget(sender);
             if (s != NULL)
                 ui->on_band_dot_mouse_down(s);
+
+            return STATUS_OK;
+        }
+
+        status_t mb_compressor_ui::slot_band_dot_mouse_up(tk::Widget *sender, void *ptr, void *data)
+        {
+            // Fetch parameters
+            mb_compressor_ui *ui = static_cast<mb_compressor_ui *>(ptr);
+            if (ui == NULL)
+                return STATUS_BAD_STATE;
+
+            ui->on_band_dot_mouse_up();
 
             return STATUS_OK;
         }
@@ -239,7 +255,7 @@ namespace lsp
             for (size_t i = 1; i < vActiveSplits.size(); i++) {
                 split_t *s = vActiveSplits.uget(i - 1);
                 if (s->id == start_split->id)
-                    return s;
+                    return vActiveSplits.uget(i);
             }
             return NULL;
         }
@@ -265,6 +281,21 @@ namespace lsp
 
         void mb_compressor_ui::on_band_dot_mouse_down(split_t *s)
         {
+            sEditingBand.splitStart = s;
+            sEditingBand.splitEnd   = find_end_split(s);
+            if (sEditingBand.splitEnd != NULL)
+            {
+                // Initial center frequency in logarithmic scale
+                sEditingBand.fFreq      = sqrtf(sEditingBand.splitStart->fFreq * sEditingBand.splitEnd->fFreq);
+                // Logarithmic scale distance
+                sEditingBand.fDistance  = logf(sEditingBand.splitEnd->fFreq / sEditingBand.splitStart->fFreq);
+            }
+            else
+            {
+                sEditingBand.splitStart = NULL;
+                sEditingBand.splitEnd   = NULL;
+            }
+
             if (pCurrentBand != NULL)
             {
                 pCurrentBand->set_value(s->id);
@@ -274,8 +305,28 @@ namespace lsp
 
         void mb_compressor_ui::on_band_dot_mouse_move(split_t *s)
         {
-            s->fFreq = s->wDot->hvalue()->get();
+            if (sEditingBand.splitStart == NULL || sEditingBand.splitEnd == NULL)
+                return;
+
+            float freq_center = s->wDot->hvalue()->get();
+
+            // Calculate new frequencies by offset in logarithmic scale
+            float freq_start  = freq_center * expf(-sEditingBand.fDistance * 0.5f);
+            float freq_end    = freq_center * expf(sEditingBand.fDistance * 0.5f);
+
+            sEditingBand.splitStart->fFreq = freq_start;
+            sEditingBand.splitStart->pFreq->set_value_notify(freq_start);
+
+            sEditingBand.splitEnd->fFreq = freq_end;
+            sEditingBand.splitEnd->pFreq->set_value_notify(freq_end);
+
             update_split_note_text(s);
+        }
+
+        void mb_compressor_ui::on_band_dot_mouse_up()
+        {
+            sEditingBand.splitStart = NULL;
+            sEditingBand.splitEnd   = NULL;
         }
 
         mb_compressor_ui::split_t *mb_compressor_ui::allocate_split()
@@ -473,7 +524,8 @@ namespace lsp
                     if (s.wDot != NULL)
                     {
                         s.wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_down, this);
-                        s.wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_move, this);
+                        s.wDot->slots()->bind(tk::SLOT_MOUSE_MOVE, slot_band_dot_mouse_move, this);
+                        s.wDot->slots()->bind(tk::SLOT_MOUSE_UP, slot_band_dot_mouse_up, this);
                     }
 
                     if (s.pFreq != NULL)

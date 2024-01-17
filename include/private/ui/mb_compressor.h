@@ -54,15 +54,30 @@ namespace lsp
                     size_t              id;             // Split ID
                 } split_t;
 
+                /**
+                 * Used while editing band-related parameters
+                 * Temporary
+                */
+                typedef struct band_t
+                {
+                    split_t           *splitStart;        // Split
+                    split_t           *splitEnd;          // Split
+                    float              fDistance;         // Initial distance between splits
+                    float              fFreq;             // Initial center frequency
+                } band_t;
+
             protected:
-                ui::IPort              *pCurrentBand;   // Current band port
+                ui::IPort              *pCurrentBand;     // Current band port
 
                 tk::Graph              *wGraph;
+
+                band_t                 sEditingBand;      // Current band
 
                 lltl::darray<split_t>   vSplits;          // List of split widgets and ports
                 lltl::parray<split_t>   vActiveSplits;    // List of split widgets and ports
                 ssize_t                 nXAxisIndex;
                 ssize_t                 nYAxisIndex;
+                size_t                  nCurrentSplit;    // Current split
                 size_t                  nCurrentBand;     // Current band
                 const char            **fmtStrings;       // List of format strings
 
@@ -72,6 +87,7 @@ namespace lsp
                 static status_t slot_split_mouse_out(tk::Widget *sender, void *ptr, void *data);
                 static status_t slot_band_dot_mouse_down(tk::Widget *sender, void *ptr, void *data);
                 static status_t slot_band_dot_mouse_move(tk::Widget *sender, void *ptr, void *data);
+                static status_t slot_band_dot_mouse_up(tk::Widget *sender, void *ptr, void *data);
                 static status_t slot_graph_dbl_click(tk::Widget *sender, void *ptr, void *data);
                 static ssize_t  compare_splits_by_freq(const split_t *a, const split_t *b);
 
@@ -91,6 +107,7 @@ namespace lsp
 
                 void            on_band_dot_mouse_down(split_t *b);
                 void            on_band_dot_mouse_move(split_t *b);
+                void            on_band_dot_mouse_up();
                 void            on_band_dot_move();
 
                 void            on_graph_dbl_click(ssize_t x, ssize_t y);
