@@ -44,6 +44,10 @@ namespace lsp
 
                     tk::GraphMarker    *wMarker;        // Graph marker for editing
                     tk::GraphText      *wNote;          // Text with note and frequency
+
+                    tk::GraphDot       *wDot;           // Dot for editing
+
+                    size_t              id;             // Split ID
                 } split_t;
 
                 typedef struct band_t
@@ -91,6 +95,9 @@ namespace lsp
                 ui::IPort      *find_port(const char *fmt, const char *base, size_t id);
                 split_t        *find_split_by_widget(tk::Widget *widget);
                 split_t        *find_split_by_port(ui::IPort *port);
+                /**
+                 * @deprecated
+                */
                 band_t         *find_band_by_widget(tk::Widget *widget);
                 split_t        *allocate_split();
 
@@ -98,7 +105,7 @@ namespace lsp
                 void            on_split_mouse_in(split_t *s);
                 void            on_split_mouse_out();
 
-                void            on_band_dot_mouse_down(band_t *b);
+                void            on_band_dot_mouse_down(split_t *b);
                 void            on_band_dot_move();
 
                 void            on_graph_dbl_click(ssize_t x, ssize_t y);

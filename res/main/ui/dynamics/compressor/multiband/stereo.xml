@@ -94,6 +94,8 @@
 								hover.size="1 + 4*:_ui_filter_point_thickness"
 								color="graph_marker_cycle"
 								color.hue=":hue_${i}"
+								border.size=":current_band ieq ${i} ? 15 : 5"
+								hover.border.size=":current_band ieq ${i} ? 15 : 5"
 								hover.color="graph_marker_cycle"
 								hover.color.hue=":hue_${i}"
 								bcolor="graph_marker_cycle"
@@ -197,7 +199,7 @@
 		<!-- Bottom part -->
 
 		<ui:for id="i" first="0" count="7">
-			<ui:with visibility="${i} ieq :current_band + 1">
+			<ui:with visibility="${i} ieq :current_band">
 				<hbox spacing="4" bg.color="bg">
 					<ui:with expand="true" bg.color="bg_schema">
 						<vbox vexpand="true" hexpand="false" bg.color="bg_schema">

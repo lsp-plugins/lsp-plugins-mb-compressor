@@ -168,9 +168,9 @@ namespace lsp
             if (ui == NULL)
                 return STATUS_BAD_STATE;
 
-            band_t *b = ui->find_band_by_widget(sender);
-            if (b != NULL)
-                ui->on_band_dot_mouse_down(b);
+            split_t *s = ui->find_split_by_widget(sender);
+            if (s != NULL)
+                ui->on_band_dot_mouse_down(s);
 
             return STATUS_OK;
         }
@@ -199,8 +199,9 @@ namespace lsp
             for (size_t i=0, n=vSplits.size(); i<n; ++i)
             {
                 split_t *d = vSplits.uget(i);
-                if ((d->wMarker == widget) ||
-                    (d->wNote == widget))
+                if ((d->wMarker == widget)
+                 || (d->wNote == widget)
+                 || (d->wDot == widget))
                     return d;
             }
             return NULL;
@@ -217,7 +218,6 @@ namespace lsp
             }
             return NULL;
         }
-
 
         mb_compressor_ui::band_t *mb_compressor_ui::find_band_by_widget(tk::Widget *widget)
         {
@@ -249,11 +249,11 @@ namespace lsp
             }
         }
 
-        void mb_compressor_ui::on_band_dot_mouse_down(band_t *b)
+        void mb_compressor_ui::on_band_dot_mouse_down(split_t *s)
         {
             if (pCurrentBand != NULL)
             {
-                pCurrentBand->set_value(b->id);
+                pCurrentBand->set_value(s->id);
                 pCurrentBand->notify_all(ui::PORT_USER_EDIT);
             }
         }
@@ -418,10 +418,13 @@ namespace lsp
                 {
                     split_t s;
 
+                    s.id            = port_id;
+
                     s.pUI           = this;
 
                     s.wMarker       = find_widget<tk::GraphMarker>(*fmt, "split_marker", port_id);
                     s.wNote         = find_widget<tk::GraphText>(*fmt, "split_note", port_id);
+                    s.wDot          = find_widget<tk::GraphDot>(*fmt, "band_dot", port_id);
 
                     s.pFreq         = find_port(*fmt, "sf", port_id);
                     s.pOn           = find_port(*fmt, "cbe", port_id);
@@ -435,6 +438,11 @@ namespace lsp
                     {
                         s.wMarker->slots()->bind(tk::SLOT_MOUSE_IN, slot_split_mouse_in, this);
                         s.wMarker->slots()->bind(tk::SLOT_MOUSE_OUT, slot_split_mouse_out, this);
+                    }
+
+                    if (s.wDot != NULL)
+                    {
+                        s.wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_down, this);
                     }
 
                     if (s.pFreq != NULL)
@@ -467,11 +475,11 @@ namespace lsp
 //                    b.nChannel      = &startSplit->nChannel;
 //                    b.splitStart    = startSplit;
 //                    b.splitEnd      = endSplit;
-                    band_t *b       = vBands.add();
+                    // band_t *b       = vBands.add();
 
-                    b->wDot         = find_widget<tk::GraphDot>(*fmt, "band_dot", port_id);
-                    b->wDot->heditable()->set(true);
-                    b->wDot->vvalue()->set(1000.0f);
+                    // b->wDot         = find_widget<tk::GraphDot>(*fmt, "band_dot", port_id);
+                    // b->wDot->heditable()->set(true);
+                    // b->wDot->vvalue()->set(1000.0f);
 
 //                    if (b->wDot != NULL)
 //                    {
