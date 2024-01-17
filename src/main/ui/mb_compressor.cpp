@@ -175,6 +175,20 @@ namespace lsp
             return STATUS_OK;
         }
 
+        status_t mb_compressor_ui::slot_band_dot_mouse_move(tk::Widget *sender, void *ptr, void *data)
+        {
+            // Fetch parameters
+            mb_compressor_ui *ui = static_cast<mb_compressor_ui *>(ptr);
+            if (ui == NULL)
+                return STATUS_BAD_STATE;
+
+            split_t *s = ui->find_split_by_widget(sender);
+            if (s != NULL)
+                ui->on_band_dot_mouse_move(s);
+
+            return STATUS_OK;
+        }
+
         status_t mb_compressor_ui::slot_graph_dbl_click(tk::Widget *sender, void *ptr, void *data)
         {
             mb_compressor_ui *_this = static_cast<mb_compressor_ui *>(ptr);
@@ -219,13 +233,13 @@ namespace lsp
             return NULL;
         }
 
-        mb_compressor_ui::band_t *mb_compressor_ui::find_band_by_widget(tk::Widget *widget)
+        mb_compressor_ui::split_t *mb_compressor_ui::find_end_split(split_t *start_split)
         {
-            for (size_t i=0, n=vBands.size(); i<n; ++i)
-            {
-                band_t *b = vBands.uget(i);
-                if (b->wDot == widget)
-                    return b;
+            // TODO: Check this code
+            for (size_t i = 1; i < vActiveSplits.size(); i++) {
+                split_t *s = vActiveSplits.uget(i - 1);
+                if (s->id == start_split->id)
+                    return s;
             }
             return NULL;
         }
@@ -256,6 +270,12 @@ namespace lsp
                 pCurrentBand->set_value(s->id);
                 pCurrentBand->notify_all(ui::PORT_USER_EDIT);
             }
+        }
+
+        void mb_compressor_ui::on_band_dot_mouse_move(split_t *s)
+        {
+            s->fFreq = s->wDot->hvalue()->get();
+            update_split_note_text(s);
         }
 
         mb_compressor_ui::split_t *mb_compressor_ui::allocate_split()
@@ -443,6 +463,7 @@ namespace lsp
                     if (s.wDot != NULL)
                     {
                         s.wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_down, this);
+                        s.wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_move, this);
                     }
 
                     if (s.pFreq != NULL)
@@ -451,42 +472,6 @@ namespace lsp
                         s.pOn->bind(this);
 
                     vSplits.add(&s);
-                }
-
-                for (size_t port_id=1; port_id<meta::mb_compressor_metadata::BANDS_MAX-1; ++port_id)
-                {
-//                    split_t *startSplit = vSplits.uget(channel + port_id-1);
-//                    split_t *endSplit   = vSplits.uget(channel + port_id);
-//
-//                    band_t b;
-//
-//                    b.id            = port_id - 1;
-//
-//                    b.pUI           = this;
-//                    b.pOn           = startSplit->pOn;
-//
-//                    b.wMarkerStart  = startSplit->wMarker;
-//                    b.wMarkerEnd    = endSplit->wMarker;
-//
-//                    // Logarithmic scale center point
-//                    b.fFreqCenter   = sqrtf(startSplit->fFreq * endSplit->fFreq);
-//
-//
-//                    b.nChannel      = &startSplit->nChannel;
-//                    b.splitStart    = startSplit;
-//                    b.splitEnd      = endSplit;
-                    // band_t *b       = vBands.add();
-
-                    // b->wDot         = find_widget<tk::GraphDot>(*fmt, "band_dot", port_id);
-                    // b->wDot->heditable()->set(true);
-                    // b->wDot->vvalue()->set(1000.0f);
-
-//                    if (b->wDot != NULL)
-//                    {
-//                        b->wDot->slots()->bind(tk::SLOT_MOUSE_DOWN, slot_band_dot_mouse_down, this);
-//                    }
-
-
                 }
             }
 

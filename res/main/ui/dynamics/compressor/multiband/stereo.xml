@@ -66,9 +66,9 @@
 					<!-- Meshes -->
 
 					<!-- Band crossover -->
-					<!-- <mesh id="bfc_0" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0" fcolor.a="0.9" visibility=":flt"/> -->
-					<ui:for id="i" first="1" last="6" step="2">
-						<mesh id="bfc_${i}" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}" fcolor.a="0.9" visibility=":flt and :cbe_${i}"/>
+					<mesh id="bfc_0" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_0" fcolor="graph_mesh_cycle" fcolor.hue=":hue_0" fcolor.a="0.9" visibility=":flt and :current_band ieq 0"/>
+					<ui:for id="i" first="1" last="7">
+						<mesh id="bfc_${i}" width="2" fill="true" smooth="true" color="graph_mesh_cycle" color.hue=":hue_${i}" fcolor="graph_mesh_cycle" fcolor.hue=":hue_${i}" fcolor.a="0.9" visibility=":flt and :cbe_${i} and :current_band ieq ${i}"/>
 					</ui:for>
 
 					<mesh id="ifg_l" oy=":_ui_zoomable_spectrum_graph ? 1 : 3" width="0" color="left_in" color.a="0.8" fcolor.a="0.8" fill="true" fcolor="left_in" visibility=":ife_l"/>
@@ -104,6 +104,52 @@
 								hover.bcolor.hue=":hue_${i}"
 								visibility="(${i} igt 0) ? :cbe_${i} : true"
 								x.astep="1" y.astep="1"/>
+						</ui:with>
+					</ui:for>
+
+					<!-- Lo-cut/Hi-cut filter manipulators -->
+					<ui:for id="i" first="0" last="7">
+						<ui:with visibility=":current_band ieq ${i} and :sclc_${i} and :schc_${i}">
+							<!-- Line -->
+							<line
+									x=":sclf_${i}"
+									y="0.95"
+									sx=":schf_${i}"
+									sy="0.95"
+									oy="2"
+									width="0"
+									smooth="false"
+									color="red"
+									lborder="5"
+									lcolor="red"
+									pointer="none"
+									/>
+							<ui:with
+								x.editable="true"
+								x.min="10"
+								x.max="24000"
+								y="0.95"
+								oy="2"
+								size="5"
+								hover.size="5"
+								height="64"
+								color="white"
+								border.size=":current_band ieq ${i} ? 15 : 5"
+								hover.border.size=":current_band ieq ${i} ? 15 : 5"
+								hover.color="graph_marker_cycle"
+								hover.color.hue=":hue_${i}"
+								bcolor="graph_marker_cycle"
+								bcolor.hue=":hue_${i}"
+								hover.bcolor="graph_marker_cycle"
+								hover.bcolor.hue=":hue_${i}"
+								pointer="drag"
+								x.astep="1" y.astep="1"
+							>
+								<!-- Lo-cut -->
+								<dot x.id="sclf_${i}" />
+								<!-- Hi-cut -->
+								<dot x.id="schf_${i}" />
+							</ui:with>
 						</ui:with>
 					</ui:for>
 
@@ -204,6 +250,33 @@
 					<ui:with expand="true" bg.color="bg_schema">
 						<vbox vexpand="true" hexpand="false" bg.color="bg_schema">
 							<label text="labels.band"/>
+
+							<button
+								text="labels.flt.LCF"
+								pad.h="6"
+								id="sclc_${i}"
+								ui:inject="Button_Cycle"
+								hfill="true"
+								height="19"
+								down.color.hue=":hue_${i}"
+								down.hover.color.hue=":hue_${i}"
+								text.down.color.hue=":hue_${i}"
+								text.down.hover.color.hue=":hue_${i}"
+								border.down.color.hue=":hue_${i}"
+								border.down.hover.color.hue=":hue_${i}"/>
+							<button
+								text="labels.flt.HCF"
+								pad.h="6"
+								id="schc_${i}"
+								ui:inject="Button_Cycle"
+								hfill="true"
+								height="19"
+								down.color.hue=":hue_${i}"
+								down.hover.color.hue=":hue_${i}"
+								text.down.color.hue=":hue_${i}"
+								text.down.hover.color.hue=":hue_${i}"
+								border.down.color.hue=":hue_${i}"
+								border.down.hover.color.hue=":hue_${i}"/>
 
 							<ui:if test=":i ieq 0">
 								<button text="labels.chan.active_num_id" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
