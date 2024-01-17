@@ -148,7 +148,8 @@ namespace lsp
                     bool                    bEnabled;           // Split band is enabled
                     float                   fFreq;              // Split band frequency
 
-                    plug::IPort            *pEnabled;           // Enable port
+                    plug::IPort            *pEnabled;           // Crossover enable port
+                    plug::IPort            *pActive;            // Enable (active) port
                     plug::IPort            *pFreq;              // Split frequency
                 } split_t;
 

@@ -37,6 +37,7 @@ namespace lsp
                     ui::IPort          *pFreq;          // Split frequency port
                     ui::IPort          *pOn;            // Split enable port
 
+                    ui::IPort          *PFilterOn;      // Filter enable port
                     ui::IPort          *pLCF;           // Low cut frequency port
                     ui::IPort          *pHCF;           // High cut frequency port
 

@@ -511,14 +511,12 @@ namespace lsp
                     s->fFreq        = 0.0f;
 
                     s->pEnabled     = NULL;
+                    s->pActive      = NULL;
                     s->pFreq        = NULL;
                 }
             }
 
             lsp_assert(ptr <= &save[to_alloc]);
-
-            // #define BIND_PORT(name) name = ports[port_id++]; lsp_trace("Binding port %s to %s", name->metadata()->id, #name)
-            // #define SKIP_PORT(name) lsp_trace("Skipping port %s (%s)", ports[port_id]->metadata()->id, #name); ++port_id
 
             // Bind ports
             size_t port_id              = 0;
@@ -598,11 +596,13 @@ namespace lsp
                     {
                         split_t *sc     = &vChannels[0].vSplit[j];
                         s->pEnabled     = sc->pEnabled;
+                        s->pActive      = sc->pActive;
                         s->pFreq        = sc->pFreq;
                     }
                     else
                     {
                         BIND_PORT(s->pEnabled);
+                        BIND_PORT(s->pActive);
                         BIND_PORT(s->pFreq);
                     }
                 }
@@ -2001,6 +2001,7 @@ namespace lsp
                             v->write("bEnabled", s->bEnabled);
                             v->write("fFreq", s->fFreq);
                             v->write("pEnabled", s->pEnabled);
+                            v->write("pActive", s->pActive);
                             v->write("pFreq", s->pFreq);
                         }
                         v->end_object();

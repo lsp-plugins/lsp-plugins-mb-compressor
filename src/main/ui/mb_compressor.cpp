@@ -455,6 +455,7 @@ namespace lsp
 
                     s.pFreq         = find_port(*fmt, "sf", port_id);
                     s.pOn           = find_port(*fmt, "cbe", port_id);
+                    s.PFilterOn     = find_port(*fmt, "scf", port_id);
                     s.pLCF          = find_port(*fmt, "sclf", port_id);
                     s.pHCF          = find_port(*fmt, "schf", port_id);
 
@@ -479,6 +480,8 @@ namespace lsp
                         s.pFreq->bind(this);
                     if (s.pOn != NULL)
                         s.pOn->bind(this);
+                    if (s.PFilterOn != NULL)
+                        s.PFilterOn->bind(this);
                     if (s.pLCF != NULL)
                         s.pLCF->bind(this);
                     if (s.pHCF != NULL)

@@ -130,12 +130,12 @@
 								x.max="24000"
 								y="0.95"
 								oy="2"
-								size="5"
-								hover.size="5"
+								size="6"
+								hover.size="6"
 								height="64"
 								color="white"
-								border.size=":current_band ieq ${i} ? 15 : 5"
-								hover.border.size=":current_band ieq ${i} ? 15 : 5"
+								border.size="5"
+								hover.border.size="5"
 								hover.color="graph_marker_cycle"
 								hover.color.hue=":hue_${i}"
 								bcolor="graph_marker_cycle"
@@ -251,20 +251,6 @@
 						<vbox vexpand="true" hexpand="false" bg.color="bg_schema">
 							<label text="labels.band"/>
 
-							<button
-								text="Free"
-								pad.h="6"
-								id="scf_${i}"
-								ui:inject="Button_Cycle"
-								hfill="true"
-								height="19"
-								down.color.hue=":hue_${i}"
-								down.hover.color.hue=":hue_${i}"
-								text.down.color.hue=":hue_${i}"
-								text.down.hover.color.hue=":hue_${i}"
-								border.down.color.hue=":hue_${i}"
-								border.down.hover.color.hue=":hue_${i}"/>
-
 							<ui:if test=":i ieq 0">
 								<button text="labels.chan.active_num_id" text:id="${i}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
 							</ui:if>
@@ -285,6 +271,20 @@
 									border.down.color.hue=":hue_${i}"
 									border.down.hover.color.hue=":hue_${i}"/>
 							</ui:if>
+
+							<button
+								text="Free"
+								pad.h="6"
+								id="scf_${i}"
+								ui:inject="Button_Cycle"
+								hfill="true"
+								height="19"
+								down.color.hue=":hue_${i}"
+								down.hover.color.hue=":hue_${i}"
+								text.down.color.hue=":hue_${i}"
+								text.down.hover.color.hue=":hue_${i}"
+								border.down.color.hue=":hue_${i}"
+								border.down.hover.color.hue=":hue_${i}"/>
 
 							<hsep bg.color="bg" pad.v="2" vreduce="true"/>
 							<hbox fill="false" pad.h="6" pad.t="4">

@@ -168,7 +168,8 @@ namespace lsp
                 COMBO("bsel", "Band selection", mb_compressor_metadata::SC_BAND_DFL, bands)
 
         #define MB_SPLIT(id, label, enable, freq) \
-                SWITCH("cbe" id, "Compression band enable" label, enable), \
+                SWITCH("cbe" id, "Crossover band enable" label, enable), \
+                SWITCH("cba" id, "Compression band enable" label, enable), \
                 LOG_CONTROL_DFL("sf" id, "Split frequency" label, U_HZ, mb_compressor_metadata::FREQ, freq)
 
         #define MB_MONO_BAND(id, label, x, total, fe, fs) \
