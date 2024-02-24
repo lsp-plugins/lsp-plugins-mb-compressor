@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2024 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2024 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -1936,6 +1936,7 @@ namespace lsp
                             v->write("pAttTime", b->pAttTime);
                             v->write("pRelLevel", b->pRelLevel);
                             v->write("pRelTime", b->pRelTime);
+                            v->write("pHold", b->pHold);
                             v->write("pRatio", b->pRatio);
                             v->write("pKnee", b->pKnee);
                             v->write("pBThresh", b->pBThresh);

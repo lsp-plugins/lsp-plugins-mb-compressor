@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2024 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2024 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -248,7 +248,12 @@ namespace lsp
 
             public:
                 explicit mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode);
+                mb_compressor(const mb_compressor &) = delete;
+                mb_compressor(mb_compressor &&) = delete;
                 virtual ~mb_compressor() override;
+
+                mb_compressor & operator = (const mb_compressor &) = delete;
+                mb_compressor & operator = (mb_compressor &&) = delete;
 
                 virtual void        init(plug::IWrapper *wrapper, plug::IPort **ports) override;
                 virtual void        destroy() override;
