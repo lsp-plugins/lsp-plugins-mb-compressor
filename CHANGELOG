@@ -3,6 +3,8 @@
 *******************************************************************************
 
 === 1.0.19 ===
+* Implemented Hold option.
+* Implemented Dry/Wet balance knob.
 * Updated behaviour of split editing in UI.
 * Updated build scripts and dependencies.
 

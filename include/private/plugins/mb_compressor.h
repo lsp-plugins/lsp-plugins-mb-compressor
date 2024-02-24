@@ -128,6 +128,7 @@ namespace lsp
                     plug::IPort            *pAttTime;           // Attack time
                     plug::IPort            *pRelLevel;          // Release level
                     plug::IPort            *pRelTime;           // Release time
+                    plug::IPort            *pHold;              // Hold time
                     plug::IPort            *pRatio;             // Ratio
                     plug::IPort            *pKnee;              // Knee
                     plug::IPort            *pBThresh;           // Boost threshold
@@ -228,6 +229,7 @@ namespace lsp
                 plug::IPort            *pOutGain;               // Output gain port
                 plug::IPort            *pDryGain;               // Dry gain port
                 plug::IPort            *pWetGain;               // Wet gain port
+                plug::IPort            *pDryWet;                // Dry/Wet gain balance port
                 plug::IPort            *pReactivity;            // Reactivity
                 plug::IPort            *pShiftGain;             // Shift gain port
                 plug::IPort            *pZoom;                  // Zoom port

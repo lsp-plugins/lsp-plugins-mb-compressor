@@ -190,6 +190,12 @@
 									<label text="labels.signal.wet" halign="0"/>
 									<value id="g_wet" width.min="50" sline="true" halign="0"/>
 								</vbox>
+								
+								<knob id="drywet" scolor="drywet" pad.r="4"/>
+								<vbox vfill="false">
+									<label text="labels.signal.drywet" halign="0"/>
+									<value id="drywet" width.min="50" sline="true" halign="0"/>
+								</vbox>
 							</grid>
 						</group>
 
@@ -479,7 +485,7 @@
 								</align>
 								<hsep/>
 
-								<grid rows="8" cols="9" hspacing="0">
+								<grid rows="8" cols="10" hspacing="0">
 									<!-- r1,2 -->
 									<ui:with vreduce="true">
 										<cell rows="2"><label text="labels.mode"/></cell>
@@ -489,6 +495,7 @@
 										<cell rows="2"><label text="labels.boost" bright="((:cm_${i}l ieq 0) and (:cm_${i}r ieq 0)) ? 0.5 : 1"/></cell>
 										<cell cols="2"><label text="labels.attack" pad.t="4"/></cell>
 										<cell cols="2"><label text="labels.release"/></cell>
+										<cell rows="2"><label text="labels.hold"/></cell>
 
 										<label text="labels.thresh_old"/>
 										<label text="labels.time"/>
@@ -497,7 +504,7 @@
 									</ui:with>
 
 									<!-- r3 -->
-									<cell cols="9"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+									<cell cols="10"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
 									<!-- r4 -->
 									<cell rows="2">
 										<vbox vfill="false" spacing="4" pad.h="6" pad.v="4">
@@ -538,6 +545,7 @@
 									<knob id="at_${i}l" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}l"/>
 									<knob id="rrl_${i}l" size="16" ssize="3" pad.t="4" scolor="release_1"/>
 									<knob id="rt_${i}l" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}l"/>
+									<knob id="ht_${i}l" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}l"/>
 									<!-- r5 -->
 									<hbox fill="false" pad.h="6" pad.v="4" width.min="30">
 										<value id="cr_${i}l" detailed="false"/>
@@ -557,9 +565,10 @@
 										<value id="at_${i}l"/>
 										<value id="rrl_${i}l"/>
 										<value id="rt_${i}l"/>
+										<value id="ht_${i}l"/>
 									</ui:with>
 									<!-- r6 -->
-									<cell cols="9"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+									<cell cols="10"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
 
 									<!-- r7 -->
 									<cell rows="2">
@@ -601,6 +610,7 @@
 									<knob id="at_${i}r" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}r"/>
 									<knob id="rrl_${i}r" size="16" ssize="3" pad.t="4" scolor="release_1"/>
 									<knob id="rt_${i}r" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}r"/>
+									<knob id="ht_${i}r" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}r"/>
 									<!-- r8 -->
 									<hbox fill="false" pad.h="6" pad.v="4">
 										<value id="cr_${i}r" detailed="false"/>
@@ -620,6 +630,7 @@
 										<value id="at_${i}r"/>
 										<value id="rrl_${i}r"/>
 										<value id="rt_${i}r"/>
+										<value id="ht_${i}r"/>
 									</ui:with>
 
 								</grid>
