@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2024 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2024 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -51,6 +51,11 @@ namespace lsp
             static constexpr float  RELEASE_TIME_MAX        = 5000.0f;
             static constexpr float  RELEASE_TIME_DFL        = 100.0f;
             static constexpr float  RELEASE_TIME_STEP       = 0.0025f;
+
+            static constexpr float  HOLD_TIME_MIN           = 0.0f;
+            static constexpr float  HOLD_TIME_MAX           = 1000.0f;
+            static constexpr float  HOLD_TIME_DFL           = 0.0f;
+            static constexpr float  HOLD_TIME_STEP          = 0.1f;
 
             static constexpr float  KNEE_MIN                = GAIN_AMP_M_24_DB;
             static constexpr float  KNEE_MAX                = GAIN_AMP_0_DB;
@@ -130,7 +135,6 @@ namespace lsp
             static constexpr size_t FFT_RANK                = 13;
             static constexpr size_t FFT_ITEMS               = 1 << FFT_RANK;
             static constexpr size_t MESH_POINTS             = 640;
-            static constexpr size_t FILTER_MESH_POINTS      = FFT_MESH_POINTS + 2;
             static constexpr size_t FFT_WINDOW              = dspu::windows::HANN;
 
             static constexpr size_t BANDS_MAX               = 8;

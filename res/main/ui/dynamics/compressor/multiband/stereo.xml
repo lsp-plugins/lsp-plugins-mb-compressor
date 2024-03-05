@@ -129,7 +129,7 @@
 			<!-- zoom -->
 			<cell rows="2">
 				<vbox vexpand="true" bg.color="bg_schema">
-					<label font.name="lsp-icons" font.size="12" font.antialias="true" text="E" color="text_icon" pad.b="4" pad.t="4"/>
+					<label font.name="lsp-icons" font.size="12" font.antialias="true" text="icons.main.zoom" color="text_icon" pad.b="4" pad.t="4"/>
 					<fader id="zoom" angle="1" vexpand="true" bg.inherit="true" flat="true"/>
 					<value id="zoom" width="40"/>
 				</vbox>
@@ -160,7 +160,7 @@
 			<cell rows="2">
 				<vbox spacing="4">
 					<group text="groups.signal" expand="true">
-						<grid rows="4" cols="2" hspacing="4">
+						<grid rows="5" cols="2" hspacing="4">
 							<knob id="g_in" pad.r="4"/>
 							<vbox vfill="false">
 								<label text="labels.input" halign="0"/>
@@ -183,6 +183,12 @@
 							<vbox vfill="false">
 								<label text="labels.signal.wet" halign="0"/>
 								<value id="g_wet" width.min="50" sline="true" halign="0"/>
+							</vbox>
+							
+							<knob id="drywet" scolor="drywet" pad.r="4"/>
+							<vbox vfill="false">
+								<label text="labels.signal.drywet" halign="0"/>
+								<value id="drywet" width.min="50" sline="true" halign="0"/>
 							</vbox>
 						</grid>
 					</group>
@@ -534,7 +540,7 @@
 							</align>
 							<hsep vreduce="true"/>
 
-							<grid rows="7" cols="9" hspacing="0" expand="true">
+							<grid rows="7" cols="10" hspacing="0" expand="true">
 								<!-- r1,2 -->
 								<ui:with vreduce="true">
 									<cell rows="2"><label text="labels.mode"/></cell>
@@ -544,6 +550,7 @@
 									<cell rows="2"><label text="labels.boost" bright="((:cm_${i} ieq 0) and (:cm_${i} ieq 0)) ? 0.5 : 1"/></cell>
 									<cell cols="2"><label text="labels.attack" pad.t="4"/></cell>
 									<cell cols="2"><label text="labels.release"/></cell>
+									<cell rows="2"><label text="labels.hold"/></cell>
 
 									<label text="labels.thresh_old"/>
 									<label text="labels.time"/>
@@ -552,7 +559,7 @@
 								</ui:with>
 
 								<!-- r3 -->
-								<cell cols="9"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+								<cell cols="10"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
 								<!-- r4 -->
 								<cell rows="2">
 									<vbox vfill="false" spacing="4" pad.h="6" pad.v="4">
@@ -570,8 +577,8 @@
 											text.down.hover.color.hue=":hue_${i}"
 											border.down.color.hue=":hue_${i}"
 											border.down.hover.color.hue=":hue_${i}"/>
+										
 										<hbox fill="true" spacing="4">
-
 											<button id="bs_${i}" text="labels.chan.S_olo" ui:inject="Button_green_8" hfill="true" height="19" hexpand="true"/>
 											<button id="bm_${i}" text="labels.chan.M_ute" ui:inject="Button_red_8" hfill="true" height="19" hexpand="true"/>
 										</hbox>
@@ -588,6 +595,7 @@
 								<knob id="at_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
 								<knob id="rrl_${i}" size="16" ssize="3" pad.t="4" scolor="release_1"/>
 								<knob id="rt_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
+								<knob id="ht_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
 								<!-- r5 -->
 								<hbox fill="false" pad.h="6" pad.v="4" width.min="30">
 									<value id="cr_${i}" detailed="false"/>
@@ -607,9 +615,10 @@
 									<value id="at_${i}"/>
 									<value id="rrl_${i}"/>
 									<value id="rt_${i}"/>
+									<value id="ht_${i}"/>
 								</ui:with>
-								<cell cols="9"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
-								<cell cols="9"><void fill="true" expand="true"/></cell>
+								<cell cols="10"><hsep bg.color="bg" pad.v="2" vreduce="true"/></cell>
+								<cell cols="10"><void fill="true" expand="true"/></cell>
 
 							</grid>
 						</vbox>

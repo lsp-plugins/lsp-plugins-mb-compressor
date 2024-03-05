@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2024 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2024 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -128,6 +128,7 @@ namespace lsp
                     plug::IPort            *pAttTime;           // Attack time
                     plug::IPort            *pRelLevel;          // Release level
                     plug::IPort            *pRelTime;           // Release time
+                    plug::IPort            *pHold;              // Hold time
                     plug::IPort            *pRatio;             // Ratio
                     plug::IPort            *pKnee;              // Knee
                     plug::IPort            *pBThresh;           // Boost threshold
@@ -156,7 +157,6 @@ namespace lsp
                     dspu::Filter            sEnvBoost[2];       // Envelope boost filter
                     dspu::Delay             sDelay;             // Delay for lookahead compensation purpose
                     dspu::Delay             sDryDelay;          // Delay for dry signal
-                    dspu::Delay             sAnDelay;           // Delay for analyzer
                     dspu::Delay             sXOverDelay;        // Delay for crossover
                     dspu::Equalizer         sDryEq;             // Dry equalizer
                     dspu::FFTCrossover      sFFTXOver;          // FFT crossover for linear phase
@@ -170,13 +170,13 @@ namespace lsp
                     float                  *vOut;               // Output data buffer
                     float                  *vScIn;              // Sidechain data buffer (if present)
 
+                    float                  *vInAnalyze;         // Input signal analysis
                     float                  *vInBuffer;          // Input buffer
                     float                  *vBuffer;            // Common data processing buffer
                     float                  *vScBuffer;          // Sidechain buffer
                     float                  *vExtScBuffer;       // External sidechain buffer
                     float                  *vTr;                // Transfer function
                     float                  *vTrMem;             // Transfer buffer (memory)
-                    float                  *vInAnalyze;         // Input signal analysis
 
                     size_t                  nAnInChannel;       // Analyzer channel used for input signal analysis
                     size_t                  nAnOutChannel;      // Analyzer channel used for output signal analysis
@@ -229,6 +229,7 @@ namespace lsp
                 plug::IPort            *pOutGain;               // Output gain port
                 plug::IPort            *pDryGain;               // Dry gain port
                 plug::IPort            *pWetGain;               // Wet gain port
+                plug::IPort            *pDryWet;                // Dry/Wet gain balance port
                 plug::IPort            *pReactivity;            // Reactivity
                 plug::IPort            *pShiftGain;             // Shift gain port
                 plug::IPort            *pZoom;                  // Zoom port
@@ -247,7 +248,12 @@ namespace lsp
 
             public:
                 explicit mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode);
+                mb_compressor(const mb_compressor &) = delete;
+                mb_compressor(mb_compressor &&) = delete;
                 virtual ~mb_compressor() override;
+
+                mb_compressor & operator = (const mb_compressor &) = delete;
+                mb_compressor & operator = (mb_compressor &&) = delete;
 
                 virtual void        init(plug::IWrapper *wrapper, plug::IPort **ports) override;
                 virtual void        destroy() override;
