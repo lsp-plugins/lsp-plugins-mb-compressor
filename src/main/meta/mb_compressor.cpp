@@ -849,9 +849,9 @@ namespace lsp
 
         const meta::plugin_t  sc_mb_compressor_stereo =
         {
-            "Sidechain Multi-band Kompressor Stereo x8",
-            "Sidechain Multiband Compressor Stereo x8",
-            "SC MB Compressor Stereo",
+            "LSP Multi-Comp",
+            "Multi-Comp",
+            "LSP Multi-Comp",
             "SCMBK8S",
             &developers::v_sadovnikov,
             "sc_mb_compressor_stereo",
