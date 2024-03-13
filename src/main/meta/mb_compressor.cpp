@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2024 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2024 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -26,7 +26,7 @@
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MAJOR       1
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MINOR       0
-#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       19
+#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       20
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION  \
     LSP_MODULE_VERSION( \
@@ -161,6 +161,7 @@ namespace lsp
                 AMP_GAIN("g_out", "Output gain", mb_compressor_metadata::OUT_GAIN_DFL, 10.0f), \
                 AMP_GAIN("g_dry", "Dry gain", 0.0f, 10.0f), \
                 AMP_GAIN("g_wet", "Wet gain", 1.0f, 10.0f), \
+                PERCENTS("drywet", "Dry/Wet balance", 100.0f, 0.1f), \
                 LOG_CONTROL("react", "FFT reactivity", U_MSEC, mb_compressor_metadata::REACT_TIME), \
                 AMP_GAIN("shift", "Shift gain", 1.0f, 100.0f), \
                 LOG_CONTROL("zoom", "Graph zoom", U_GAIN_AMP, mb_compressor_metadata::ZOOM), \
@@ -180,7 +181,7 @@ namespace lsp
                 SWITCH("scf" id, "Sidechain custom filter" label, 0), \
                 LOG_CONTROL_DFL("sclf" id, "Sidechain lo-cut frequency" label, U_HZ, mb_compressor_metadata::FREQ, fe), \
                 LOG_CONTROL_DFL("schf" id, "Sidechain hi-cut frequency" label, U_HZ, mb_compressor_metadata::FREQ, fs), \
-                MESH("bfc" id, "Side-chain band frequency chart" label, 2, mb_compressor_metadata::FILTER_MESH_POINTS), \
+                MESH("bfc" id, "Side-chain band frequency chart" label, 2, mb_compressor_metadata::MESH_POINTS + 4), \
                 \
                 COMBO("cm" id, "Compression mode" label, mb_compressor_metadata::CM_DEFAULT, mb_comp_modes), \
                 SWITCH("ce" id, "Compressor enable" label, 1.0f), \
@@ -193,6 +194,7 @@ namespace lsp
                 SWITCH("rm" id, "Use BPM fraction for release" label, 0.0f), \
                 CONTROL("rdf" id, "Release fraction", U_BAR, mb_compressor_metadata::FRACTION), \
                 INT_CONTROL("rdd" id, "Release denominator", U_BEAT, mb_compressor_metadata::DENOMINATOR), \
+                CONTROL("ht" id, "Hold time" label, U_MSEC, mb_compressor_metadata::HOLD_TIME), \
                 LOG_CONTROL("cr" id, "Ratio" label, U_NONE, mb_compressor_metadata::RATIO), \
                 LOG_CONTROL("kn" id, "Knee" label, U_GAIN_AMP, mb_compressor_metadata::KNEE), \
                 EXT_LOG_CONTROL("bth" id, "Boost threshold" label, U_GAIN_AMP, mb_compressor_metadata::BTH), \
@@ -720,6 +722,8 @@ namespace lsp
             LSP_LV2_URI("mb_compressor_mono"),
             LSP_LV2UI_URI("mb_compressor_mono"),
             "fdiu",
+            LSP_VST3_UID("mbk8m   fdiu"),
+            LSP_VST3UI_UID("mbk8m   fdiu"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 0,
             LSP_LADSPA_URI("mb_compressor_mono"),
             LSP_CLAP_URI("mb_compressor_mono"),
@@ -745,6 +749,8 @@ namespace lsp
             LSP_LV2_URI("mb_compressor_stereo"),
             LSP_LV2UI_URI("mb_compressor_stereo"),
             "gjsn",
+            LSP_VST3_UID("mbk8s   gjsn"),
+            LSP_VST3UI_UID("mbk8s   gjsn"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 1,
             LSP_LADSPA_URI("mb_compressor_stereo"),
             LSP_CLAP_URI("mb_compressor_stereo"),
@@ -770,6 +776,8 @@ namespace lsp
             LSP_LV2_URI("mb_compressor_lr"),
             LSP_LV2UI_URI("mb_compressor_lr"),
             "0egf",
+            LSP_VST3_UID("mbk8lr  0egf"),
+            LSP_VST3UI_UID("mbk8lr  0egf"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 2,
             LSP_LADSPA_URI("mb_compressor_lr"),
             LSP_CLAP_URI("mb_compressor_lr"),
@@ -795,6 +803,8 @@ namespace lsp
             LSP_LV2_URI("mb_compressor_ms"),
             LSP_LV2UI_URI("mb_compressor_ms"),
             "vhci",
+            LSP_VST3_UID("mbk8ms  vhci"),
+            LSP_VST3UI_UID("mbk8ms  vhci"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 3,
             LSP_LADSPA_URI("mb_compressor_ms"),
             LSP_CLAP_URI("mb_compressor_ms"),
@@ -821,6 +831,8 @@ namespace lsp
             LSP_LV2_URI("sc_mb_compressor_mono"),
             LSP_LV2UI_URI("sc_mb_compressor_mono"),
             "vv0m",
+            LSP_VST3_UID("scmbk8m vv0m"),
+            LSP_VST3UI_UID("scmbk8m vv0m"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 4,
             LSP_LADSPA_URI("sc_mb_compressor_mono"),
             LSP_CLAP_URI("sc_mb_compressor_mono"),
@@ -846,6 +858,8 @@ namespace lsp
             LSP_LV2_URI("sc_mb_compressor_stereo"),
             LSP_LV2UI_URI("sc_mb_compressor_stereo"),
             "zqrn",
+            LSP_VST3_UID("scmbk8s zqrn"),
+            LSP_VST3UI_UID("scmbk8s zqrn"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 5,
             LSP_LADSPA_URI("sc_mb_compressor_stereo"),
             LSP_CLAP_URI("sc_mb_compressor_stereo"),
@@ -871,6 +885,8 @@ namespace lsp
             LSP_LV2_URI("sc_mb_compressor_lr"),
             LSP_LV2UI_URI("sc_mb_compressor_lr"),
             "kvxe",
+            LSP_VST3_UID("scmbk8lrkvxe"),
+            LSP_VST3UI_UID("scmbk8lrkvxe"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 6,
             LSP_LADSPA_URI("sc_mb_compressor_lr"),
             LSP_CLAP_URI("sc_mb_compressor_lr"),
@@ -896,6 +912,8 @@ namespace lsp
             LSP_LV2_URI("sc_mb_compressor_ms"),
             LSP_LV2UI_URI("sc_mb_compressor_ms"),
             "hjdp",
+            LSP_VST3_UID("scmbk8mshjdp"),
+            LSP_VST3UI_UID("scmbk8mshjdp"),
             LSP_LADSPA_MB_COMPRESSOR_BASE + 7,
             LSP_LADSPA_URI("sc_mb_compressor_ms"),
             LSP_CLAP_URI("sc_mb_compressor_ms"),

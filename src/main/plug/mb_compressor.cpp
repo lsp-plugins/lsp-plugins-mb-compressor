@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2024 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2024 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -117,6 +117,7 @@ namespace lsp
             pInGain         = NULL;
             pDryGain        = NULL;
             pWetGain        = NULL;
+            pDryWet         = NULL;
             pOutGain        = NULL;
             pReactivity     = NULL;
             pShiftGain      = NULL;
@@ -316,31 +317,16 @@ namespace lsp
             lsp_guard_assert(uint8_t *save   = ptr);
 
             // Remember the pointer to frequencies buffer
-            vTr             = reinterpret_cast<float *>(ptr);
-            ptr            += filter_mesh_size * 2;
-            vPFc             = reinterpret_cast<float *>(ptr);
-            ptr            += filter_mesh_size * 2;
-            vRFc            = reinterpret_cast<float *>(ptr);
-            ptr            += filter_mesh_size * 2;
-            vFreqs          = reinterpret_cast<float *>(ptr);
-            ptr            += meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float);
-            vCurve          = reinterpret_cast<float *>(ptr);
-            ptr            += meta::mb_compressor_metadata::CURVE_MESH_SIZE * sizeof(float);
-            vIndexes        = reinterpret_cast<uint32_t *>(ptr);
-            ptr            += meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(uint32_t);
-            vSc[0]          = reinterpret_cast<float *>(ptr);
-            ptr            += MBC_BUFFER_SIZE * sizeof(float);
-            if (channels > 1)
-            {
-                vSc[1]          = reinterpret_cast<float *>(ptr);
-                ptr            += MBC_BUFFER_SIZE * sizeof(float);
-            }
-            else
-                vSc[1]          = NULL;
-            vBuffer         = reinterpret_cast<float *>(ptr);
-            ptr            += MBC_BUFFER_SIZE * sizeof(float);
-            vEnv            = reinterpret_cast<float *>(ptr);
-            ptr            += MBC_BUFFER_SIZE * sizeof(float);
+            vTr             = advance_ptr_bytes<float>(ptr, filter_mesh_size * 2);
+            vPFc            = advance_ptr_bytes<float>(ptr, filter_mesh_size * 2);
+            vRFc            = advance_ptr_bytes<float>(ptr, filter_mesh_size * 2);
+            vFreqs          = advance_ptr_bytes<float>(ptr, meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float));
+            vCurve          = advance_ptr_bytes<float>(ptr, meta::mb_compressor_metadata::CURVE_MESH_SIZE * sizeof(float));
+            vIndexes        = advance_ptr_bytes<uint32_t>(ptr, meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(uint32_t));
+            vSc[0]          = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+            vSc[1]          = (channels > 1) ? advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float)) : NULL;
+            vBuffer         = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+            vEnv            = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
 
             // Initialize filters according to number of bands
             if (sFilters.init(meta::mb_compressor_metadata::BANDS_MAX * channels) != STATUS_OK)
@@ -377,24 +363,13 @@ namespace lsp
                 c->vOut         = NULL;
                 c->vScIn        = NULL;
 
-                c->vInAnalyze   = reinterpret_cast<float *>(ptr);
-                ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                c->vInBuffer    = reinterpret_cast<float *>(ptr);
-                ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                c->vBuffer      = reinterpret_cast<float *>(ptr);
-                ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                c->vScBuffer    = reinterpret_cast<float *>(ptr);
-                ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                c->vExtScBuffer = NULL;
-                if (bSidechain)
-                {
-                    c->vExtScBuffer = reinterpret_cast<float *>(ptr);
-                    ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                }
-                c->vTr          = reinterpret_cast<float *>(ptr);
-                ptr            += 2 * filter_mesh_size;
-                c->vTrMem       = reinterpret_cast<float *>(ptr);
-                ptr            += filter_mesh_size;
+                c->vInAnalyze   = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+                c->vInBuffer    = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+                c->vBuffer      = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+                c->vScBuffer    = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+                c->vExtScBuffer = (bSidechain) ? advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float)) : NULL;
+                c->vTr          = advance_ptr_bytes<float>(ptr, 2 * filter_mesh_size);
+                c->vTrMem       = advance_ptr_bytes<float>(ptr, filter_mesh_size);
 
                 c->nAnInChannel = an_cid++;
                 c->nAnOutChannel= an_cid++;
@@ -439,14 +414,10 @@ namespace lsp
                         b->sEQ[1].set_mode(dspu::EQM_IIR);
                     }
 
-                    b->vBuffer      = reinterpret_cast<float *>(ptr);
-                    ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                    b->vVCA         = reinterpret_cast<float *>(ptr);
-                    ptr            += MBC_BUFFER_SIZE * sizeof(float);
-                    b->vSc          = reinterpret_cast<float *>(ptr);
-                    ptr            += meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float) * 2;
-                    b->vTr          = reinterpret_cast<float *>(ptr);
-                    ptr            += meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float) * 2;
+                    b->vBuffer      = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+                    b->vVCA         = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+                    b->vSc          = advance_ptr_bytes<float>(ptr, meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float) * 2);
+                    b->vTr          = advance_ptr_bytes<float>(ptr, meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(float) * 2);
 
                     b->fScPreamp    = GAIN_AMP_0_DB;
 
@@ -547,6 +518,7 @@ namespace lsp
             BIND_PORT(pOutGain);
             BIND_PORT(pDryGain);
             BIND_PORT(pWetGain);
+            BIND_PORT(pDryWet);
             BIND_PORT(pReactivity);
             BIND_PORT(pShiftGain);
             BIND_PORT(pZoom);
@@ -560,16 +532,12 @@ namespace lsp
                 channel_t *c    = &vChannels[i];
 
                 if ((i == 0) || (nMode == MBCM_LR) || (nMode == MBCM_MS))
-                {
                     SKIP_PORT("Filter switch");
-                }
 
                 BIND_PORT(c->pAmpGraph);
             }
             if (nMode == MBCM_STEREO)
-            {
                 BIND_PORT(pStereoSplit);
-            }
 
             lsp_trace("Binding meters");
             for (size_t i=0; i<channels; ++i)
@@ -643,6 +611,7 @@ namespace lsp
                         b->pRelMode     = sb->pRelMode;
                         b->pRelFract    = sb->pRelFract;
                         b->pRelDenom    = sb->pRelDenom;
+                        b->pHold        = sb->pHold;
                         b->pRatio       = sb->pRatio;
                         b->pKnee        = sb->pKnee;
                         b->pBThresh     = sb->pBThresh;
@@ -656,17 +625,11 @@ namespace lsp
                     else
                     {
                         if (bSidechain)
-                        {
                             BIND_PORT(b->pExtSc);
-                        }
                         if (nMode != MBCM_MONO)
-                        {
                             BIND_PORT(b->pScSource);
-                        }
                         if (nMode == MBCM_STEREO)
-                        {
                             BIND_PORT(b->pScSpSource);
-                        }
 
                         BIND_PORT(b->pScMode);
                         BIND_PORT(b->pScLook);
@@ -688,6 +651,7 @@ namespace lsp
                         BIND_PORT(b->pRelMode);
                         BIND_PORT(b->pRelFract);
                         BIND_PORT(b->pRelDenom);
+                        BIND_PORT(b->pHold);
                         BIND_PORT(b->pRatio);
                         BIND_PORT(b->pKnee);
                         BIND_PORT(b->pBThresh);
@@ -746,10 +710,14 @@ namespace lsp
             bStereoSplit        = (pStereoSplit != NULL) ? pStereoSplit->value() >= 0.5f : false;
 
             // Store gain
-            float out_gain      = pOutGain->value();
+            const float out_gain= pOutGain->value();
+            const float drywet  = pDryWet->value() * 0.01f;
+            const float dry_gain= pDryGain->value();
+            const float wet_gain= pWetGain->value();
+
             fInGain             = pInGain->value();
-            fDryGain            = out_gain * pDryGain->value();
-            fWetGain            = out_gain * pWetGain->value();
+            fDryGain            = (dry_gain * drywet + 1.0f - drywet) * out_gain;
+            fWetGain            = wet_gain * drywet * out_gain;
             fZoom               = pZoom->value();
 
             // Configure channels
@@ -894,6 +862,7 @@ namespace lsp
                     b->sComp.set_mode(mode);
                     b->sComp.set_threshold(attack, release);
                     b->sComp.set_timings(b->pAttTime->value(), release_time);
+                    b->sComp.set_hold(b->pHold->value());
                     b->sComp.set_ratio(b->pRatio->value());
                     b->sComp.set_knee(b->pKnee->value());
                     b->sComp.set_boost_threshold((mode != dspu::CM_BOOSTING) ? b->pBThresh->value() : b->pBoost->value());
@@ -1686,18 +1655,27 @@ namespace lsp
                         mesh                = (b->pScFreqChart != NULL) ? b->pScFreqChart->buffer<plug::mesh_t>() : NULL;
                         if ((mesh != NULL) && (mesh->isEmpty()))
                         {
-                            // Add extra points
-                            mesh->pvData[0][0] = SPEC_FREQ_MIN*0.5f;
-                            mesh->pvData[0][meta::mb_compressor_metadata::MESH_POINTS+1] = SPEC_FREQ_MAX * 2.0f;
-                            mesh->pvData[1][0] = 0.0f;
-                            mesh->pvData[1][meta::mb_compressor_metadata::MESH_POINTS+1] = 0.0f;
+                            float *x = mesh->pvData[0];
+                            float *y = mesh->pvData[1];
 
                             // Fill mesh
-                            dsp::copy(&mesh->pvData[0][1], vFreqs, meta::mb_compressor_metadata::MESH_POINTS);
-                            dsp::mul_k3(&mesh->pvData[1][1], b->vSc, b->fScPreamp, meta::mb_compressor_metadata::MESH_POINTS);
-                            mesh->data(2, meta::mb_compressor_metadata::FILTER_MESH_POINTS);
+                            dsp::copy(&x[2], vFreqs, meta::mb_compressor_metadata::MESH_POINTS);
+                            dsp::mul_k3(&y[2], b->vSc, b->fScPreamp, meta::mb_compressor_metadata::MESH_POINTS);
+
+                            // Add extra points
+                            x[0]    = SPEC_FREQ_MIN*0.5f;
+                            x[1]    = x[0];
+                            y[0]    = 0.0f;
+                            y[1]    = y[2];
+                            x      += meta::mb_compressor_metadata::MESH_POINTS + 2;
+                            y      += meta::mb_compressor_metadata::MESH_POINTS + 2;
+                            x[0]    = SPEC_FREQ_MAX*2.0f;
+                            x[1]    = x[0];
+                            y[0]    = y[-1];
+                            y[1]    = 0.0f;
 
                             // Mark mesh as synchronized
+                            mesh->data(2, meta::mb_compressor_metadata::MESH_POINTS + 4);
                             b->nSync           &= ~size_t(S_EQ_CURVE);
                         }
                     }
@@ -1977,6 +1955,7 @@ namespace lsp
                             v->write("pRelMode", b->pRelMode);
                             v->write("pRelFract", b->pRelFract);
                             v->write("pRelDenom", b->pRelDenom);
+                            v->write("pHold", b->pHold);
                             v->write("pRatio", b->pRatio);
                             v->write("pKnee", b->pKnee);
                             v->write("pBThresh", b->pBThresh);
@@ -2063,6 +2042,7 @@ namespace lsp
             v->write("pOutGain", pOutGain);
             v->write("pDryGain", pDryGain);
             v->write("pWetGain", pWetGain);
+            v->write("pDryWet", pDryWet);
             v->write("pReactivity", pReactivity);
             v->write("pShiftGain", pShiftGain);
             v->write("pZoom", pZoom);
