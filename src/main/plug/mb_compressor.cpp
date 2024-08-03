@@ -1130,11 +1130,17 @@ namespace lsp
                 {
                     comp_band_t *b  = c->vPlan[j];
                     b->sScDelay.set_delay(latency + xover_latency - b->nLookahead);
+                    lsp_trace("scdelay[%d][%d] = %d", int(i), int(j), int(b->sScDelay.get_delay()));
                 }
                 c->sDelay.set_delay(latency);
                 c->sDryDelay.set_delay(latency + xover_latency);
                 sAnalyzer.set_channel_delay(c->nAnInChannel, xover_latency);
-                c->sXOverDelay.set_delay(latency + xover_latency);
+                c->sXOverDelay.set_delay(xover_latency);
+
+                lsp_trace("sdelay[%d] = %d", int(i), int(c->sDelay.get_delay()));
+                lsp_trace("drydelay[%d] = %d", int(i), int(c->sDryDelay.get_delay()));
+                lsp_trace("cdelay[%d] = %d", int(i), int(sAnalyzer.channel_delay(c->nAnInChannel)));
+                lsp_trace("xoverdelay[%d] = %d", int(i), int(c->sXOverDelay.delay()));
             }
 
             // Debug:
