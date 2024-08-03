@@ -2,6 +2,9 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.23 ===
+
+
 === 1.0.22 ===
 * Fixed improper phase compensation between Dry and Wet channels in
   Linear Phase mode.
