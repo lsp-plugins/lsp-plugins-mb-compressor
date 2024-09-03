@@ -1,13 +1,13 @@
 {
 	"mb_comp": {
-		"band0": "Banda 0",
-		"band1": "Banda 1",
-		"band2": "Banda 2",
-		"band3": "Banda 3",
-		"band4": "Banda 4",
-		"band5": "Banda 5",
-		"band6": "Banda 6",
-		"band7": "Banda 7",
+		"band0": "Banda 1",
+		"band1": "Banda 2",
+		"band2": "Banda 3",
+		"band3": "Banda 4",
+		"band4": "Banda 5",
+		"band5": "Banda 6",
+		"band6": "Banda 7",
+		"band7": "Banda 8",
 		"classic": "Clásico",
 		"down_ward": "Abajo",
 		"downward": "Hacia abajo",
@@ -21,4 +21,3 @@
 		"upward": "Hacia arriba"
 	}
 }
-
