@@ -26,6 +26,7 @@
 #include <lsp-plug.in/dsp/dsp.h>
 #include <lsp-plug.in/dsp-units/misc/envelope.h>
 #include <lsp-plug.in/dsp-units/units.h>
+#include <lsp-plug.in/plug-fw/core/AudioBuffer.h>
 #include <lsp-plug.in/shared/debug.h>
 #include <lsp-plug.in/shared/id_colors.h>
 
@@ -87,6 +88,8 @@ namespace lsp
             nMode           = mode;
             bSidechain      = sc;
             bEnvUpdate      = true;
+            bUseExtSc       = false;
+            bUseShmLink     = false;
             enXOver         = XOVER_MODERN;
             bStereoSplit    = false;
             nEnvBoost       = meta::mb_compressor_metadata::FB_DEFAULT;
@@ -111,6 +114,7 @@ namespace lsp
             vAnalyze[3]     = NULL;
             vBuffer         = NULL;
             vEnv            = NULL;
+            vEmptyBuf       = NULL;
 
             pBypass         = NULL;
             pMode           = NULL;
@@ -216,6 +220,7 @@ namespace lsp
 
                     c->sEnvBoost[0].destroy();
                     c->sEnvBoost[1].destroy();
+                    c->sEnvBoost[2].destroy();
                     c->sDelay.destroy();
                     c->sDryDelay.destroy();
                     c->sXOverDelay.destroy();
@@ -291,6 +296,7 @@ namespace lsp
                     meta::mb_compressor_metadata::FFT_MESH_POINTS * sizeof(uint32_t) + // vIndexes array
                     MBC_BUFFER_SIZE * sizeof(float) + // Global vBuffer for band signal processing
                     MBC_BUFFER_SIZE * sizeof(float) + // Global vEnv for band signal processing
+                    MBC_BUFFER_SIZE * sizeof(float) + // Global vEmptyBuf
                     // Channel buffers
                     (
                         MBC_BUFFER_SIZE * sizeof(float) + // Global vSc[] for each channel
@@ -301,6 +307,7 @@ namespace lsp
                         MBC_BUFFER_SIZE * sizeof(float) + // vBuffer for each channel
                         MBC_BUFFER_SIZE * sizeof(float) + // vScBuffer for each channel
                         ((bSidechain) ? MBC_BUFFER_SIZE * sizeof(float) : 0) + // vExtScBuffer for each channel
+                        MBC_BUFFER_SIZE * sizeof(float) + // vShmLinkBuffer
                         // Band buffers
                         (
                             MBC_BUFFER_SIZE * sizeof(float) + // vBuffer of each band
@@ -326,6 +333,7 @@ namespace lsp
             vSc[1]          = (channels > 1) ? advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float)) : NULL;
             vBuffer         = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
             vEnv            = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
+            vEmptyBuf       = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
 
             // Initialize filters according to number of bands
             if (sFilters.init(meta::mb_compressor_metadata::BANDS_MAX * channels) != STATUS_OK)
@@ -340,6 +348,7 @@ namespace lsp
                 c->sBypass.construct();
                 c->sEnvBoost[0].construct();
                 c->sEnvBoost[1].construct();
+                c->sEnvBoost[2].construct();
                 c->sDelay.construct();
                 c->sDryDelay.construct();
                 c->sXOverDelay.construct();
@@ -348,11 +357,10 @@ namespace lsp
 
                 if (!c->sEnvBoost[0].init(NULL))
                     return;
-                if (bSidechain)
-                {
-                    if (!c->sEnvBoost[1].init(NULL))
-                        return;
-                }
+                if (!c->sEnvBoost[1].init(NULL))
+                    return;
+                if (!c->sEnvBoost[2].init(NULL))
+                    return;
 
                 c->sDryEq.init(meta::mb_compressor_metadata::BANDS_MAX-1, 0);
                 c->sDryEq.set_mode(dspu::EQM_IIR);
@@ -361,12 +369,14 @@ namespace lsp
                 c->vIn          = NULL;
                 c->vOut         = NULL;
                 c->vScIn        = NULL;
+                c->vShmIn       = NULL;
 
                 c->vInAnalyze   = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
                 c->vInBuffer    = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
                 c->vBuffer      = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
                 c->vScBuffer    = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
                 c->vExtScBuffer = (bSidechain) ? advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float)) : NULL;
+                c->vShmBuffer   = advance_ptr_bytes<float>(ptr, MBC_BUFFER_SIZE * sizeof(float));
                 c->vTr          = advance_ptr_bytes<float>(ptr, 2 * filter_mesh_size);
                 c->vTrMem       = advance_ptr_bytes<float>(ptr, filter_mesh_size);
 
@@ -381,6 +391,7 @@ namespace lsp
                 c->pIn          = NULL;
                 c->pOut         = NULL;
                 c->pScIn        = NULL;
+                c->pShmIn       = NULL;
                 c->pFftIn       = NULL;
                 c->pFftInSw     = NULL;
                 c->pFftOut      = NULL;
@@ -432,11 +443,11 @@ namespace lsp
                     b->bCustLCF     = false;
                     b->bMute        = false;
                     b->bSolo        = false;
-                    b->bExtSc       = false;
+                    b->nScType      = SCT_INTERNAL;
                     b->nSync        = S_ALL;
                     b->nFilterID    = filter_cid++;
 
-                    b->pExtSc       = NULL;
+                    b->pScType      = NULL;
                     b->pScSource    = NULL;
                     b->pScSpSource  = NULL;
                     b->pScMode      = NULL;
@@ -491,20 +502,26 @@ namespace lsp
             // Input ports
             lsp_trace("Binding input ports");
             for (size_t i=0; i<channels; ++i)
-                vChannels[i].pIn        = trace_port(ports[port_id++]);
+                BIND_PORT(vChannels[i].pIn);
 
             // Input ports
             lsp_trace("Binding output ports");
             for (size_t i=0; i<channels; ++i)
-                vChannels[i].pOut       = trace_port(ports[port_id++]);
+                BIND_PORT(vChannels[i].pOut);
 
             // Input ports
             if (bSidechain)
             {
                 lsp_trace("Binding sidechain ports");
                 for (size_t i=0; i<channels; ++i)
-                    vChannels[i].pScIn      = trace_port(ports[port_id++]);
+                    BIND_PORT(vChannels[i].pScIn);
             }
+
+            // Shared memory link
+            lsp_trace("Binding shared memory link");
+            SKIP_PORT("Shared memory link name");
+            for (size_t i=0; i<channels; ++i)
+                BIND_PORT(vChannels[i].pShmIn);
 
             // Common ports
             lsp_trace("Binding common ports");
@@ -581,7 +598,7 @@ namespace lsp
                     {
                         comp_band_t *sb     = &vChannels[0].vBands[j];
 
-                        b->pExtSc       = sb->pExtSc;
+                        b->pScType      = sb->pScType;
                         b->pScSource    = sb->pScSource;
                         b->pScSpSource  = sb->pScSpSource;
                         b->pScMode      = sb->pScMode;
@@ -615,8 +632,7 @@ namespace lsp
                     }
                     else
                     {
-                        if (bSidechain)
-                            BIND_PORT(b->pExtSc);
+                        BIND_PORT(b->pScType);
                         if (nMode != MBCM_MONO)
                             BIND_PORT(b->pScSource);
                         if (nMode == MBCM_STEREO)
@@ -670,10 +686,38 @@ namespace lsp
                 }
             }
 
+            // Clear empty buffer
+            dsp::fill_zero(vEmptyBuf, MBC_BUFFER_SIZE);
+
             // Initialize curve (logarithmic) in range of -72 .. +24 db
             float delta = (meta::mb_compressor_metadata::CURVE_DB_MAX - meta::mb_compressor_metadata::CURVE_DB_MIN) / (meta::mb_compressor_metadata::CURVE_MESH_SIZE-1);
             for (size_t i=0; i<meta::mb_compressor_metadata::CURVE_MESH_SIZE; ++i)
                 vCurve[i]   = dspu::db_to_gain(meta::mb_compressor_metadata::CURVE_DB_MIN + delta * i);
+        }
+
+        uint32_t mb_compressor::decode_sidechain_type(uint32_t sc) const
+        {
+            if (bSidechain)
+            {
+                switch (sc)
+                {
+                    case 0: return SCT_INTERNAL;
+                    case 1: return SCT_EXTERNAL;
+                    case 2: return SCT_LINK;
+                    default: break;
+                }
+            }
+            else
+            {
+                switch (sc)
+                {
+                    case 0: return SCT_INTERNAL;
+                    case 1: return SCT_LINK;
+                    default: break;
+                }
+            }
+
+            return SCT_INTERNAL;
         }
 
         void mb_compressor::update_settings()
@@ -708,6 +752,8 @@ namespace lsp
             fDryGain            = (dry_gain * drywet + 1.0f - drywet) * out_gain;
             fWetGain            = wet_gain * drywet * out_gain;
             fZoom               = pZoom->value();
+            bUseExtSc           = false;
+            bUseShmLink         = false;
 
             // Configure channels
             for (size_t i=0; i<channels; ++i)
@@ -779,8 +825,8 @@ namespace lsp
                     }
 
                     c->sEnvBoost[0].update(fSampleRate, &fp);
-                    if (bSidechain)
-                        c->sEnvBoost[1].update(fSampleRate, &fp);
+                    c->sEnvBoost[1].update(fSampleRate, &fp);
+                    c->sEnvBoost[2].update(fSampleRate, &fp);
                 }
             }
 
@@ -827,7 +873,11 @@ namespace lsp
 
                     b->pRelLevelOut->set_value(release);
 
-                    b->bExtSc       = (b->pExtSc != NULL) ? b->pExtSc->value() >= 0.5f : false;
+                    b->nScType      = decode_sidechain_type(b->pScType->value());
+                    if (b->nScType == SCT_EXTERNAL)
+                        bUseExtSc       = true;
+                    if (b->nScType == SCT_LINK)
+                        bUseShmLink     = true;
 
                     b->sSC.set_mode(b->pScMode->value());
                     b->sSC.set_reactivity(b->pScReact->value());
@@ -1295,6 +1345,79 @@ namespace lsp
             dsp::copy(&b->vBuffer[sample], data, count);
         }
 
+        void mb_compressor::process_input_buffer(float *l_out, float *r_out, const float *l_in, const float *r_in, size_t count)
+        {
+            if (l_in == NULL)
+                l_in        = vEmptyBuf;
+            if (r_in == NULL)
+                r_in        = vEmptyBuf;
+
+            if (nMode == MBCM_MS)
+            {
+                dsp::lr_to_ms(l_out, r_out, l_in, r_in, count);
+                dsp::mul_k2(l_out, fInGain, count);
+                dsp::mul_k2(r_out, fInGain, count);
+            }
+            else if (nMode == MBCM_MONO)
+                dsp::mul_k3(l_out, l_in, fInGain, count);
+            else
+            {
+                dsp::mul_k3(l_out, l_in, fInGain, count);
+                dsp::mul_k3(r_out, r_in, fInGain, count);
+            }
+        }
+
+        const float *mb_compressor::select_buffer(const comp_band_t *band, const channel_t *channel)
+        {
+            switch (band->nScType)
+            {
+                case SCT_INTERNAL: return channel->vScBuffer;
+                case SCT_EXTERNAL: return channel->vExtScBuffer;
+                case SCT_LINK: return channel->vShmBuffer;
+                default: break;
+            }
+            return channel->vScBuffer;
+        }
+
+        void mb_compressor::preprocess_channel_input(size_t count)
+        {
+            const size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
+
+            process_input_buffer(
+                vChannels[0].vInAnalyze,
+                vChannels[1].vInAnalyze,
+                vChannels[0].vIn,
+                vChannels[1].vIn,
+                count);
+
+            if (bUseExtSc)
+                process_input_buffer(
+                    vChannels[0].vExtScBuffer,
+                    vChannels[1].vExtScBuffer,
+                    vChannels[0].vScIn,
+                    vChannels[1].vScIn,
+                    count);
+
+            if (bUseShmLink)
+                process_input_buffer(
+                    vChannels[0].vShmBuffer,
+                    vChannels[1].vShmBuffer,
+                    vChannels[0].vShmIn,
+                    vChannels[1].vShmIn,
+                    count);
+
+            // Do frequency boost and input channel analysis
+            for (size_t i=0; i<channels; ++i)
+            {
+                channel_t *c        = &vChannels[i];
+                c->sEnvBoost[0].process(c->vScBuffer, c->vInAnalyze, count);
+                if (bUseExtSc)
+                    c->sEnvBoost[1].process(c->vExtScBuffer, c->vExtScBuffer, count);
+                if (bUseShmLink)
+                    c->sEnvBoost[2].process(c->vShmBuffer, c->vShmBuffer, count);
+            }
+        }
+
         void mb_compressor::process(size_t samples)
         {
             size_t channels     = (nMode == MBCM_MONO) ? 1 : 2;
@@ -1306,7 +1429,12 @@ namespace lsp
 
                 c->vIn              = c->pIn->buffer<float>();
                 c->vOut             = c->pOut->buffer<float>();
-                c->vScIn            = (c->pScIn != NULL) ? c->pScIn->buffer<float>() : NULL;
+                c->vScIn            = (c->pScIn != NULL) ? c->pScIn->buffer<float>() : vEmptyBuf;
+                c->vShmIn           = NULL;
+
+                core::AudioBuffer *shm_buf  = (c->pShmIn != NULL) ? c->pShmIn->buffer<core::AudioBuffer>() : NULL;
+                if ((shm_buf != NULL) && (shm_buf->active()))
+                    c->vShmIn           = shm_buf->buffer();
             }
 
             // Do processing
@@ -1324,44 +1452,7 @@ namespace lsp
                 }
 
                 // Pre-process channel data
-                if (nMode == MBCM_MS)
-                {
-                    dsp::lr_to_ms(vChannels[0].vInAnalyze, vChannels[1].vInAnalyze, vChannels[0].vIn, vChannels[1].vIn, to_process);
-                    dsp::mul_k2(vChannels[0].vInAnalyze, fInGain, to_process);
-                    dsp::mul_k2(vChannels[1].vInAnalyze, fInGain, to_process);
-                }
-                else if (nMode == MBCM_MONO)
-                    dsp::mul_k3(vChannels[0].vInAnalyze, vChannels[0].vIn, fInGain, to_process);
-                else
-                {
-                    dsp::mul_k3(vChannels[0].vInAnalyze, vChannels[0].vIn, fInGain, to_process);
-                    dsp::mul_k3(vChannels[1].vInAnalyze, vChannels[1].vIn, fInGain, to_process);
-                }
-                if (bSidechain)
-                {
-                    if (nMode == MBCM_MS)
-                    {
-                        dsp::lr_to_ms(vChannels[0].vExtScBuffer, vChannels[1].vExtScBuffer, vChannels[0].vScIn, vChannels[1].vScIn, to_process);
-                        dsp::mul_k2(vChannels[0].vExtScBuffer, fInGain, to_process);
-                        dsp::mul_k2(vChannels[1].vExtScBuffer, fInGain, to_process);
-                    }
-                    else if (nMode == MBCM_MONO)
-                        dsp::mul_k3(vChannels[0].vExtScBuffer, vChannels[0].vScIn, fInGain, to_process);
-                    else
-                    {
-                        dsp::mul_k3(vChannels[0].vExtScBuffer, vChannels[0].vScIn, fInGain, to_process);
-                        dsp::mul_k3(vChannels[1].vExtScBuffer, vChannels[1].vScIn, fInGain, to_process);
-                    }
-                }
-
-                // Do frequency boost and input channel analysis
-                for (size_t i=0; i<channels; ++i)
-                {
-                    channel_t *c        = &vChannels[i];
-                    c->sEnvBoost[0].process(c->vScBuffer, c->vInAnalyze, to_process);
-                    if (bSidechain)
-                        c->sEnvBoost[1].process(c->vExtScBuffer, c->vExtScBuffer, to_process);
-                }
+                preprocess_channel_input(to_process);
 
                 // MAIN PLUGIN STUFF
                 for (size_t i=0; i<channels; ++i)
@@ -1373,9 +1464,9 @@ namespace lsp
                         comp_band_t *b      = c->vPlan[j];
 
                         // Prepare sidechain signal with band equalizers
-                        b->sEQ[0].process(vSc[0], (b->bExtSc) ? vChannels[0].vExtScBuffer : vChannels[0].vScBuffer, to_process);
+                        b->sEQ[0].process(vSc[0], select_buffer(b, &vChannels[0]), to_process);
                         if (channels > 1)
-                            b->sEQ[1].process(vSc[1], (b->bExtSc) ? vChannels[1].vExtScBuffer : vChannels[1].vScBuffer, to_process);
+                            b->sEQ[1].process(vSc[1], select_buffer(b, &vChannels[1]), to_process);
 
                         // Preprocess VCA signal
                         b->sSC.process(vBuffer, const_cast<const float **>(vSc), to_process); // Band now contains processed by sidechain signal
@@ -1552,6 +1643,8 @@ namespace lsp
                     c->vOut            += to_process;
                     if (c->vScIn != NULL)
                         c->vScIn           += to_process;
+                    if (c->vShmIn != NULL)
+                        c->vShmIn          += to_process;
                 }
                 offset     += to_process;
             }
@@ -1874,8 +1967,8 @@ namespace lsp
                     const channel_t *c = &vChannels[i];
 
                     v->write_object("sBypass", &c->sBypass);
-                    v->begin_array("sEnvBoost", c->sEnvBoost, 2);
-                    for (size_t i=0; i<2; ++i)
+                    v->begin_array("sEnvBoost", c->sEnvBoost, 3);
+                    for (size_t i=0; i<3; ++i)
                         v->write_object(&c->sEnvBoost[i]);
                     v->end_array();
                     v->write_object("sDelay", &c->sDelay);
@@ -1917,11 +2010,11 @@ namespace lsp
                             v->write("bCustLCF", b->bCustLCF);
                             v->write("bMute", b->bMute);
                             v->write("bSolo", b->bSolo);
-                            v->write("bExtSc", b->bExtSc);
+                            v->write("nScType", b->nScType);
                             v->write("nSync", b->nSync);
                             v->write("nFilterID", b->nFilterID);
 
-                            v->write("pExtSc", b->pExtSc);
+                            v->write("pScType", b->pScType);
                             v->write("pScSource", b->pScSource);
                             v->write("pScSpSource", b->pScSpSource);
                             v->write("pScMode", b->pScMode);
@@ -1978,6 +2071,7 @@ namespace lsp
                     v->write("vIn", c->vIn);
                     v->write("vOut", c->vOut);
                     v->write("vScIn", c->vScIn);
+                    v->write("vShmIn", c->vShmIn);
 
                     v->write("vInAnalyze", c->vInAnalyze);
                     v->write("vInBuffer", c->vInBuffer);
@@ -1995,6 +2089,7 @@ namespace lsp
                     v->write("pIn", c->pIn);
                     v->write("pOut", c->pOut);
                     v->write("pScIn", c->pScIn);
+                    v->write("pShmIn", c->pShmIn);
                     v->write("pFftIn", c->pFftIn);
                     v->write("pFftInSw", c->pFftInSw);
                     v->write("pFftOut", c->pFftOut);

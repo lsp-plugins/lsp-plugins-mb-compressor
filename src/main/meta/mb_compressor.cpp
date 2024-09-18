@@ -45,6 +45,21 @@ namespace lsp
         static const int clap_features_mono[]       = { CF_AUDIO_EFFECT, CF_COMPRESSOR, CF_MONO, -1 };
         static const int clap_features_stereo[]     = { CF_AUDIO_EFFECT, CF_COMPRESSOR, CF_STEREO, -1 };
 
+        static const port_item_t mb_comp_sc_type[] =
+        {
+            { "Internal",       "sidechain.internal"        },
+            { "Link",           "sidechain.link"            },
+            { NULL, NULL }
+        };
+
+        static const port_item_t mb_comp_sc_type_sc[] =
+        {
+            { "Internal",       "sidechain.internal"        },
+            { "External",       "sidechain.external"        },
+            { "Link",           "sidechain.link"            },
+            { NULL, NULL }
+        };
+
         static const port_item_t mb_comp_sc_modes[] =
         {
             { "Peak",           "sidechain.peak"            },
@@ -146,6 +161,12 @@ namespace lsp
             { NULL, NULL }
         };
 
+        #define MB_COMP_SHM_LINK_MONO \
+                OPT_RETURN_MONO("link", "shml", "Side-chain shared memory link")
+
+        #define MB_COMP_SHM_LINK_STEREO \
+                OPT_RETURN_STEREO("link", "shml_", "Side-chain shared memory link")
+
         #define MB_COMMON(bands) \
                 BYPASS, \
                 COMBO("mode", "Compressor mode", 1, mb_global_comp_modes), \
@@ -164,7 +185,7 @@ namespace lsp
                 SWITCH("cbe" id, "Compression band enable" label, enable), \
                 LOG_CONTROL_DFL("sf" id, "Split frequency" label, U_HZ, mb_compressor_metadata::FREQ, freq)
 
-        #define MB_MONO_BAND(id, label, x, total, fe, fs) \
+        #define MB_BAND_COMMON(id, label, x, total, fe, fs) \
                 COMBO("scm" id, "Sidechain mode" label, mb_compressor_metadata::SC_MODE_DFL, mb_comp_sc_modes), \
                 CONTROL("sla" id, "Sidechain lookahead" label, U_MSEC, mb_compressor_metadata::LOOKAHEAD), \
                 LOG_CONTROL("scr" id, "Sidechain reactivity" label, U_MSEC, mb_compressor_metadata::REACTIVITY), \
@@ -199,26 +220,35 @@ namespace lsp
                 METER_OUT_GAIN("clm" id, "Curve level meter" label, GAIN_AMP_P_36_DB), \
                 METER_OUT_GAIN("rlm" id, "Reduction level meter" label, GAIN_AMP_P_72_DB)
 
+        #define MB_MONO_BAND(id, label, x, total, fe, fs) \
+                COMBO("sce" id, "External sidechain source" label, 0.0f, mb_comp_sc_type), \
+                MB_BAND_COMMON(id, label, x, total, fe, fs)
+
         #define MB_STEREO_BAND(id, label, x, total, fe, fs) \
+                COMBO("sce" id, "External sidechain source" label, 0.0f, mb_comp_sc_type), \
                 COMBO("scs" id, "Sidechain source" label, 0, mb_comp_sc_source), \
                 COMBO("sscs" id, "Split sidechain source" label, 0, mb_comp_sc_split_source), \
-                MB_MONO_BAND(id, label, x, total, fe, fs)
+                MB_BAND_COMMON(id, label, x, total, fe, fs)
 
         #define MB_SPLIT_BAND(id, label, x, total, fe, fs) \
+                COMBO("sce" id, "External sidechain source" label, 0.0f, mb_comp_sc_type), \
                 COMBO("scs" id, "Sidechain source" label, dspu::SCS_MIDDLE, mb_comp_sc_source), \
-                MB_MONO_BAND(id, label, x, total, fe, fs)
+                MB_BAND_COMMON(id, label, x, total, fe, fs)
 
         #define MB_SC_MONO_BAND(id, label, x, total, fe, fs) \
-                SWITCH("sce" id, "External sidechain enable" label, 0.0f), \
-                MB_MONO_BAND(id, label, x, total, fe, fs)
+                COMBO("sce" id, "External sidechain source" label, 0.0f, mb_comp_sc_type_sc), \
+                MB_BAND_COMMON(id, label, x, total, fe, fs)
 
         #define MB_SC_STEREO_BAND(id, label, x, total, fe, fs) \
-                SWITCH("sce" id, "External sidechain enable" label, 0.0f), \
-                MB_STEREO_BAND(id, label, x, total, fe, fs)
+                COMBO("sce" id, "External sidechain source" label, 0.0f, mb_comp_sc_type_sc), \
+                COMBO("scs" id, "Sidechain source" label, 0, mb_comp_sc_source), \
+                COMBO("sscs" id, "Split sidechain source" label, 0, mb_comp_sc_split_source), \
+                MB_BAND_COMMON(id, label, x, total, fe, fs)
 
         #define MB_SC_SPLIT_BAND(id, label, x, total, fe, fs) \
-                SWITCH("sce" id, "External sidechain enable" label, 0.0f), \
-                MB_SPLIT_BAND(id, label, x, total, fe, fs)
+                COMBO("sce" id, "External sidechain source" label, 0.0f, mb_comp_sc_type_sc), \
+                COMBO("scs" id, "Sidechain source" label, dspu::SCS_MIDDLE, mb_comp_sc_source), \
+                MB_BAND_COMMON(id, label, x, total, fe, fs)
 
         #define MB_STEREO_CHANNEL \
                 SWITCH("flt", "Band filter curves", 1.0f), \
@@ -255,6 +285,7 @@ namespace lsp
         static const port_t mb_compressor_mono_ports[] =
         {
             PORTS_MONO_PLUGIN,
+            MB_COMP_SHM_LINK_MONO,
             MB_COMMON(mb_comp_sc_bands),
             MB_CHANNEL("", ""),
             MB_FFT_METERS("", ""),
@@ -292,6 +323,7 @@ namespace lsp
         static const port_t mb_compressor_stereo_ports[] =
         {
             PORTS_STEREO_PLUGIN,
+            MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_bands),
             MB_STEREO_CHANNEL,
             MB_FFT_METERS("_l", " Left"),
@@ -340,6 +372,7 @@ namespace lsp
         static const port_t mb_compressor_lr_ports[] =
         {
             PORTS_STEREO_PLUGIN,
+            MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_lr_bands),
             MB_CHANNEL("_l", " Left"),
             MB_CHANNEL("_r", " Right"),
@@ -406,6 +439,7 @@ namespace lsp
         static const port_t mb_compressor_ms_ports[] =
         {
             PORTS_STEREO_PLUGIN,
+            MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_ms_bands),
             MB_CHANNEL("_m", " Mid"),
             MB_CHANNEL("_s", " Side"),
@@ -473,6 +507,7 @@ namespace lsp
         {
             PORTS_MONO_PLUGIN,
             PORTS_MONO_SIDECHAIN,
+            MB_COMP_SHM_LINK_MONO,
             MB_COMMON(mb_comp_sc_bands),
             MB_CHANNEL("", ""),
             MB_FFT_METERS("", ""),
@@ -511,6 +546,7 @@ namespace lsp
         {
             PORTS_STEREO_PLUGIN,
             PORTS_STEREO_SIDECHAIN,
+            MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_bands),
             MB_STEREO_CHANNEL,
             MB_FFT_METERS("_l", " Left"),
@@ -560,6 +596,7 @@ namespace lsp
         {
             PORTS_STEREO_PLUGIN,
             PORTS_STEREO_SIDECHAIN,
+            MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_lr_bands),
             MB_CHANNEL("_l", " Left"),
             MB_CHANNEL("_r", " Right"),
@@ -627,6 +664,7 @@ namespace lsp
         {
             PORTS_STEREO_PLUGIN,
             PORTS_STEREO_SIDECHAIN,
+            MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_ms_bands),
             MB_CHANNEL("_m", " Mid"),
             MB_CHANNEL("_s", " Side"),

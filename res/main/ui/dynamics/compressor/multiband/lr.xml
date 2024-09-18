@@ -245,6 +245,7 @@
 						<combo id="mode" pad.r="8" pad.v="4"/>
 						<label text="labels.sc_boost:"/>
 						<combo id="envb" pad.r="8"/>
+						<shmlink id="link" />
 						<label text="labels.filters" pad.l="6"/>
 						<hbox spacing="4" pad.h="6">
 							<button id="flt_l" text="labels.chan.L_eft" size="22" ui:inject="Button_left"/>
@@ -354,7 +355,7 @@
 
 												<button id="bm_${ch}" text="labels.chan.M_ute" height="19" hfill="true" ui:inject="Button_red_8" pad.l="4"/>
 
-												<button id="sce_${ch}" text="labels.chan.Ext_ernal" height="19" hfill="true" ui:inject="Button_yellow_8" visibility="ex :sce_${ch}" pad.l="4"/>
+												<combo id="sce_${ch}" height="19" fill="true" pad.l="4"/>
 											</hbox>
 										</grid>
 									</cell>
@@ -424,7 +425,7 @@
 										<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
 											<combo id="scm_${i}l" fill="true"/>
 											<combo id="scs_${i}l" fill="true"/>
-											<button text="labels.chan.external_sc_left" id="sce_${i}l" ui:inject="Button_left" hfill="true" height="19" visibility="ex :sce_${i}l"/>
+											<combo id="sce_${i}l" fill="true" height="19" />
 										</vbox>
 									</cell>
 									<knob id="sla_${i}l" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}l"/>
@@ -453,7 +454,7 @@
 										<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
 											<combo id="scm_${i}r" fill="true"/>
 											<combo id="scs_${i}r" fill="true"/>
-											<button text="labels.chan.external_sc_right" id="sce_${i}r" ui:inject="Button_right" hfill="true" height="19" visibility="ex :sce_${i}r"/>
+											<combo id="sce_${i}r" fill="true" height="19" />
 										</vbox>
 									</cell>
 									<knob id="sla_${i}r" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}r"/>
