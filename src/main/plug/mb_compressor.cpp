@@ -1977,6 +1977,8 @@ namespace lsp
             v->write("nMode", nMode);
             v->write("bSidechain", bSidechain);
             v->write("bEnvUpdate", bEnvUpdate);
+            v->write("bUseExtSc", bUseExtSc);
+            v->write("bUseShmLink", bUseShmLink);
             v->write("enXOver", enXOver);
             v->write("bStereoSplit", bStereoSplit);
             v->write("nEnvBoost", nEnvBoost);
@@ -2098,6 +2100,7 @@ namespace lsp
                     v->write("vBuffer", c->vBuffer);
                     v->write("vScBuffer", c->vScBuffer);
                     v->write("vExtScBuffer", c->vExtScBuffer);
+                    v->write("vShmBuffer", c->vShmBuffer);
                     v->write("vTr", c->vTr);
                     v->write("vTrMem", c->vTrMem);
 
