@@ -227,7 +227,6 @@ namespace lsp
                 float                  *vAnalyze[4];            // Analysis buffer
                 float                  *vBuffer;                // Temporary buffer
                 float                  *vEnv;                   // Compressor envelope buffer
-                float                  *vEmptyBuf;              // Empty buffer
                 float                  *vTr;                    // Transfer buffer
                 float                  *vPFc;                   // Pass filter characteristics buffer
                 float                  *vRFc;                   // Reject filter characteristics buffer
@@ -260,7 +259,8 @@ namespace lsp
                 void                do_destroy();
                 void                preprocess_channel_input(size_t count);
                 uint32_t            decode_sidechain_type(uint32_t sc) const;
-                void                process_input_buffer(float *l_out, float *r_out, const float *l_in, const float *r_in, size_t count);
+                void                process_input_mono(float *out, const float *in, size_t count);
+                void                process_input_stereo(float *l_out, float *r_out, const float *l_in, const float *r_in, size_t count);
                 const float        *select_buffer(const comp_band_t *band, const channel_t *channel);
 
             public:
