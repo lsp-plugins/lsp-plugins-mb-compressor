@@ -221,23 +221,24 @@
 			</cell>
 
 			<!-- bottom line -->
-			<align halign="-1" vreduce="true">
-				<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
-					<label text="labels.mode:"/>
-					<combo id="mode" pad.r="8" pad.v="4"/>
-					<label text="labels.sc_boost:"/>
-					<combo id="envb" pad.r="8"/>
-					<shmlink id="link" />
-					<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
-				</hbox>
-			</align>
+			<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
+				<label text="labels.mode:"/>
+				<combo id="mode" pad.r="8" pad.v="4"/>
+				<label text="labels.sc_boost:"/>
+				<combo id="envb" pad.r="8"/>
+				<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
+
+				<void hexpand="true"/>
+				<vsep pad.h="2" bg.color="bg" reduce="true"/>
+				<shmlink id="link"/>
+			</hbox>
 		</grid>
 
 		<!-- down part -->
 		<hbox>
 
-			<cgroup id="bsel" embed.h=":bsel ilt 1" embed.b=":bsel ilt 1" width.min="855" height.min="350">
-				<grid rows="11" cols="25" transpose="true">
+			<cgroup id="bsel" embed.h=":bsel ilt 1" embed.b=":bsel ilt 1" width.min="855" height.min="373">
+				<grid rows="12" cols="25" transpose="true">
 					<!-- Labels -->
 					<label text="labels.band" pad.v="4" bg.color="bg_schema" hreduce="true"/>
 					<vbox pad.v="4">
@@ -245,6 +246,7 @@
 						<label text="labels.units.:hz"/>
 					</vbox>
 					<label text="labels.controls" pad.v="4" bg.color="bg_schema"/>
+					<label text="labels.sidechain" pad.v="4" bg.color="bg_schema"/>
 					<cell rows="2" pad.v="4" hreduce="true" pad.h="6">
 						<label text="labels.sc_preamp_makeup:db_db"/>
 					</cell>
@@ -264,7 +266,7 @@
 						<!-- Column 1 -->
 						<ui:if test=":i ieq 0">
 							<!-- Separator -->
-							<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+							<cell rows="12"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
 
 							<ui:with bright="((${i} ieq 0) or :cbe_${i}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${i}) ? 1.0 : :const_bg_darken">
 
@@ -282,7 +284,7 @@
 
 						<ui:if test=":i ine 0">
 							<!-- Separator -->
-							<cell rows="11"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+							<cell rows="12"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
 
 							<ui:with bright="((${i} ieq 0) or :cbe_${i}) ? 1 : 0.75" bg.bright="((${i} ieq 0) or :cbe_${i}) ? 1.0 : :const_bg_darken">
 
@@ -324,13 +326,14 @@
 										border.down.hover.color.hue=":hue_${i}"
 										pad.v="4"/>
 									<hbox pad.b="4">
-										<button id="bs_${i}" text="labels.chan.S_olo" height="19" hfill="true" ui:inject="Button_green_8"/>
+										<button id="bs_${i}" text="labels.chan.solo" height="19" hfill="true" ui:inject="Button_green_8"/>
 
-										<button id="bm_${i}" text="labels.chan.M_ute" height="19" hfill="true" ui:inject="Button_red_8" pad.l="4"/>
-
-										<combo id="sce_${i}" fill="true" pad.l="4"/>
+										<button id="bm_${i}" text="labels.chan.mute" height="19" hfill="true" ui:inject="Button_red_8" pad.l="4"/>
 									</hbox>
 								</grid>
+							</cell>
+							<cell cols="2" pad.h="6" bg.color="bg_schema">
+								<combo id="sce_${i}" fill="true" pad.l="4"/>
 							</cell>
 							<knob id="scp_${i}" size="16" ssize="3" pad.t="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
 							<value id="scp_${i}" pad.b="4" width.min="32" detailed="false"/>
@@ -395,7 +398,7 @@
 										<cell rows="2">
 											<vbox vfill="false" spacing="4" pad.l="6" pad.v="4">
 												<combo id="scm_${i}" fill="true"/>
-												<combo id="sce_${i}" fill="true" />
+												<combo id="sce_${i}" fill="true"/>
 											</vbox>
 										</cell>
 										<knob id="sla_${i}" size="16" ssize="3" scolor="cycle" pad.t="4" scolor.hue=":hue_${i}"/>
@@ -627,7 +630,7 @@
 									<dot x.id="elm_${i}" y.id="clm_${i}" color="graph_mesh" bcolor="graph_mesh"/>
 
 									<!-- Markers -->
-									<marker id="al_${i}"  editable="true" width="2" pointer="hsize" color="attack_1" hcolor="attack_1"/>
+									<marker id="al_${i}" editable="true" width="2" pointer="hsize" color="attack_1" hcolor="attack_1"/>
 									<marker id="rl_${i}" color="release_1"/>
 
 									<!-- Text -->
