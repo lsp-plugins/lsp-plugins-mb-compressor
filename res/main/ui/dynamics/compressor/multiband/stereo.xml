@@ -348,8 +348,8 @@
 								</grid>
 							</cell>
 							<cell cols="2" pad.h="6" bg.color="bg_schema">
-							<combo id="sce_${i}" fill="true" pad.l="4"/>
-						</cell>
+								<combo id="sce_${i}" fill="true" pad.l="4"/>
+							</cell>
 							<knob id="scp_${i}" size="16" ssize="3" pad.t="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
 							<value id="scp_${i}" pad.b="4" width.min="32" detailed="false"/>
 							<knob id="cr_${i}" size="16" ssize="3" pad.t="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}" bg.color="bg_schema"/>

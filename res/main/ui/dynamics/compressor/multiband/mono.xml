@@ -221,7 +221,7 @@
 			</cell>
 
 			<!-- bottom line -->
-			<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
+			<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="4">
 				<label text="labels.mode:"/>
 				<combo id="mode" pad.r="8" pad.v="4"/>
 				<label text="labels.sc_boost:"/>
