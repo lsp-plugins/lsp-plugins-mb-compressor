@@ -233,18 +233,18 @@
 			</cell>
 
 			<!-- bottom line -->
-			<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="4">
+			<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
 				<label text="labels.mode:"/>
 				<combo id="mode" pad.r="8" pad.v="4"/>
 				<label text="labels.sc_boost:"/>
 				<combo id="envb" pad.r="8"/>
 				<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan" pad.l="6"/>
 				<vsep pad.h="2" bg.color="bg" reduce="true"/>
-				<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue"/>
+				<button id="ssplit" text="labels.stereo_split" size="22" ui:inject="Button_blue" pad.h="2"/>
 				<vsep pad.h="2" bg.color="bg" reduce="true"/>
 				<void hexpand="true"/>
 				<vsep pad.h="2" bg.color="bg" reduce="true"/>
-				<shmlink id="link"/>
+				<shmlink id="link" pad.l="2"/>
 			</hbox>
 		</grid>
 

@@ -221,7 +221,7 @@
 			</cell>
 
 			<!-- bottom line -->
-			<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="4">
+			<hbox spacing="4" vreduce="true" bg.color="bg_schema" pad.h="6">
 				<label text="labels.mode:"/>
 				<combo id="mode" pad.r="8" pad.v="4"/>
 				<label text="labels.sc_boost:"/>
@@ -230,7 +230,7 @@
 
 				<void hexpand="true"/>
 				<vsep pad.h="2" bg.color="bg" reduce="true"/>
-				<shmlink id="link"/>
+				<shmlink id="link" pad.l="2"/>
 			</hbox>
 		</grid>
 
