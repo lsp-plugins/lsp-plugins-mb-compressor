@@ -85,6 +85,7 @@
 		<li><b>Brown BT</b> - a +6db/octave sidechain boost using bilinear-transformed shelving filter.</li>
 		<li><b>Brown MT</b> - a +6db/octave sidechain boost using matched-transformed shelving filter.</li>
 	</ul>
+	<li><b>Link</b> - the name of shared memory link used to receive sidechain signal</li>
 	<li><b>FFT<?= $sm ?> In</b> - enables FFT curve graph of input signal on the spectrum graph.</li>
 	<li><b>FFT<?= $sm ?> Out</b> - enables FFT curve graph of output signal on the spectrum graph.</li>
 	<?php if ($m == 's') { ?>
@@ -126,9 +127,7 @@
 		<li><b>On</b> - enables compressor assigned to the corresponding frequency band.</li>
 		<li><b>S</b> - turns on soloing mode to the selected band by applying -36 dB gain to non-soloing bands</li>
 		<li><b>M</b> - turns on muting mode to the selected band by applying -36 dB gain to it</li>
-		<?php if ($sc) { ?>
-			<li><b>Ext</b> - enables control of this band by applying signal from external sidechain inputs</li>
-		<?php } ?>
+		<li><b>Sidechain combo</b> - allows to select external sidechain inputs or shared memory audio stream</li>
 	</ul>
 	<li><b>SC Preamp</b> - applies additional gain to the sidechain band.</li>
 	<li><b>Makeup</b> - applies additional gain to the output of the corresponding compressor.</li>
@@ -149,9 +148,14 @@
 	<p><b>'Band N' section</b> - allows to control all parameters for the selected frequency band:</p>
 <?php }?>
 <ul>
-	<?php if ($sc) { ?>
-	<li><b>Sidechain External</b> - sidechain signal is taken from additional (external) sidechain inputs of plugin</li>
-	<?php } ?>
+	<li><b>Sidechain Source</b> - allows to set the sidechain source</li>
+	<ul>
+		<li><b>Internal</b> - the audio inputs of plugin are used as sidechain signal.</li>
+		<?php if ($sc) { ?>
+			<li><b>External</b> - additional sidechain audio inputs of plugins are used as sidechain signal.</li>
+		<?php } ?>
+		<li><b>Link</b> - the shared memory link is used to receive sidechain signal.</li>
+	</ul>
 	<li><b>Sidechain Mode</b> - combo box that allows to control sidechain working mode:</li>
 	<ul>
 		<li><b>Peak</b> - peak mode.</li>
