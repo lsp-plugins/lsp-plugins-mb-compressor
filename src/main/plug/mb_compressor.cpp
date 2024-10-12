@@ -38,48 +38,51 @@ namespace lsp
     {
         //-------------------------------------------------------------------------
         // Plugin factory
-        typedef struct plugin_settings_t
+        inline namespace
         {
-            const meta::plugin_t   *metadata;
-            bool                    sc;
-            uint8_t                 mode;
-        } plugin_settings_t;
+            typedef struct plugin_settings_t
+            {
+                const meta::plugin_t   *metadata;
+                bool                    sc;
+                uint8_t                 mode;
+            } plugin_settings_t;
 
-        static const meta::plugin_t *plugins[] =
-        {
-            &meta::mb_compressor_mono,
-            &meta::mb_compressor_stereo,
-            &meta::mb_compressor_lr,
-            &meta::mb_compressor_ms,
-            &meta::sc_mb_compressor_mono,
-            &meta::sc_mb_compressor_stereo,
-            &meta::sc_mb_compressor_lr,
-            &meta::sc_mb_compressor_ms
-        };
+            static const meta::plugin_t *plugins[] =
+            {
+                &meta::mb_compressor_mono,
+                &meta::mb_compressor_stereo,
+                &meta::mb_compressor_lr,
+                &meta::mb_compressor_ms,
+                &meta::sc_mb_compressor_mono,
+                &meta::sc_mb_compressor_stereo,
+                &meta::sc_mb_compressor_lr,
+                &meta::sc_mb_compressor_ms
+            };
 
-        static const plugin_settings_t plugin_settings[] =
-        {
-            { &meta::mb_compressor_mono,        false, mb_compressor::MBCM_MONO         },
-            { &meta::mb_compressor_stereo,      false, mb_compressor::MBCM_STEREO       },
-            { &meta::mb_compressor_lr,          false, mb_compressor::MBCM_LR           },
-            { &meta::mb_compressor_ms,          false, mb_compressor::MBCM_MS           },
-            { &meta::sc_mb_compressor_mono,     true,  mb_compressor::MBCM_MONO         },
-            { &meta::sc_mb_compressor_stereo,   true,  mb_compressor::MBCM_STEREO       },
-            { &meta::sc_mb_compressor_lr,       true,  mb_compressor::MBCM_LR           },
-            { &meta::sc_mb_compressor_ms,       true,  mb_compressor::MBCM_MS           },
+            static const plugin_settings_t plugin_settings[] =
+            {
+                { &meta::mb_compressor_mono,        false, mb_compressor::MBCM_MONO         },
+                { &meta::mb_compressor_stereo,      false, mb_compressor::MBCM_STEREO       },
+                { &meta::mb_compressor_lr,          false, mb_compressor::MBCM_LR           },
+                { &meta::mb_compressor_ms,          false, mb_compressor::MBCM_MS           },
+                { &meta::sc_mb_compressor_mono,     true,  mb_compressor::MBCM_MONO         },
+                { &meta::sc_mb_compressor_stereo,   true,  mb_compressor::MBCM_STEREO       },
+                { &meta::sc_mb_compressor_lr,       true,  mb_compressor::MBCM_LR           },
+                { &meta::sc_mb_compressor_ms,       true,  mb_compressor::MBCM_MS           },
 
-            { NULL, 0, false }
-        };
+                { NULL, 0, false }
+            };
 
-        static plug::Module *plugin_factory(const meta::plugin_t *meta)
-        {
-            for (const plugin_settings_t *s = plugin_settings; s->metadata != NULL; ++s)
-                if (s->metadata == meta)
-                    return new mb_compressor(s->metadata, s->sc, s->mode);
-            return NULL;
-        }
+            static plug::Module *plugin_factory(const meta::plugin_t *meta)
+            {
+                for (const plugin_settings_t *s = plugin_settings; s->metadata != NULL; ++s)
+                    if (s->metadata == meta)
+                        return new mb_compressor(s->metadata, s->sc, s->mode);
+                return NULL;
+            }
 
-        static plug::Factory factory(plugin_factory, plugins, 8);
+            static plug::Factory factory(plugin_factory, plugins, 8);
+        } /* inline namespace */
 
         //-------------------------------------------------------------------------
         mb_compressor::mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode):
