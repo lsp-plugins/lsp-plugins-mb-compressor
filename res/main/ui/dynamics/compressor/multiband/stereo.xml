@@ -251,7 +251,7 @@
 		<!-- down part -->
 		<hbox>
 
-			<cgroup id="bsel" embed.h=":bsel ilt 1" embed.b=":bsel ilt 1" width.min="855" height.min="350">
+			<cgroup id="bsel" embed.h=":bsel ilt 1" embed.b=":bsel ilt 1" width.min="855" height.min="373">
 				<grid rows="12" cols="25" transpose="true">
 					<!-- Labels -->
 					<label text="labels.band" pad.v="4" bg.color="bg_schema" hreduce="true"/>
