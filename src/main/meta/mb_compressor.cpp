@@ -207,8 +207,8 @@ namespace lsp
                 CONTROL("ht" id, "Hold time" label, U_MSEC, mb_compressor_metadata::HOLD_TIME), \
                 LOG_CONTROL("cr" id, "Ratio" label, "Ratio" alias, U_NONE, mb_compressor_metadata::RATIO), \
                 LOG_CONTROL("kn" id, "Knee" label, "Knee" alias, U_GAIN_AMP, mb_compressor_metadata::KNEE), \
-                EXT_LOG_CONTROL("bth" id, "Boost threshold" label, U_GAIN_AMP, mb_compressor_metadata::BTH), \
-                EXT_LOG_CONTROL("bsa" id, "Boost signal amount" label, U_GAIN_AMP, mb_compressor_metadata::BSA), \
+                EXT_LOG_CONTROL("bth" id, "Boost threshold" label, "Boost" alias, U_GAIN_AMP, mb_compressor_metadata::BTH), \
+                EXT_LOG_CONTROL("bsa" id, "Boost signal amount" label, "Boost lvl" alias, U_GAIN_AMP, mb_compressor_metadata::BSA), \
                 LOG_CONTROL("mk" id, "Makeup gain" label, "Makeup" alias, U_GAIN_AMP, mb_compressor_metadata::MAKEUP), \
                 HUE_CTL("hue" id, "Hue " label, float(x) / float(total)), \
                 METER("fre" id, "Frequency range end" label, U_HZ,  mb_compressor_metadata::OUT_FREQ), \
