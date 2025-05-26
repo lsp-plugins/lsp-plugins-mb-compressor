@@ -270,6 +270,9 @@ namespace lsp
                 METER_GAIN("ilm" id, "Input level meter" label, GAIN_AMP_P_24_DB), \
                 METER_GAIN("olm" id, "Output level meter" label, GAIN_AMP_P_24_DB)
 
+        #define MB_LINK(id, label, alias) \
+                SWITCH(id, label, alias, 0.0f)
+
 
     /*
      List of frequencies:
@@ -374,6 +377,7 @@ namespace lsp
             PORTS_STEREO_PLUGIN,
             MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_lr_bands),
+            MB_LINK("clink", "Left/Right controls link", "L/R link"),
             MB_CHANNEL("_l", " Left", " L"),
             MB_CHANNEL("_r", " Right", " R"),
             MB_FFT_METERS("_l", " Left", " L"),
@@ -441,6 +445,7 @@ namespace lsp
             PORTS_STEREO_PLUGIN,
             MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_ms_bands),
+            MB_LINK("clink", "Mid/Side controls link", "M/S link"),
             MB_CHANNEL("_m", " Mid", " M"),
             MB_CHANNEL("_s", " Side", " S"),
             MB_FFT_METERS("_m", " Mid", " M"),
@@ -598,6 +603,7 @@ namespace lsp
             PORTS_STEREO_SIDECHAIN,
             MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_lr_bands),
+            MB_LINK("clink", "Left/Right controls link", "L/R link"),
             MB_CHANNEL("_l", " Left", " L"),
             MB_CHANNEL("_r", " Right", " R"),
             MB_FFT_METERS("_l", " Left", " L"),
@@ -666,6 +672,7 @@ namespace lsp
             PORTS_STEREO_SIDECHAIN,
             MB_COMP_SHM_LINK_STEREO,
             MB_COMMON(mb_comp_sc_ms_bands),
+            MB_LINK("clink", "Mid/Side controls link", "M/S link"),
             MB_CHANNEL("_m", " Mid", " M"),
             MB_CHANNEL("_s", " Side", " S"),
             MB_FFT_METERS("_m", " Mid", " M"),

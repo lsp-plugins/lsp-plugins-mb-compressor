@@ -1,4 +1,29 @@
 <plugin resizable="true">
+
+	<!-- Control linking -->
+	<ui:for
+		id="port"
+		list="'scm'; 'sla'; 'scr'; 'scp'; 'sclc'; 'schc'; 'sclf'; 'schf'; 'sce'; 'scs';
+			'cm'; 'ce'; 'bs'; 'bm'; 'al'; 'at'; 'rrl'; 'rt'; 'ht'; 'cr'; 'kn'; 'bth'; 'bsa'; 'mk'">
+		<ui:for id="i" first="0" count="8">
+			<ctl:link
+				id.1="${port}_${i}l" value.1=":${port}_${i}r"
+				id.2="${port}_${i}r" value.2=":${port}_${i}l"
+				activity=":clink" />
+		</ui:for>
+	</ui:for>
+	
+	<ui:for
+		id="port"
+		list="'cbe'; 'sf'">
+		<ui:for id="i" first="1" count="7">
+			<ctl:link
+				id.1="${port}_${i}l" value.1=":${port}_${i}r"
+				id.2="${port}_${i}r" value.2=":${port}_${i}l"
+				activity=":clink" />
+		</ui:for>
+	</ui:for>
+	
 	<vbox spacing="4">
 		<grid rows="2" cols="5" vspacing="4" hspacing="4" expand="true">
 
@@ -249,6 +274,7 @@
 					<button id="flt_l" text="labels.chan.L_eft" size="22" ui:inject="Button_left"/>
 					<button id="flt_r" text="labels.chan.R_ight" size="22" ui:inject="Button_right"/>
 				</hbox>
+				<button id="clink" ui:inject="Button_green" text="labels.chan.lr_link" />
 				<void hexpand="true"/>
 				<vsep pad.h="2" bg.color="bg" reduce="true"/>
 				<shmlink id="link" pad.l="2"/>

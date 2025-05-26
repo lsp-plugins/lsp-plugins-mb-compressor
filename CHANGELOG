@@ -3,7 +3,7 @@
 *******************************************************************************
 
 === 1.0.28 ===
-
+* Added left/right and mid/side linking in the UI.
 
 === 1.0.27 ===
 * Updated build scripts and dependencies.
