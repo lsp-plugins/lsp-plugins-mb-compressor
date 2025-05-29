@@ -91,6 +91,7 @@
 	<?php if ($m == 's') { ?>
 	<li><b>Stereo Split</b> - enables independent compression of left and right channels.</li>
 	<?php } ?>
+	<li><b>Pre-mix</b> - shows pre-mix control overlay.</li>
 	<li><b>Filters<?= $sm ?></b> - enables drawing tranfer function of each sidechain filter on the spectrum graph.</li>
 	<?php if ($m == 'lr') { ?>
 		<li><b>L/R Link</b> - enables linking between Left and Right channel controls so change of one forces the sibling to become the same value.</li>
@@ -211,4 +212,18 @@
 	<li><b>Compressor Release Time</b> - release time of the compressor.</li>
 	<li><b>Compressor Hold</b> - the time period the envelope holds it's maximum value before starting the release.</li>
 	<li><b>Compressor Gain</b> - the amount of gain applied to frequency band by the compression curve.</li>
+</ul>
+
+<p><b>Pre-mix control overlay:</b></p>
+<ul>
+	<?php if ($sc) { ?>
+	<li><b>In -> SC</b> - the amount of signal from input channel added to the Sidechain.</li>
+	<?php } ?>
+	<li><b>In -> Link</b> - the amount of signal from input channel added to the shared memory link.</li>
+	<?php if ($sc) { ?>
+	<li><b>SC -> In</b> - the amount of signal from sidechain input channel added to the input channel.</li>
+	<li><b>SC -> Link</b> - the amount of signal from sidechain input channel added to the shared memory link.</li>
+	<?php } ?>
+	<li><b>Link -> In</b> - the amount of signal from shared memory link added to the input channel.</li>
+	<li><b>Link -> SC</b> - the amount of signal from shared memory link added to the sidechain channel.</li>
 </ul>

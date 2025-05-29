@@ -80,6 +80,32 @@ namespace lsp
                     S_ALL           = S_COMP_CURVE | S_EQ_CURVE | S_BAND_CURVE
                 };
 
+                typedef struct premix_t
+                {
+                    float                   fInToSc;            // Input -> Sidechain mix
+                    float                   fInToLink;          // Input -> Link mix
+                    float                   fLinkToIn;          // Link -> Input mix
+                    float                   fLinkToSc;          // Link -> Sidechain mix
+                    float                   fScToIn;            // Sidechain -> Input mix
+                    float                   fScToLink;          // Sidechain -> Link mix
+
+                    float                  *vIn[2];             // Input buffer
+                    float                  *vOut[2];            // Output buffer
+                    float                  *vSc[2];             // Sidechain buffer
+                    float                  *vLink[2];           // Link buffer
+
+                    float                  *vTmpIn[2];          // Replacement buffer for input
+                    float                  *vTmpLink[2];        // Replacement buffer for link
+                    float                  *vTmpSc[2];          // Replacement buffer for sidechain
+
+                    plug::IPort            *pInToSc;            // Input -> Sidechain mix
+                    plug::IPort            *pInToLink;          // Input -> Link mix
+                    plug::IPort            *pLinkToIn;          // Link -> Input mix
+                    plug::IPort            *pLinkToSc;          // Link -> Sidechain mix
+                    plug::IPort            *pScToIn;            // Sidechain -> Input mix
+                    plug::IPort            *pScToLink;          // Sidechain -> Link mix
+                } premix_t;
+
                 typedef struct comp_band_t
                 {
                     dspu::Sidechain         sSC;                // Sidechain module
@@ -212,7 +238,6 @@ namespace lsp
                 uint32_t                nMode;                  // Compressor mode
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
-                bool                    bUseExtSc;              // External sidechain is in use
                 bool                    bUseShmLink;            // Shared memory link is in use
                 xover_mode_t            enXOver;                // Crossover mode
                 bool                    bStereoSplit;           // Stereo split mode
@@ -234,6 +259,8 @@ namespace lsp
                 float                  *vCurve;                 // Curve
                 uint32_t               *vIndexes;               // Analyzer FFT indexes
                 core::IDBuffer         *pIDisplay;              // Inline display buffer
+
+                premix_t                sPremix;                // Premix
 
                 plug::IPort            *pBypass;                // Bypass port
                 plug::IPort            *pMode;                  // Global mode
@@ -258,6 +285,8 @@ namespace lsp
             protected:
                 void                do_destroy();
                 void                preprocess_channel_input(size_t count);
+                void                update_premix();
+                void                premix_channel(uint32_t channel, size_t count);
                 uint32_t            decode_sidechain_type(uint32_t sc) const;
                 void                process_input_mono(float *out, const float *in, size_t count);
                 void                process_input_stereo(float *l_out, float *r_out, const float *l_in, const float *r_in, size_t count);
