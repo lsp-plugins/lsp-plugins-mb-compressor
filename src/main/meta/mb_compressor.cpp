@@ -761,7 +761,11 @@ namespace lsp
             "Multiband Compressor",
             B_MB_DYNAMICS,
             "RCdk94Hta3o",
-            "This plugin performs multiband compression of input signsl. Flexible sidechain\ncontrol configuration provided. As opposite to most available multiband\ncompressors, this compressor provides numerous special functions: 'modern'\noperating mode, 'Sidechain boost', 'Lookahead' option and up to 8 frequency\nbands for processing."
+            "This plugin performs multiband compression of input signal. Flexible sidechain\n"
+            "control configuration provided. As opposite to most available multiband\n"
+            "compressors, this compressor provides numerous special functions: 'modern'\n"
+            "operating mode, 'Sidechain boost', 'Lookahead' option and up to 8 frequency\n"
+            "bands for processing."
         };
 
         // Multiband Compressor
