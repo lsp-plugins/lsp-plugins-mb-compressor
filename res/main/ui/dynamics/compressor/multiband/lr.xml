@@ -1,4 +1,30 @@
 <plugin resizable="true">
+	<ui:eval id="is_sidechain" value="(ex :sc) or (ex :sc_l) or (ex :sc_r)"/>
+
+	<!-- Control linking -->
+	<ui:for
+		id="port"
+		list="'scm'; 'sla'; 'scr'; 'scp'; 'sclc'; 'schc'; 'sclf'; 'schf'; 'sce'; 'scs';
+			'cm'; 'ce'; 'bs'; 'bm'; 'al'; 'at'; 'rrl'; 'rt'; 'ht'; 'cr'; 'kn'; 'bth'; 'bsa'; 'mk'">
+		<ui:for id="i" first="0" count="8">
+			<ctl:link
+				id.1="${port}_${i}l" value.1=":${port}_${i}r"
+				id.2="${port}_${i}r" value.2=":${port}_${i}l"
+				activity=":clink" />
+		</ui:for>
+	</ui:for>
+	
+	<ui:for
+		id="port"
+		list="'cbe'; 'sf'">
+		<ui:for id="i" first="1" count="7">
+			<ctl:link
+				id.1="${port}_${i}l" value.1=":${port}_${i}r"
+				id.2="${port}_${i}r" value.2=":${port}_${i}l"
+				activity=":clink" />
+		</ui:for>
+	</ui:for>
+	
 	<vbox spacing="4">
 		<grid rows="2" cols="5" vspacing="4" hspacing="4" expand="true">
 
@@ -244,11 +270,13 @@
 				<combo id="mode" pad.r="8" pad.v="4"/>
 				<label text="labels.sc_boost:"/>
 				<combo id="envb" pad.r="8"/>
+				<button ui:id="premix_trigger" id="showpmx" text="labels.premix" size="22" />
 				<label text="labels.filters" pad.l="6"/>
 				<hbox spacing="4" pad.h="6">
 					<button id="flt_l" text="labels.chan.L_eft" size="22" ui:inject="Button_left"/>
 					<button id="flt_r" text="labels.chan.R_ight" size="22" ui:inject="Button_right"/>
 				</hbox>
+				<button id="clink" ui:inject="Button_green" text="labels.chan.lr_link" />
 				<void hexpand="true"/>
 				<vsep pad.h="2" bg.color="bg" reduce="true"/>
 				<shmlink id="link" pad.l="2"/>
@@ -767,5 +795,44 @@
 		</hbox>
 
 	</vbox>
+	
+	<!-- Premix overlay -->
+	<overlay id="showpmx" trigger="premix_trigger" hpos="1" vpos="1" halign="-1" valign="1" ipadding.t="4">
+		<group text="groups.premix" vexpand="false" ipadding="0">
+			<grid rows="3" cols="${(:is_sidechain) ? 8 : 5}" spacing="0" bg.color="bg_schema" transpose="true">
+				<ui:if test=":is_sidechain">
+					<label text="labels.premix.in_to_sc" pad.h="6" pad.v="4" />
+					<knob id="in2sc" />
+					<value id="in2sc" pad.h="6" pad.v="4" />
+				</ui:if>
+				
+				<label text="labels.premix.in_to_link" pad.h="6" pad.v="4" />
+				<knob id="in2lk" />
+				<value id="in2lk" />
+				
+				<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true" /></cell>
+				
+				<ui:if test=":is_sidechain">
+					<label text="labels.premix.sc_to_in" pad.h="6" pad.v="4" />
+					<knob id="sc2in" />
+					<value id="sc2in" pad.h="6" pad.v="4" />
+					
+					<label text="labels.premix.sc_to_link" pad.h="6" pad.v="4" />
+					<knob id="sc2lk" />
+					<value id="sc2lk" pad.h="6" pad.v="4" />
+					
+					<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true" /></cell>
+				</ui:if>
+				
+				<label text="labels.premix.link_to_in" pad.h="6" pad.v="4" />
+				<knob id="lk2in" />
+				<value id="lk2in" pad.h="6" pad.v="4" />
+				
+				<label text="labels.premix.link_to_sc" pad.h="6" pad.v="4" />
+				<knob id="lk2sc" />
+				<value id="lk2sc" pad.h="6" pad.v="4" />
+			</grid>
+		</group>
+	</overlay>
 
 </plugin>

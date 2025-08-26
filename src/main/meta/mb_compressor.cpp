@@ -26,7 +26,7 @@
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MAJOR       1
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MINOR       0
-#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       27
+#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       28
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION  \
     LSP_MODULE_VERSION( \
@@ -167,6 +167,18 @@ namespace lsp
         #define MB_COMP_SHM_LINK_STEREO \
                 OPT_RETURN_STEREO("link", "shml_", "Side-chain shared memory link")
 
+        #define MB_COMP_PREMIX \
+                SWITCH("showpmx", "Show pre-mix overlay", "Show premix bar", 0.0f), \
+                AMP_GAIN10("in2lk", "Input to Link mix", "In to Link mix", GAIN_AMP_M_INF_DB), \
+                AMP_GAIN10("lk2in", "Link to Input mix", "Link to In mix", GAIN_AMP_M_INF_DB), \
+                AMP_GAIN10("lk2sc", "Link to Sidechain mix", "Link to SC mix", GAIN_AMP_M_INF_DB)
+
+        #define MB_COMP_SC_PREMIX \
+                MB_COMP_PREMIX, \
+                AMP_GAIN10("in2sc", "Input to Sidechain mix", "In to SC mix", GAIN_AMP_M_INF_DB), \
+                AMP_GAIN10("sc2in", "Sidechain to Input mix", "SC to In mix", GAIN_AMP_M_INF_DB), \
+                AMP_GAIN10("sc2lk", "Sidechain to Link mix", "SC to Link mix", GAIN_AMP_M_INF_DB)
+
         #define MB_COMMON(bands) \
                 BYPASS, \
                 COMBO("mode", "Compressor mode", "Mode", 1, mb_global_comp_modes), \
@@ -270,6 +282,9 @@ namespace lsp
                 METER_GAIN("ilm" id, "Input level meter" label, GAIN_AMP_P_24_DB), \
                 METER_GAIN("olm" id, "Output level meter" label, GAIN_AMP_P_24_DB)
 
+        #define MB_LINK(id, label, alias) \
+                SWITCH(id, label, alias, 0.0f)
+
 
     /*
      List of frequencies:
@@ -286,6 +301,7 @@ namespace lsp
         {
             PORTS_MONO_PLUGIN,
             MB_COMP_SHM_LINK_MONO,
+            MB_COMP_PREMIX,
             MB_COMMON(mb_comp_sc_bands),
             MB_CHANNEL("", "", ""),
             MB_FFT_METERS("", "", ""),
@@ -324,6 +340,7 @@ namespace lsp
         {
             PORTS_STEREO_PLUGIN,
             MB_COMP_SHM_LINK_STEREO,
+            MB_COMP_PREMIX,
             MB_COMMON(mb_comp_sc_bands),
             MB_STEREO_CHANNEL,
             MB_FFT_METERS("_l", " Left", " L"),
@@ -373,7 +390,9 @@ namespace lsp
         {
             PORTS_STEREO_PLUGIN,
             MB_COMP_SHM_LINK_STEREO,
+            MB_COMP_PREMIX,
             MB_COMMON(mb_comp_sc_lr_bands),
+            MB_LINK("clink", "Left/Right controls link", "L/R link"),
             MB_CHANNEL("_l", " Left", " L"),
             MB_CHANNEL("_r", " Right", " R"),
             MB_FFT_METERS("_l", " Left", " L"),
@@ -440,7 +459,9 @@ namespace lsp
         {
             PORTS_STEREO_PLUGIN,
             MB_COMP_SHM_LINK_STEREO,
+            MB_COMP_PREMIX,
             MB_COMMON(mb_comp_sc_ms_bands),
+            MB_LINK("clink", "Mid/Side controls link", "M/S link"),
             MB_CHANNEL("_m", " Mid", " M"),
             MB_CHANNEL("_s", " Side", " S"),
             MB_FFT_METERS("_m", " Mid", " M"),
@@ -508,6 +529,7 @@ namespace lsp
             PORTS_MONO_PLUGIN,
             PORTS_MONO_SIDECHAIN,
             MB_COMP_SHM_LINK_MONO,
+            MB_COMP_SC_PREMIX,
             MB_COMMON(mb_comp_sc_bands),
             MB_CHANNEL("", "", ""),
             MB_FFT_METERS("", "", ""),
@@ -547,6 +569,7 @@ namespace lsp
             PORTS_STEREO_PLUGIN,
             PORTS_STEREO_SIDECHAIN,
             MB_COMP_SHM_LINK_STEREO,
+            MB_COMP_SC_PREMIX,
             MB_COMMON(mb_comp_sc_bands),
             MB_STEREO_CHANNEL,
             MB_FFT_METERS("_l", " Left", " L"),
@@ -597,7 +620,9 @@ namespace lsp
             PORTS_STEREO_PLUGIN,
             PORTS_STEREO_SIDECHAIN,
             MB_COMP_SHM_LINK_STEREO,
+            MB_COMP_SC_PREMIX,
             MB_COMMON(mb_comp_sc_lr_bands),
+            MB_LINK("clink", "Left/Right controls link", "L/R link"),
             MB_CHANNEL("_l", " Left", " L"),
             MB_CHANNEL("_r", " Right", " R"),
             MB_FFT_METERS("_l", " Left", " L"),
@@ -665,7 +690,9 @@ namespace lsp
             PORTS_STEREO_PLUGIN,
             PORTS_STEREO_SIDECHAIN,
             MB_COMP_SHM_LINK_STEREO,
+            MB_COMP_SC_PREMIX,
             MB_COMMON(mb_comp_sc_ms_bands),
+            MB_LINK("clink", "Mid/Side controls link", "M/S link"),
             MB_CHANNEL("_m", " Mid", " M"),
             MB_CHANNEL("_s", " Side", " S"),
             MB_FFT_METERS("_m", " Mid", " M"),
@@ -734,7 +761,11 @@ namespace lsp
             "Multiband Compressor",
             B_MB_DYNAMICS,
             "RCdk94Hta3o",
-            "This plugin performs multiband compression of input signsl. Flexible sidechain\ncontrol configuration provided. As opposite to most available multiband\ncompressors, this compressor provides numerous special functions: 'modern'\noperating mode, 'Sidechain boost', 'Lookahead' option and up to 8 frequency\nbands for processing."
+            "This plugin performs multiband compression of input signal. Flexible sidechain\n"
+            "control configuration provided. As opposite to most available multiband\n"
+            "compressors, this compressor provides numerous special functions: 'modern'\n"
+            "operating mode, 'Sidechain boost', 'Lookahead' option and up to 8 frequency\n"
+            "bands for processing."
         };
 
         // Multiband Compressor
