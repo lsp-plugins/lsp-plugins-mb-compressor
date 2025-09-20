@@ -354,8 +354,8 @@
 							<!-- Column 2 -->
 							<ui:if test=":i ine 0">
 								<vbox height="36" vreduce="true">
-									<value id="sf_${i}" width.min="30" detailed="false" visibility=":cbe_${i}"/>
-									<value id="fre_${i}" detailed="false"/>
+									<value id="sf_${i}" width.min="30" detailed="false"/>
+									<value id="fre_${i}" detailed="false" visibility=":cbe_${i}"/>
 									<label text="labels.chan.off" visibility="not :cbe_${i}"/>
 								</vbox>
 							</ui:if>
@@ -497,8 +497,8 @@
 										<hbox fill="false" pad.h="6">
 											<knob id="sf_${i}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
 											<vbox fill="false" pad.l="6">
-												<value id="sf_${i}" width.min="32" detailed="false" visibility=":cbe_${i}"/>
-												<value id="fre_${i}" detailed="false" width.min="32"/>
+												<value id="sf_${i}" width.min="32" detailed="false"/>
+												<value id="fre_${i}" detailed="false" width.min="32" visibility=":cbe_${i}"/>
 												<label text="labels.chan.off" width.min="32" visibility="not :cbe_${i}"/>
 											</vbox>
 										</hbox>
