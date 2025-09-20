@@ -15,7 +15,15 @@
 		"downward": "Downward",
 		"linear_phase": "Linear Phase",
 		"modern": "Modern",
+		"notes": {
+			"full": "{@id}\n{@frequency} Hz\n{@note}{@octave}{@cents}",
+			"unknown": "{@id}\n{@frequency} Hz"
+		},
 		"split": "Split",
+		"split_left": "Split Left",
+		"split_middle": "Split Mid",
+		"split_right": "Split Right",
+		"split_side": "Split Side",
 		"splits": {
 			"index": {
 				"split_id": "Split #{@id}",
@@ -25,14 +33,6 @@
 				"side_id": "Side #{@id}"
 			}
 		},
-		"notes": {
-			"full": "{@id}\n{@frequency} Hz\n{@note}{@octave}{@cents}",
-			"unknown": "{@id}\n{@frequency} Hz"
-		},
-		"split_left": "Split Left",
-		"split_middle": "Split Mid",
-		"split_right": "Split Right",
-		"split_side": "Split Side",
 		"up_ward": "Up",
 		"upward": "Upward"
 	}
