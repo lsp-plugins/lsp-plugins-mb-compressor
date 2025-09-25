@@ -368,8 +368,8 @@
 
 							<!-- Column 2 -->
 							<ui:if test=":i ine 0">
-								<vbox height="36" vreduce="true">
-									<value id="sf_${i}" width.min="30" detailed="false"/>
+								<vbox width.min="40" height="36" vreduce="true">
+									<value id="sf_${i}" detailed="false"/>
 									<value id="fre_${i}" detailed="false" visibility=":cbe_${i}"/>
 									<label text="labels.chan.off" visibility="not :cbe_${i}"/>
 								</vbox>
