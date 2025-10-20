@@ -241,7 +241,7 @@
 				<combo id="mode" pad.r="8" pad.v="4"/>
 				<label text="labels.sc_boost:"/>
 				<combo id="envb" pad.r="8"/>
-				<button ui:id="premix_trigger" id="showpmx" text="labels.premix" size="22" />
+				<button ui:id="premix_trigger" id="showpmx" text="labels.premix" size="22"/>
 				<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
 
 				<void hexpand="true"/>
@@ -290,9 +290,9 @@
 									<button text="labels.chan.num_id" text:id="${:i+1}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
 								</cell>
 								<cell cols="2" fill="false">
-									<vbox height="36" vreduce="true">
+									<vbox width.min="40" height="36" vreduce="true">
 										<label text="0"/>
-										<value id="fre_${i}" width.min="30" sline="true" detailed="false"/>
+										<value id="fre_${i}" sline="true" detailed="false"/>
 									</vbox>
 								</cell>
 							</ui:with>
@@ -366,8 +366,8 @@
 
 							<!-- Column 2 -->
 							<ui:if test=":i ine 0">
-								<vbox height="36" vreduce="true">
-									<value id="sf_${i}" width.min="30" detailed="false"/>
+								<vbox width.min="40" height="36" vreduce="true">
+									<value id="sf_${i}" detailed="false"/>
 									<value id="fre_${i}" detailed="false" visibility=":cbe_${i}"/>
 									<label text="labels.chan.off" visibility="not :cbe_${i}"/>
 								</vbox>
@@ -692,36 +692,36 @@
 		<group text="groups.premix" vexpand="false" ipadding="0">
 			<grid rows="3" cols="${(:is_sidechain) ? 8 : 5}" spacing="0" bg.color="bg_schema" transpose="true">
 				<ui:if test=":is_sidechain">
-					<label text="labels.premix.in_to_sc" pad.h="6" pad.v="4" />
-					<knob id="in2sc" />
-					<value id="in2sc" pad.h="6" pad.v="4" />
+					<label text="labels.premix.in_to_sc" pad.h="6" pad.v="4"/>
+					<knob id="in2sc"/>
+					<value id="in2sc" pad.h="6" pad.v="4"/>
 				</ui:if>
 
-				<label text="labels.premix.in_to_link" pad.h="6" pad.v="4" />
-				<knob id="in2lk" />
-				<value id="in2lk" />
+				<label text="labels.premix.in_to_link" pad.h="6" pad.v="4"/>
+				<knob id="in2lk"/>
+				<value id="in2lk"/>
 
-				<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true" /></cell>
+				<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true"/></cell>
 
 				<ui:if test=":is_sidechain">
-					<label text="labels.premix.sc_to_in" pad.h="6" pad.v="4" />
-					<knob id="sc2in" />
-					<value id="sc2in" pad.h="6" pad.v="4" />
+					<label text="labels.premix.sc_to_in" pad.h="6" pad.v="4"/>
+					<knob id="sc2in"/>
+					<value id="sc2in" pad.h="6" pad.v="4"/>
 
-					<label text="labels.premix.sc_to_link" pad.h="6" pad.v="4" />
-					<knob id="sc2lk" />
-					<value id="sc2lk" pad.h="6" pad.v="4" />
+					<label text="labels.premix.sc_to_link" pad.h="6" pad.v="4"/>
+					<knob id="sc2lk"/>
+					<value id="sc2lk" pad.h="6" pad.v="4"/>
 
-					<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true" /></cell>
+					<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true"/></cell>
 				</ui:if>
 
-				<label text="labels.premix.link_to_in" pad.h="6" pad.v="4" />
-				<knob id="lk2in" />
-				<value id="lk2in" pad.h="6" pad.v="4" />
+				<label text="labels.premix.link_to_in" pad.h="6" pad.v="4"/>
+				<knob id="lk2in"/>
+				<value id="lk2in" pad.h="6" pad.v="4"/>
 
-				<label text="labels.premix.link_to_sc" pad.h="6" pad.v="4" />
-				<knob id="lk2sc" />
-				<value id="lk2sc" pad.h="6" pad.v="4" />
+				<label text="labels.premix.link_to_sc" pad.h="6" pad.v="4"/>
+				<knob id="lk2sc"/>
+				<value id="lk2sc" pad.h="6" pad.v="4"/>
 			</grid>
 		</group>
 	</overlay>

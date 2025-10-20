@@ -305,9 +305,9 @@
 									<button text="labels.chan.num_id" text:id="${:i+1}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
 								</cell>
 								<cell cols="2" fill="false">
-									<vbox height="36" vreduce="true">
+									<vbox width.min="40" height="36" vreduce="true">
 										<label text="0"/>
-										<value id="fre_${i}" width.min="30" sline="true" detailed="false"/>
+										<value id="fre_${i}" sline="true" detailed="false"/>
 									</vbox>
 								</cell>
 							</ui:with>
