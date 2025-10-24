@@ -4,6 +4,7 @@
 
 === 1.0.29 ===
 * Fixed frequency range display.
+* Updated build scripts and dependencies.
 
 === 1.0.28 ===
 * Added left/right and mid/side linking in the UI.
