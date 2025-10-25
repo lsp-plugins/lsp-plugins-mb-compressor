@@ -15,7 +15,15 @@
 		"downward": "Понижающий",
 		"linear_phase": "Линейная фаза",
 		"modern": "Современный",
+		"notes": {
+			"full": "{@id}\n{@frequency} Гц\n{@note}{@octave}{@cents}",
+			"unknown": "{@id}\n{@frequency} Гц"
+		},
 		"split": "Разделение",
+		"split_left": "Разделение левого",
+		"split_middle": "Разделение центра",
+		"split_right": "Разделение правого",
+		"split_side": "Разделение стороны",
 		"splits": {
 			"index": {
 				"split_id": "Раздел №{@id}",
@@ -25,14 +33,6 @@
 				"side_id": "Сторона №{@id}"
 			}
 		},
-		"notes": {
-			"full": "{@id}\n{@frequency} Гц\n{@note}{@octave}{@cents}",
-			"unknown": "{@id}\n{@frequency} Гц"
-		},
-		"split_left": "Разделение левого",
-		"split_middle": "Разделение центра",
-		"split_right": "Разделение правого",
-		"split_side": "Разделение стороны",
 		"up_ward": "Повыш",
 		"upward": "Повышающий"
 	}

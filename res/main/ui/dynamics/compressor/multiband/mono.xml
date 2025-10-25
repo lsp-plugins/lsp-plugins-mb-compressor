@@ -1,6 +1,6 @@
 <plugin resizable="true">
 	<ui:eval id="is_sidechain" value="(ex :sc) or (ex :sc_l) or (ex :sc_r)"/>
-	
+
 	<vbox spacing="4">
 		<grid rows="2" cols="5" vspacing="4" hspacing="4" expand="true">
 
@@ -39,6 +39,18 @@
 						<marker value="0 db" ox="1" oy="0"/>
 						<marker value="-24 db" ox="1" oy="0"/>
 						<marker value="-48 db" ox="1" oy="0"/>
+					</ui:with>
+
+					<!-- Piano keys -->
+					<embed oy="4" start.x="midi_freq_start(12, 127)" start.y="20" end.x="midi_freq_end(12, 127)" end.y="44" valign="1" alpha="0" visibility=":_ui_graph_piano_layout">
+						<piano natural="false" note.min="12" note.max="127" height="24" editable="false" selectable="false" border="0"/>
+					</embed>
+
+					<!-- Octave text -->
+					<ui:with ox="0" oy="4" y="44" halign="1" valign="1" pgroup="0" priority="10" visibility=":_ui_graph_piano_layout" pad.b="2">
+						<ui:for id="octave" first="0" last="9">
+							<text x="midi_freq(12 * ${:octave + 1})" text="lists.notes.fmt.c" text:octave="${octave}" valign="1" halign="0"/>
+						</ui:for>
 					</ui:with>
 
 					<!-- Band markers -->
@@ -85,6 +97,7 @@
 					<axis min="-72 db / (:zoom ** 3)" max="24 db * :zoom" color="graph_prim" angle="0.5" log="true"/>
 					<axis min="-1" max="1" visibility="false" angle="0.5"/>
 					<axis min="-72 db" max="24 db" color="graph_prim" angle="0.5" log="true" visibility="false"/>
+					<axis min="0" max=":_a_scaled_height" visibility="false" angle="0.5"/>
 
 					<!-- Text -->
 					<ui:with ox="0" oy="2" y="0" halign="1" valign="1">
@@ -228,7 +241,7 @@
 				<combo id="mode" pad.r="8" pad.v="4"/>
 				<label text="labels.sc_boost:"/>
 				<combo id="envb" pad.r="8"/>
-				<button ui:id="premix_trigger" id="showpmx" text="labels.premix" size="22" />
+				<button ui:id="premix_trigger" id="showpmx" text="labels.premix" size="22"/>
 				<button id="flt" text="labels.filters" size="22" ui:inject="Button_cyan"/>
 
 				<void hexpand="true"/>
@@ -277,9 +290,9 @@
 									<button text="labels.chan.num_id" text:id="${:i+1}" value="1" editable="false" pointer="arrow" hfill="true" ui:inject="Button_ne_Cycle" height="19" pad.h="6" pad.v="4"/>
 								</cell>
 								<cell cols="2" fill="false">
-									<vbox height="36" vreduce="true">
+									<vbox width.min="40" height="36" vreduce="true">
 										<label text="0"/>
-										<value id="fre_${i}" width.min="30" sline="true" detailed="false"/>
+										<value id="fre_${i}" sline="true" detailed="false"/>
 									</vbox>
 								</cell>
 							</ui:with>
@@ -353,9 +366,9 @@
 
 							<!-- Column 2 -->
 							<ui:if test=":i ine 0">
-								<vbox height="36" vreduce="true">
-									<value id="sf_${i}" width.min="30" detailed="false" visibility=":cbe_${i}"/>
-									<value id="fre_${i}" detailed="false"/>
+								<vbox width.min="40" height="36" vreduce="true">
+									<value id="sf_${i}" detailed="false"/>
+									<value id="fre_${i}" detailed="false" visibility=":cbe_${i}"/>
 									<label text="labels.chan.off" visibility="not :cbe_${i}"/>
 								</vbox>
 							</ui:if>
@@ -497,8 +510,8 @@
 										<hbox fill="false" pad.h="6">
 											<knob id="sf_${i}" size="16" ssize="3" pad.v="4" scolor="((${i} ieq 0) or :cbe_${i}) ? 'cycle' : 'cycle_inactive'" scolor.hue=":hue_${i}"/>
 											<vbox fill="false" pad.l="6">
-												<value id="sf_${i}" width.min="32" detailed="false" visibility=":cbe_${i}"/>
-												<value id="fre_${i}" detailed="false" width.min="32"/>
+												<value id="sf_${i}" width.min="32" detailed="false"/>
+												<value id="fre_${i}" detailed="false" width.min="32" visibility=":cbe_${i}"/>
 												<label text="labels.chan.off" width.min="32" visibility="not :cbe_${i}"/>
 											</vbox>
 										</hbox>
@@ -673,42 +686,42 @@
 			</cgroup>
 		</hbox>
 	</vbox>
-	
+
 	<!-- Premix overlay -->
 	<overlay id="showpmx" trigger="premix_trigger" hpos="1" vpos="1" halign="-1" valign="1" ipadding.t="4">
 		<group text="groups.premix" vexpand="false" ipadding="0">
 			<grid rows="3" cols="${(:is_sidechain) ? 8 : 5}" spacing="0" bg.color="bg_schema" transpose="true">
 				<ui:if test=":is_sidechain">
-					<label text="labels.premix.in_to_sc" pad.h="6" pad.v="4" />
-					<knob id="in2sc" />
-					<value id="in2sc" pad.h="6" pad.v="4" />
+					<label text="labels.premix.in_to_sc" pad.h="6" pad.v="4"/>
+					<knob id="in2sc"/>
+					<value id="in2sc" pad.h="6" pad.v="4"/>
 				</ui:if>
-				
-				<label text="labels.premix.in_to_link" pad.h="6" pad.v="4" />
-				<knob id="in2lk" />
-				<value id="in2lk" />
-				
-				<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true" /></cell>
-				
+
+				<label text="labels.premix.in_to_link" pad.h="6" pad.v="4"/>
+				<knob id="in2lk"/>
+				<value id="in2lk"/>
+
+				<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true"/></cell>
+
 				<ui:if test=":is_sidechain">
-					<label text="labels.premix.sc_to_in" pad.h="6" pad.v="4" />
-					<knob id="sc2in" />
-					<value id="sc2in" pad.h="6" pad.v="4" />
-					
-					<label text="labels.premix.sc_to_link" pad.h="6" pad.v="4" />
-					<knob id="sc2lk" />
-					<value id="sc2lk" pad.h="6" pad.v="4" />
-					
-					<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true" /></cell>
+					<label text="labels.premix.sc_to_in" pad.h="6" pad.v="4"/>
+					<knob id="sc2in"/>
+					<value id="sc2in" pad.h="6" pad.v="4"/>
+
+					<label text="labels.premix.sc_to_link" pad.h="6" pad.v="4"/>
+					<knob id="sc2lk"/>
+					<value id="sc2lk" pad.h="6" pad.v="4"/>
+
+					<cell rows="3"><vsep pad.h="2" bg.color="bg" reduce="true"/></cell>
 				</ui:if>
-				
-				<label text="labels.premix.link_to_in" pad.h="6" pad.v="4" />
-				<knob id="lk2in" />
-				<value id="lk2in" pad.h="6" pad.v="4" />
-				
-				<label text="labels.premix.link_to_sc" pad.h="6" pad.v="4" />
-				<knob id="lk2sc" />
-				<value id="lk2sc" pad.h="6" pad.v="4" />
+
+				<label text="labels.premix.link_to_in" pad.h="6" pad.v="4"/>
+				<knob id="lk2in"/>
+				<value id="lk2in" pad.h="6" pad.v="4"/>
+
+				<label text="labels.premix.link_to_sc" pad.h="6" pad.v="4"/>
+				<knob id="lk2sc"/>
+				<value id="lk2sc" pad.h="6" pad.v="4"/>
 			</grid>
 		</group>
 	</overlay>

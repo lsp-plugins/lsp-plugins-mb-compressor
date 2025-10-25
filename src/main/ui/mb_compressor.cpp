@@ -217,8 +217,6 @@ namespace lsp
                     vSplits.add(&s);
                 }
             }
-
-            resort_active_splits();
         }
 
         ssize_t mb_compressor_ui::compare_splits_by_freq(const split_t *a, const split_t *b)
@@ -328,6 +326,7 @@ namespace lsp
 
             // Add splits widgets
             add_splits();
+            resort_active_splits();
 
             return STATUS_OK;
         }
@@ -373,6 +372,15 @@ namespace lsp
             bool left_position  = true;
             const float freq    = initiator->pFreq->value();
 
+            // Start editing
+            for (lltl::iterator<split_t> it = vActiveSplits.values(); it; ++it)
+            {
+                split_t *s = it.get();
+                if ((!s->bOn) || (s->nChannel != initiator->nChannel))
+                    continue;
+                s->pFreq->begin_edit();
+            }
+
             // Form unsorted list of active splits
             for (lltl::iterator<split_t> it = vActiveSplits.values(); it; ++it)
             {
@@ -408,6 +416,15 @@ namespace lsp
             // Notify all modified ports
             for (lltl::iterator<ui::IPort> it = notify_list.values(); it; ++it)
                 it->notify_all(ui::PORT_NONE);
+
+            // End editing
+            for (lltl::iterator<split_t> it = vActiveSplits.values(); it; ++it)
+            {
+                split_t *s = it.get();
+                if ((!s->bOn) || (s->nChannel != initiator->nChannel))
+                    continue;
+                s->pFreq->end_edit();
+            }
         }
 
     } // namespace plugui
