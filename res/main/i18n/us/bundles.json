@@ -1,7 +1,17 @@
 {
 	"mb_compressor": {
-		"name": "Multiband Compressor",
-		"description": "This plugin performs multiband compression of input signsl. Flexible sidechain\ncontrol configuration provided. As opposite to most available multiband\ncompressors, this compressor provides numerous special functions: 'modern'\noperating mode, 'Sidechain boost', 'Lookahead' option and up to 8 frequency\nbands for processing."
+		"description": "This plugin performs multiband compression of input signsl. Flexible sidechain\ncontrol configuration provided. As opposite to most available multiband\ncompressors, this compressor provides numerous special functions: 'modern'\noperating mode, 'Sidechain boost', 'Lookahead' option and up to 8 frequency\nbands for processing.",
+		"name": "Multiband Compressor"
+	},
+	"launcher": {
+		"mb_compressor_lr": "Split LR",
+		"mb_compressor_mono": "Mono",
+		"mb_compressor_ms": "Split MS",
+		"mb_compressor_stereo": "Stereo",
+		"sc_mb_compressor_lr": "SC Split LR",
+		"sc_mb_compressor_mono": "SC Mono",
+		"sc_mb_compressor_ms": "SC Split MS",
+		"sc_mb_compressor_stereo": "SC Stereo"
 	}
 }
 
