@@ -794,7 +794,7 @@ namespace lsp
             clap_features_mono,
             E_INLINE_DISPLAY,
             mb_compressor_mono_ports,
-            "dynamics/compressor/multiband/mono.xml",
+            "plugins/dynamics/compressor/multiband/mono.xml",
             NULL,
             mono_plugin_port_groups,
             &mb_compressor_bundle
@@ -825,7 +825,7 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_stereo_ports,
-            "dynamics/compressor/multiband/stereo.xml",
+            "plugins/dynamics/compressor/multiband/stereo.xml",
             NULL,
             stereo_plugin_port_groups,
             &mb_compressor_bundle
@@ -856,7 +856,7 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_lr_ports,
-            "dynamics/compressor/multiband/lr.xml",
+            "plugins/dynamics/compressor/multiband/lr.xml",
             NULL,
             stereo_plugin_port_groups,
             &mb_compressor_bundle
@@ -887,7 +887,7 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_ms_ports,
-            "dynamics/compressor/multiband/ms.xml",
+            "plugins/dynamics/compressor/multiband/ms.xml",
             NULL,
             stereo_plugin_port_groups,
             &mb_compressor_bundle
@@ -918,7 +918,7 @@ namespace lsp
             clap_features_mono,
             E_INLINE_DISPLAY,
             sc_mb_compressor_mono_ports,
-            "dynamics/compressor/multiband/mono.xml",
+            "plugins/dynamics/compressor/multiband/mono.xml",
             NULL,
             mono_plugin_sidechain_port_groups,
             &mb_compressor_bundle
@@ -949,7 +949,7 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_stereo_ports,
-            "dynamics/compressor/multiband/stereo.xml",
+            "plugins/dynamics/compressor/multiband/stereo.xml",
             NULL,
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle
@@ -980,7 +980,7 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_lr_ports,
-            "dynamics/compressor/multiband/lr.xml",
+            "plugins/dynamics/compressor/multiband/lr.xml",
             NULL,
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle
@@ -1011,7 +1011,7 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_ms_ports,
-            "dynamics/compressor/multiband/ms.xml",
+            "plugins/dynamics/compressor/multiband/ms.xml",
             NULL,
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle
