@@ -4,14 +4,13 @@
 		"name": "Multiband Kompressor"
 	},
 	"launcher": {
-		"mb_compressor_lr": "Split LR",
+		"mb_compressor_lr": "LR",
 		"mb_compressor_mono": "Mono",
-		"mb_compressor_ms": "Split MS",
+		"mb_compressor_ms": "MS",
 		"mb_compressor_stereo": "Stereo",
-		"sc_mb_compressor_lr": "SC Split LR",
+		"sc_mb_compressor_lr": "SC LR",
 		"sc_mb_compressor_mono": "SC Mono",
-		"sc_mb_compressor_ms": "SC Split MS",
+		"sc_mb_compressor_ms": "SC MS",
 		"sc_mb_compressor_stereo": "SC Stereo"
 	}
 }
-

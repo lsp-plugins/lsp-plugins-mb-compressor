@@ -4,14 +4,13 @@
 		"name": "Многополосный компрессор"
 	},
 	"launcher": {
-		"mb_compressor_lr": "Раздельный ЛП",
+		"mb_compressor_lr": "ЛП",
 		"mb_compressor_mono": "Моно",
-		"mb_compressor_ms": "Раздельный ЦС",
+		"mb_compressor_ms": "ЦС",
 		"mb_compressor_stereo": "Стерео",
-		"sc_mb_compressor_lr": "БЦ Раздельный ЛП",
+		"sc_mb_compressor_lr": "БЦ ЛП",
 		"sc_mb_compressor_mono": "БЦ Моно",
-		"sc_mb_compressor_ms": "БЦ Раздельный ЦС",
+		"sc_mb_compressor_ms": "БЦ ЦС",
 		"sc_mb_compressor_stereo": "БЦ Стерео"
 	}
 }
-
