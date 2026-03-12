@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2025 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2025 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2026 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2026 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 3 авг. 2021 г.
@@ -21,12 +21,13 @@
 
 #include <lsp-plug.in/plug-fw/meta/ports.h>
 #include <lsp-plug.in/shared/meta/developers.h>
+#include <lsp-plug.in/plug-fw/meta/registry.h>
 #include <lsp-plug.in/dsp-units/util/Sidechain.h>
 #include <private/meta/mb_compressor.h>
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MAJOR       1
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MINOR       0
-#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       31
+#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       32
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION  \
     LSP_MODULE_VERSION( \
@@ -793,11 +794,13 @@ namespace lsp
             clap_features_mono,
             E_INLINE_DISPLAY,
             mb_compressor_mono_ports,
-            "dynamics/compressor/multiband/mono.xml",
+            "plugins/dynamics/compressor/multiband/mono.xml",
             NULL,
             mono_plugin_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            3
         };
+        LSP_REGISTER_METADATA(mb_compressor_mono);
 
         const meta::plugin_t  mb_compressor_stereo =
         {
@@ -823,11 +826,13 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_stereo_ports,
-            "dynamics/compressor/multiband/stereo.xml",
+            "plugins/dynamics/compressor/multiband/stereo.xml",
             NULL,
             stereo_plugin_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            1
         };
+        LSP_REGISTER_METADATA(mb_compressor_stereo);
 
         const meta::plugin_t  mb_compressor_lr =
         {
@@ -853,11 +858,13 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_lr_ports,
-            "dynamics/compressor/multiband/lr.xml",
+            "plugins/dynamics/compressor/multiband/lr.xml",
             NULL,
             stereo_plugin_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            5
         };
+        LSP_REGISTER_METADATA(mb_compressor_lr);
 
         const meta::plugin_t  mb_compressor_ms =
         {
@@ -883,12 +890,13 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             mb_compressor_ms_ports,
-            "dynamics/compressor/multiband/ms.xml",
+            "plugins/dynamics/compressor/multiband/ms.xml",
             NULL,
             stereo_plugin_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            7
         };
-
+        LSP_REGISTER_METADATA(mb_compressor_ms);
 
         const meta::plugin_t  sc_mb_compressor_mono =
         {
@@ -914,11 +922,13 @@ namespace lsp
             clap_features_mono,
             E_INLINE_DISPLAY,
             sc_mb_compressor_mono_ports,
-            "dynamics/compressor/multiband/mono.xml",
+            "plugins/dynamics/compressor/multiband/mono.xml",
             NULL,
             mono_plugin_sidechain_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            4
         };
+        LSP_REGISTER_METADATA(sc_mb_compressor_mono);
 
         const meta::plugin_t  sc_mb_compressor_stereo =
         {
@@ -944,11 +954,13 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_stereo_ports,
-            "dynamics/compressor/multiband/stereo.xml",
+            "plugins/dynamics/compressor/multiband/stereo.xml",
             NULL,
             stereo_plugin_sidechain_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            2
         };
+        LSP_REGISTER_METADATA(sc_mb_compressor_stereo);
 
         const meta::plugin_t  sc_mb_compressor_lr =
         {
@@ -974,11 +986,13 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_lr_ports,
-            "dynamics/compressor/multiband/lr.xml",
+            "plugins/dynamics/compressor/multiband/lr.xml",
             NULL,
             stereo_plugin_sidechain_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            6
         };
+        LSP_REGISTER_METADATA(sc_mb_compressor_lr);
 
         const meta::plugin_t  sc_mb_compressor_ms =
         {
@@ -1004,11 +1018,13 @@ namespace lsp
             clap_features_stereo,
             E_INLINE_DISPLAY,
             sc_mb_compressor_ms_ports,
-            "dynamics/compressor/multiband/ms.xml",
+            "plugins/dynamics/compressor/multiband/ms.xml",
             NULL,
             stereo_plugin_sidechain_port_groups,
-            &mb_compressor_bundle
+            &mb_compressor_bundle,
+            8
         };
+        LSP_REGISTER_METADATA(sc_mb_compressor_ms);
 
     } /* namespace meta */
 } /* namespace lsp */

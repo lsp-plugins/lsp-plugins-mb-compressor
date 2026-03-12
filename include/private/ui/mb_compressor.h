@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2023 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2023 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2026 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2026 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-mb-compressor
  * Created on: 6 дек. 2023 г.
@@ -75,7 +75,12 @@ namespace lsp
 
             public:
                 explicit mb_compressor_ui(const meta::plugin_t *meta);
+                mb_compressor_ui(const mb_compressor_ui &) = delete;
+                mb_compressor_ui(mb_compressor_ui &&) = delete;
                 virtual ~mb_compressor_ui() override;
+
+                mb_compressor_ui & operator = (const mb_compressor_ui &) = delete;
+                mb_compressor_ui & operator = (mb_compressor_ui &&) = delete;
 
                 virtual status_t    post_init() override;
 
