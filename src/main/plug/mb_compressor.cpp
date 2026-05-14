@@ -925,7 +925,7 @@ namespace lsp
                     bool mute       = (b->pMute->value() >= 0.5f);
                     bool solo       = (enabled) && (b->pSolo->value() >= 0.5f);
                     plug::IPort *sc = (bStereoSplit) ? b->pScSpSource : b->pScSource;
-                    size_t sc_src   = (sc != NULL) ? sc->value() : dspu::SCS_MIDDLE;
+                    size_t sc_src   = (sc != NULL) ? size_t(sc->value()) : size_t(dspu::SCS_MIDDLE);
 
                     b->pRelLevelOut->set_value(release);
 
