@@ -2,6 +2,10 @@
 * RECENT CHANGES
 *******************************************************************************
 
+=== 1.0.34 ===
+* Re-numbered labels in plugins' metadata starting with 1.
+* Updated build scripts and dependencies.
+
 === 1.0.33 ===
 * Updated build scripts and dependencies.
 
