@@ -286,6 +286,7 @@ namespace lsp
                 void                do_destroy();
                 void                preprocess_channel_input(size_t count);
                 void                update_premix();
+                void                advance_premix(size_t channels, size_t count);
                 void                premix_channel(uint32_t channel, size_t count);
                 uint32_t            decode_sidechain_type(uint32_t sc) const;
                 void                process_input_mono(float *out, const float *in, size_t count);
