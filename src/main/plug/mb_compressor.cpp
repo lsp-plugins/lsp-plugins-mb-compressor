@@ -1108,7 +1108,7 @@ namespace lsp
                             // Configure filter for band
                             if (j <= 0)
                             {
-                                fp.nType        = (c->nPlanSize > 1) ? dspu::FLT_BT_LRX_LOSHELF : dspu::FLT_BT_AMPLIFIER;
+                                fp.nType        = (c->nPlanSize > 1) ? dspu::FLT_BT_LRX_LOSHELF : dspu::FLT_AMPLIFIER;
                                 fp.fFreq        = b->fFreqEnd;
                                 fp.fFreq2       = b->fFreqEnd;
                             }
