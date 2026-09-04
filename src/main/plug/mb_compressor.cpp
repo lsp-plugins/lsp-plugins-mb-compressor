@@ -251,7 +251,7 @@ namespace lsp
                     c->sDryDelay.destroy();
                     c->sXOverDelay.destroy();
                     c->sDryEq.destroy();
-                    c->sFFTXOver.destroy();
+                    c->sLPXOver.destroy();
 
                     c->vBuffer      = NULL;
 
@@ -386,7 +386,7 @@ namespace lsp
                 c->sDryDelay.construct();
                 c->sXOverDelay.construct();
                 c->sDryEq.construct();
-                c->sFFTXOver.construct();
+                c->sLPXOver.construct();
 
                 if (!c->sEnvBoost[0].init(NULL))
                     return;
@@ -1061,8 +1061,8 @@ namespace lsp
                     lsp_trace("Reordered bands according to frequency grow");
                     for (size_t j=0; j<c->nPlanSize; ++j)
                     {
-                        comp_band_t *b  = c->vPlan[j];
-                        size_t band     = b - c->vBands;
+                        comp_band_t * const b   = c->vPlan[j];
+                        const size_t band       = b - c->vBands;
                         b->pFreqEnd->set_value(b->fFreqEnd);
                         b->nSync       |= S_EQ_CURVE | S_BAND_CURVE;
 
@@ -1161,23 +1161,8 @@ namespace lsp
                         }
                         else // enXOver == XOVER_LINEAR_PHASE
                         {
-                            if (j > 0)
-                            {
-                                c->sFFTXOver.enable_hpf(band, true);
-                                c->sFFTXOver.set_hpf_frequency(band, b->fFreqStart);
-                                c->sFFTXOver.set_hpf_slope(band, -48.0f);
-                            }
-                            else
-                                c->sFFTXOver.disable_hpf(band);
-
-                            if (j < (c->nPlanSize-1))
-                            {
-                                c->sFFTXOver.enable_lpf(band, true);
-                                c->sFFTXOver.set_lpf_frequency(band, b->fFreqEnd);
-                                c->sFFTXOver.set_lpf_slope(band, -48.0f);
-                            }
-                            else
-                                c->sFFTXOver.disable_lpf(band);
+                            if (band > 0)
+                                c->sLPXOver.set_frequency(band - 1, b->fFreqStart);
                         }
                     }
                 } // nPlanSize
@@ -1185,10 +1170,10 @@ namespace lsp
                 // Enable/disable dynamic filters and bands
                 for (size_t j=0; j<meta::mb_compressor_metadata::BANDS_MAX; ++j)
                 {
-                    comp_band_t *b  = &c->vBands[j];
-                    size_t band     = b - c->vBands;
+                    comp_band_t * const b   = &c->vBands[j];
                     sFilters.set_filter_active(b->nFilterID, b->bEnabled);
-                    c->sFFTXOver.enable_band(j, (band > 0) ? c->vSplit[band-1].bEnabled : true);
+                    if (j > 0)
+                        c->sLPXOver.set_slope(j-1, (c->vSplit[j-1].bEnabled) ? -48.0f : 0.0f);
                 }
 
                 // Set-up all-pass filters for the 'dry' chain which can be mixed with the 'wet' chain.
@@ -1215,7 +1200,7 @@ namespace lsp
             }
 
             // Update latency
-            size_t xover_latency = (enXOver == XOVER_LINEAR_PHASE) ? vChannels[0].sFFTXOver.latency() : 0;
+            size_t xover_latency = (enXOver == XOVER_LINEAR_PHASE) ? vChannels[0].sLPXOver.latency() : 0;
 
             set_latency(latency + xover_latency);
             for (size_t i=0; i<channels; ++i)
@@ -1312,15 +1297,15 @@ namespace lsp
                 c->sDryEq.set_sample_rate(sr);
 
                 // Need to re-initialize FFT crossover?
-                if (fft_rank != c->sFFTXOver.rank())
+                if (fft_rank != c->sLPXOver.rank())
                 {
-                    c->sFFTXOver.init(fft_rank, meta::mb_compressor_metadata::BANDS_MAX);
+                    c->sLPXOver.init(fft_rank, meta::mb_compressor_metadata::BANDS_MAX);
                     for (size_t j=0; j<meta::mb_compressor_metadata::BANDS_MAX; ++j)
-                        c->sFFTXOver.set_handler(j, process_band, this, c);
-                    c->sFFTXOver.set_rank(fft_rank);
-                    c->sFFTXOver.set_phase(float(i) / float(channels));
+                        c->sLPXOver.set_handler(j, process_band, this, c);
+                    c->sLPXOver.set_rank(fft_rank);
+                    c->sLPXOver.set_phase(float(i) / float(channels));
                 }
-                c->sFFTXOver.set_sample_rate(sr);
+                c->sLPXOver.set_sample_rate(sr);
 
                 // Update bands
                 for (size_t j=0; j<meta::mb_compressor_metadata::BANDS_MAX; ++j)
@@ -1818,7 +1803,7 @@ namespace lsp
                         c->sDelay.process(c->vBuffer, c->vInAnalyze, to_process);
                         // Apply delay to unprocessed signal to compensate lookahead + crossover delay
                         c->sXOverDelay.process(c->vInBuffer, c->vBuffer, to_process);
-                        c->sFFTXOver.process(c->vBuffer, to_process);
+                        c->sLPXOver.process(c->vBuffer, to_process);
 
                         // First step
                         comp_band_t *b      = c->vPlan[0];
@@ -1947,7 +1932,7 @@ namespace lsp
                             size_t band         = b - c->vBands;
                             if (b->nSync & S_BAND_CURVE)
                             {
-                                c->sFFTXOver.freq_chart(band, b->vTr, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
+                                c->sLPXOver.freq_chart(band, b->vTr, vFreqs, meta::mb_compressor_metadata::FFT_MESH_POINTS);
                                 b->nSync           &= ~size_t(S_BAND_CURVE);
                             }
                             if (j == 0)
@@ -2212,7 +2197,7 @@ namespace lsp
                     v->write_object("sDryDelay", &c->sDryDelay);
                     v->write_object("sXOverDelay", &c->sXOverDelay);
                     v->write_object("sDryEq", &c->sDryEq);
-                    v->write_object("sFFTXOver", &c->sFFTXOver);
+                    v->write_object("sLPXOver", &c->sLPXOver);
 
                     v->begin_array("vBands", c->vBands, meta::mb_compressor_metadata::BANDS_MAX);
                     for (size_t i=0; i<meta::mb_compressor_metadata::BANDS_MAX; ++i)
