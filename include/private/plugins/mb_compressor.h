@@ -70,6 +70,14 @@ namespace lsp
                     SCT_LINK,
                 };
 
+                enum modern_filter_t
+                {
+                    MFILTER_LOSHELF,
+                    MFILTER_LADDER,
+                    MFILTER_HISHELF,
+                    MFILTER_AMPLIFIER
+                };
+
             protected:
                 enum sync_t
                 {
@@ -234,6 +242,7 @@ namespace lsp
                 dspu::DynamicFilters    sFilters;               // Dynamic filters for each band in 'modern' mode
                 dspu::Counter           sCounter;               // Sync counter
                 uint32_t                nMode;                  // Compressor mode
+                uint32_t                nSlope;                 // Current crossover slope
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
                 bool                    bUseShmLink;            // Shared memory link is in use
@@ -260,6 +269,7 @@ namespace lsp
 
                 plug::IPort            *pBypass;                // Bypass port
                 plug::IPort            *pMode;                  // Global mode
+                plug::IPort            *pSlope;                 // Crossover slope
                 plug::IPort            *pInGain;                // Input gain port
                 plug::IPort            *pOutGain;               // Output gain port
                 plug::IPort            *pDryGain;               // Dry gain port
@@ -277,6 +287,9 @@ namespace lsp
                 static dspu::sidechain_source_t     decode_sidechain_source(int source, bool split, size_t channel);
                 static size_t                       select_fft_rank(size_t sample_rate);
                 static void                         process_band(void *object, void *subject, size_t band, const float *data, size_t sample, size_t count);
+                static dspu::crossover_slope_t      classic_xover_slope(size_t slope);
+                static float                        lp_xover_slope(size_t slope);
+                static void                         modern_xover_params(dspu::filter_params_t *fp, modern_filter_t type, size_t slope);
 
             protected:
                 void                do_destroy();
