@@ -164,6 +164,18 @@ namespace lsp
 
                 FB_DEFAULT              = FB_BT_3DB
             };
+
+            enum slope_t
+            {
+                SLOPE_6DBO,
+                SLOPE_12DBO,
+                SLOPE_18DBO,
+                SLOPE_24DBO,
+                SLOPE_48DBO,
+                SLOPE_72DBO,
+
+                SLOPE_DEFAULT           = SLOPE_48DBO
+            };
         };
 
         extern const meta::plugin_t mb_compressor_mono;
