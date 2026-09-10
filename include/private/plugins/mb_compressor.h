@@ -72,10 +72,13 @@ namespace lsp
 
                 enum modern_filter_t
                 {
-                    MFILTER_LOSHELF,
-                    MFILTER_LADDER,
-                    MFILTER_HISHELF,
-                    MFILTER_AMPLIFIER
+                    FTYPE_NONE,
+                    FTYPE_LOSHELF,
+                    FTYPE_LADDER,
+                    FTYPE_HISHELF,
+                    FTYPE_AMPLIFIER,
+                    FTYPE_LOPASS,
+                    FTYPE_HIPASS
                 };
 
             protected:
@@ -290,6 +293,7 @@ namespace lsp
                 static dspu::crossover_slope_t      classic_xover_slope(size_t slope);
                 static float                        lp_xover_slope(size_t slope);
                 static void                         modern_xover_params(dspu::filter_params_t *fp, modern_filter_t type, size_t slope);
+                static void                         sidechain_filter_params(dspu::filter_params_t *fp, modern_filter_t type, size_t slope);
 
             protected:
                 void                do_destroy();
