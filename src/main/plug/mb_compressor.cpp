@@ -88,20 +88,19 @@ namespace lsp
         mb_compressor::mb_compressor(const meta::plugin_t *metadata, bool sc, size_t mode):
             plug::Module(metadata)
         {
+            vChannels       = NULL;
             nMode           = mode;
             nSlope          = 0;
+            enXOver         = XOVER_MODERN;
+            nEnvBoost       = meta::mb_compressor_metadata::FB_DEFAULT;
             bSidechain      = sc;
             bEnvUpdate      = true;
             bUseShmLink     = false;
-            enXOver         = XOVER_MODERN;
             bStereoSplit    = false;
-            nEnvBoost       = meta::mb_compressor_metadata::FB_DEFAULT;
-            vChannels       = NULL;
             fInGain         = GAIN_AMP_0_DB;
             fDryGain        = GAIN_AMP_M_INF_DB;
             fWetGain        = GAIN_AMP_0_DB;
             fZoom           = GAIN_AMP_0_DB;
-            pData           = NULL;
             vTr             = NULL;
             vFreqs          = NULL;
             vCurve          = NULL;
@@ -154,6 +153,8 @@ namespace lsp
             pZoom           = NULL;
             pEnvBoost       = NULL;
             pStereoSplit    = NULL;
+
+            pData           = NULL;
         }
 
         mb_compressor::~mb_compressor()
@@ -161,304 +162,6 @@ namespace lsp
             do_destroy();
         }
 
-        bool mb_compressor::compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2)
-        {
-            if (b1->fFreqStart != b2->fFreqStart)
-                return (b1->fFreqStart > b2->fFreqStart);
-            return b1 < b2;
-        }
-
-        dspu::compressor_mode_t mb_compressor::decode_mode(int mode)
-        {
-            switch (mode)
-            {
-                case meta::mb_compressor_metadata::CM_DOWNWARD: return dspu::CM_DOWNWARD;
-                case meta::mb_compressor_metadata::CM_UPWARD:   return dspu::CM_UPWARD;
-                case meta::mb_compressor_metadata::CM_BOOSTING: return dspu::CM_BOOSTING;
-                default: break;
-            }
-            return dspu::CM_DOWNWARD;
-        }
-
-        dspu::sidechain_source_t mb_compressor::decode_sidechain_source(int source, bool split, size_t channel)
-        {
-            if (!split)
-            {
-                switch (source)
-                {
-                    case 0: return dspu::SCS_MIDDLE;
-                    case 1: return dspu::SCS_SIDE;
-                    case 2: return dspu::SCS_LEFT;
-                    case 3: return dspu::SCS_RIGHT;
-                    case 4: return dspu::SCS_AMIN;
-                    case 5: return dspu::SCS_AMAX;
-                    default: break;
-                }
-            }
-
-            if (channel == 0)
-            {
-                switch (source)
-                {
-                    case 0: return dspu::SCS_LEFT;
-                    case 1: return dspu::SCS_RIGHT;
-                    case 2: return dspu::SCS_MIDDLE;
-                    case 3: return dspu::SCS_SIDE;
-                    case 4: return dspu::SCS_AMIN;
-                    case 5: return dspu::SCS_AMAX;
-                    default: break;
-                }
-            }
-            else
-            {
-                switch (source)
-                {
-                    case 0: return dspu::SCS_RIGHT;
-                    case 1: return dspu::SCS_LEFT;
-                    case 2: return dspu::SCS_SIDE;
-                    case 3: return dspu::SCS_MIDDLE;
-                    case 4: return dspu::SCS_AMIN;
-                    case 5: return dspu::SCS_AMAX;
-                    default: break;
-                }
-            }
-
-            return dspu::SCS_MIDDLE;
-        }
-
-        dspu::crossover_slope_t mb_compressor::classic_xover_slope(size_t slope)
-        {
-            switch (slope)
-            {
-                case meta::mb_compressor_metadata::SLOPE_6DBO:  return dspu::CROSS_SLOPE_6DBO;
-                case meta::mb_compressor_metadata::SLOPE_12DBO: return dspu::CROSS_SLOPE_12DBO;
-                case meta::mb_compressor_metadata::SLOPE_18DBO: return dspu::CROSS_SLOPE_18DBO;
-                case meta::mb_compressor_metadata::SLOPE_24DBO: return dspu::CROSS_SLOPE_24DBO;
-                case meta::mb_compressor_metadata::SLOPE_48DBO: return dspu::CROSS_SLOPE_48DBO;
-                case meta::mb_compressor_metadata::SLOPE_72DBO: return dspu::CROSS_SLOPE_72DBO;
-                default: break;
-            }
-            return dspu::CROSS_SLOPE_48DBO;
-        }
-
-        float mb_compressor::lp_xover_slope(size_t slope)
-        {
-            switch (slope)
-            {
-                case meta::mb_compressor_metadata::SLOPE_6DBO:  return -6.0f;
-                case meta::mb_compressor_metadata::SLOPE_12DBO: return -12.0f;
-                case meta::mb_compressor_metadata::SLOPE_18DBO: return -18.0f;
-                case meta::mb_compressor_metadata::SLOPE_24DBO: return -24.0f;
-                case meta::mb_compressor_metadata::SLOPE_48DBO: return -48.0f;
-                case meta::mb_compressor_metadata::SLOPE_72DBO: return -72.0f;
-                default: break;
-            }
-            return -48.0f;
-        }
-
-        void mb_compressor::modern_xover_params(dspu::filter_params_t *fp, modern_filter_t type, size_t slope)
-        {
-            switch (type)
-            {
-                case FTYPE_NONE:
-                    fp->nType           = dspu::FLT_NONE;
-                    fp->nSlope          = 0;
-                    return;
-
-                case FTYPE_AMPLIFIER:
-                    fp->nType           = dspu::FLT_AMPLIFIER;
-                    fp->nSlope          = 1;
-                    return;
-
-                case FTYPE_LOSHELF:
-                    switch (slope)
-                    {
-                        case meta::mb_compressor_metadata::SLOPE_6DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_LOSHELF;
-                            fp->nSlope      = 1;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_12DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_LOSHELF;
-                            fp->nSlope      = 2;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_18DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_LOSHELF;
-                            fp->nSlope      = 3;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_24DBO:
-                            fp->nType       = dspu::FLT_BT_LRX_LOSHELF;
-                            fp->nSlope      = 1;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_48DBO:
-                        default:
-                            fp->nType       = dspu::FLT_BT_LRX_LOSHELF;
-                            fp->nSlope      = 2;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_72DBO:
-                            fp->nType       = dspu::FLT_BT_LRX_LOSHELF;
-                            fp->nSlope      = 4;
-                            return;
-                    }
-                    break;
-                case FTYPE_HISHELF:
-                    switch (slope)
-                    {
-                        case meta::mb_compressor_metadata::SLOPE_6DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_HISHELF;
-                            fp->nSlope      = 1;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_12DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_HISHELF;
-                            fp->nSlope      = 2;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_18DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_HISHELF;
-                            fp->nSlope      = 3;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_24DBO:
-                            fp->nType       = dspu::FLT_BT_LRX_HISHELF;
-                            fp->nSlope      = 1;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_48DBO:
-                        default:
-                            fp->nType       = dspu::FLT_BT_LRX_HISHELF;
-                            fp->nSlope      = 2;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_72DBO:
-                            fp->nType       = dspu::FLT_BT_LRX_HISHELF;
-                            fp->nSlope      = 4;
-                            return;
-                    }
-                    break;
-                case FTYPE_LADDER:
-                    switch (slope)
-                    {
-                        case meta::mb_compressor_metadata::SLOPE_6DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_LADDERPASS;
-                            fp->nSlope      = 1;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_12DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_LADDERPASS;
-                            fp->nSlope      = 2;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_18DBO:
-                            fp->nType       = dspu::FLT_BT_RLC_LADDERPASS;
-                            fp->nSlope      = 3;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_24DBO:
-                            fp->nType       = dspu::FLT_BT_LRX_LADDERPASS;
-                            fp->nSlope      = 1;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_48DBO:
-                        default:
-                            fp->nType       = dspu::FLT_BT_LRX_LADDERPASS;
-                            fp->nSlope      = 2;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_72DBO:
-                            fp->nType       = dspu::FLT_BT_LRX_LADDERPASS;
-                            fp->nSlope      = 4;
-                            return;
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-            fp->nType           = dspu::FLT_NONE;
-            fp->nSlope          = 0.0f;
-        }
-
-        void mb_compressor::sidechain_filter_params(dspu::filter_params_t *fp, modern_filter_t type, size_t slope)
-        {
-            switch (type)
-            {
-                case FTYPE_NONE:
-                    fp->nType           = dspu::FLT_NONE;
-                    fp->nSlope          = 0;
-                    fp->fQuality        = 0.0f;
-                    return;
-
-                case FTYPE_LOPASS:
-                    switch (slope)
-                    {
-                        case meta::mb_compressor_metadata::SLOPE_6DBO:
-                            fp->nType           = dspu::FLT_BT_RLC_LOPASS;
-                            fp->nSlope          = 1;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_12DBO:
-                            fp->nType           = dspu::FLT_BT_RLC_LOPASS;
-                            fp->nSlope          = 2;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_18DBO:
-                            fp->nType           = dspu::FLT_BT_RLC_LOPASS;
-                            fp->nSlope          = 3;
-                            fp->fQuality        = 1.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_24DBO:
-                            fp->nType           = dspu::FLT_BT_LRX_LOPASS;
-                            fp->nSlope          = 1;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_48DBO:
-                        default:
-                            fp->nType           = dspu::FLT_BT_LRX_LOPASS;
-                            fp->nSlope          = 2;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_72DBO:
-                            fp->nType           = dspu::FLT_BT_LRX_LOPASS;
-                            fp->nSlope          = 4;
-                            fp->fQuality        = 0.0f;
-                            return;
-                    }
-                    break;
-                case FTYPE_HIPASS:
-                    switch (slope)
-                    {
-                        case meta::mb_compressor_metadata::SLOPE_6DBO:
-                            fp->nType           = dspu::FLT_BT_RLC_HIPASS;
-                            fp->nSlope          = 1;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_12DBO:
-                            fp->nType           = dspu::FLT_BT_RLC_HIPASS;
-                            fp->nSlope          = 2;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_18DBO:
-                            fp->nType           = dspu::FLT_BT_RLC_HIPASS;
-                            fp->nSlope          = 3;
-                            fp->fQuality        = 1.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_24DBO:
-                            fp->nType           = dspu::FLT_BT_LRX_HIPASS;
-                            fp->nSlope          = 1;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_48DBO:
-                        default:
-                            fp->nType           = dspu::FLT_BT_LRX_HIPASS;
-                            fp->nSlope          = 2;
-                            fp->fQuality        = 0.0f;
-                            return;
-                        case meta::mb_compressor_metadata::SLOPE_72DBO:
-                            fp->nType           = dspu::FLT_BT_LRX_HIPASS;
-                            fp->nSlope          = 4;
-                            fp->fQuality        = 0.0f;
-                            return;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            fp->nType           = dspu::FLT_NONE;
-            fp->nSlope          = 0;
-            fp->fQuality        = 0.0f;
-        }
 
         void mb_compressor::destroy()
         {
@@ -970,6 +673,13 @@ namespace lsp
                 vCurve[i]   = dspu::db_to_gain(meta::mb_compressor_metadata::CURVE_DB_MIN + delta * i);
         }
 
+        bool mb_compressor::compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2)
+        {
+            if (b1->fFreqStart != b2->fFreqStart)
+                return (b1->fFreqStart > b2->fFreqStart);
+            return b1 < b2;
+        }
+
         uint32_t mb_compressor::decode_sidechain_type(uint32_t sc) const
         {
             if (bSidechain)
@@ -993,6 +703,298 @@ namespace lsp
             }
 
             return SCT_INTERNAL;
+        }
+
+        dspu::compressor_mode_t mb_compressor::decode_mode(int mode)
+        {
+            switch (mode)
+            {
+                case meta::mb_compressor_metadata::CM_DOWNWARD: return dspu::CM_DOWNWARD;
+                case meta::mb_compressor_metadata::CM_UPWARD:   return dspu::CM_UPWARD;
+                case meta::mb_compressor_metadata::CM_BOOSTING: return dspu::CM_BOOSTING;
+                default: break;
+            }
+            return dspu::CM_DOWNWARD;
+        }
+
+        dspu::sidechain_source_t mb_compressor::decode_sidechain_source(int source, bool split, size_t channel)
+        {
+            if (!split)
+            {
+                switch (source)
+                {
+                    case 0: return dspu::SCS_MIDDLE;
+                    case 1: return dspu::SCS_SIDE;
+                    case 2: return dspu::SCS_LEFT;
+                    case 3: return dspu::SCS_RIGHT;
+                    case 4: return dspu::SCS_AMIN;
+                    case 5: return dspu::SCS_AMAX;
+                    default: break;
+                }
+            }
+
+            if (channel == 0)
+            {
+                switch (source)
+                {
+                    case 0: return dspu::SCS_LEFT;
+                    case 1: return dspu::SCS_RIGHT;
+                    case 2: return dspu::SCS_MIDDLE;
+                    case 3: return dspu::SCS_SIDE;
+                    case 4: return dspu::SCS_AMIN;
+                    case 5: return dspu::SCS_AMAX;
+                    default: break;
+                }
+            }
+            else
+            {
+                switch (source)
+                {
+                    case 0: return dspu::SCS_RIGHT;
+                    case 1: return dspu::SCS_LEFT;
+                    case 2: return dspu::SCS_SIDE;
+                    case 3: return dspu::SCS_MIDDLE;
+                    case 4: return dspu::SCS_AMIN;
+                    case 5: return dspu::SCS_AMAX;
+                    default: break;
+                }
+            }
+
+            return dspu::SCS_MIDDLE;
+        }
+
+        dspu::crossover_slope_t mb_compressor::classic_xover_slope(size_t slope)
+        {
+            switch (slope)
+            {
+                case meta::mb_compressor_metadata::SLOPE_6DBO:  return dspu::CROSS_SLOPE_6DBO;
+                case meta::mb_compressor_metadata::SLOPE_12DBO: return dspu::CROSS_SLOPE_12DBO;
+                case meta::mb_compressor_metadata::SLOPE_18DBO: return dspu::CROSS_SLOPE_18DBO;
+                case meta::mb_compressor_metadata::SLOPE_24DBO: return dspu::CROSS_SLOPE_24DBO;
+                case meta::mb_compressor_metadata::SLOPE_48DBO: return dspu::CROSS_SLOPE_48DBO;
+                case meta::mb_compressor_metadata::SLOPE_72DBO: return dspu::CROSS_SLOPE_72DBO;
+                default: break;
+            }
+            return dspu::CROSS_SLOPE_48DBO;
+        }
+
+        float mb_compressor::lp_xover_slope(size_t slope)
+        {
+            switch (slope)
+            {
+                case meta::mb_compressor_metadata::SLOPE_6DBO:  return -6.0f;
+                case meta::mb_compressor_metadata::SLOPE_12DBO: return -12.0f;
+                case meta::mb_compressor_metadata::SLOPE_18DBO: return -18.0f;
+                case meta::mb_compressor_metadata::SLOPE_24DBO: return -24.0f;
+                case meta::mb_compressor_metadata::SLOPE_48DBO: return -48.0f;
+                case meta::mb_compressor_metadata::SLOPE_72DBO: return -72.0f;
+                default: break;
+            }
+            return -48.0f;
+        }
+
+        void mb_compressor::modern_xover_params(dspu::filter_params_t *fp, modern_filter_t type, size_t slope)
+        {
+            switch (type)
+            {
+                case FTYPE_NONE:
+                    fp->nType           = dspu::FLT_NONE;
+                    fp->nSlope          = 0;
+                    return;
+
+                case FTYPE_AMPLIFIER:
+                    fp->nType           = dspu::FLT_AMPLIFIER;
+                    fp->nSlope          = 1;
+                    return;
+
+                case FTYPE_LOSHELF:
+                    switch (slope)
+                    {
+                        case meta::mb_compressor_metadata::SLOPE_6DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_LOSHELF;
+                            fp->nSlope      = 1;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_12DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_LOSHELF;
+                            fp->nSlope      = 2;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_18DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_LOSHELF;
+                            fp->nSlope      = 3;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_24DBO:
+                            fp->nType       = dspu::FLT_BT_LRX_LOSHELF;
+                            fp->nSlope      = 1;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_48DBO:
+                        default:
+                            fp->nType       = dspu::FLT_BT_LRX_LOSHELF;
+                            fp->nSlope      = 2;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_72DBO:
+                            fp->nType       = dspu::FLT_BT_LRX_LOSHELF;
+                            fp->nSlope      = 4;
+                            return;
+                    }
+                    break;
+                case FTYPE_HISHELF:
+                    switch (slope)
+                    {
+                        case meta::mb_compressor_metadata::SLOPE_6DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_HISHELF;
+                            fp->nSlope      = 1;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_12DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_HISHELF;
+                            fp->nSlope      = 2;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_18DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_HISHELF;
+                            fp->nSlope      = 3;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_24DBO:
+                            fp->nType       = dspu::FLT_BT_LRX_HISHELF;
+                            fp->nSlope      = 1;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_48DBO:
+                        default:
+                            fp->nType       = dspu::FLT_BT_LRX_HISHELF;
+                            fp->nSlope      = 2;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_72DBO:
+                            fp->nType       = dspu::FLT_BT_LRX_HISHELF;
+                            fp->nSlope      = 4;
+                            return;
+                    }
+                    break;
+                case FTYPE_LADDER:
+                    switch (slope)
+                    {
+                        case meta::mb_compressor_metadata::SLOPE_6DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_LADDERPASS;
+                            fp->nSlope      = 1;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_12DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_LADDERPASS;
+                            fp->nSlope      = 2;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_18DBO:
+                            fp->nType       = dspu::FLT_BT_RLC_LADDERPASS;
+                            fp->nSlope      = 3;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_24DBO:
+                            fp->nType       = dspu::FLT_BT_LRX_LADDERPASS;
+                            fp->nSlope      = 1;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_48DBO:
+                        default:
+                            fp->nType       = dspu::FLT_BT_LRX_LADDERPASS;
+                            fp->nSlope      = 2;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_72DBO:
+                            fp->nType       = dspu::FLT_BT_LRX_LADDERPASS;
+                            fp->nSlope      = 4;
+                            return;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            fp->nType           = dspu::FLT_NONE;
+            fp->nSlope          = 0.0f;
+        }
+
+        void mb_compressor::sidechain_filter_params(dspu::filter_params_t *fp, modern_filter_t type, size_t slope)
+        {
+            switch (type)
+            {
+                case FTYPE_NONE:
+                    fp->nType           = dspu::FLT_NONE;
+                    fp->nSlope          = 0;
+                    fp->fQuality        = 0.0f;
+                    return;
+
+                case FTYPE_LOPASS:
+                    switch (slope)
+                    {
+                        case meta::mb_compressor_metadata::SLOPE_6DBO:
+                            fp->nType           = dspu::FLT_BT_RLC_LOPASS;
+                            fp->nSlope          = 1;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_12DBO:
+                            fp->nType           = dspu::FLT_BT_RLC_LOPASS;
+                            fp->nSlope          = 2;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_18DBO:
+                            fp->nType           = dspu::FLT_BT_RLC_LOPASS;
+                            fp->nSlope          = 3;
+                            fp->fQuality        = 1.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_24DBO:
+                            fp->nType           = dspu::FLT_BT_LRX_LOPASS;
+                            fp->nSlope          = 1;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_48DBO:
+                        default:
+                            fp->nType           = dspu::FLT_BT_LRX_LOPASS;
+                            fp->nSlope          = 2;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_72DBO:
+                            fp->nType           = dspu::FLT_BT_LRX_LOPASS;
+                            fp->nSlope          = 4;
+                            fp->fQuality        = 0.0f;
+                            return;
+                    }
+                    break;
+                case FTYPE_HIPASS:
+                    switch (slope)
+                    {
+                        case meta::mb_compressor_metadata::SLOPE_6DBO:
+                            fp->nType           = dspu::FLT_BT_RLC_HIPASS;
+                            fp->nSlope          = 1;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_12DBO:
+                            fp->nType           = dspu::FLT_BT_RLC_HIPASS;
+                            fp->nSlope          = 2;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_18DBO:
+                            fp->nType           = dspu::FLT_BT_RLC_HIPASS;
+                            fp->nSlope          = 3;
+                            fp->fQuality        = 1.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_24DBO:
+                            fp->nType           = dspu::FLT_BT_LRX_HIPASS;
+                            fp->nSlope          = 1;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_48DBO:
+                        default:
+                            fp->nType           = dspu::FLT_BT_LRX_HIPASS;
+                            fp->nSlope          = 2;
+                            fp->fQuality        = 0.0f;
+                            return;
+                        case meta::mb_compressor_metadata::SLOPE_72DBO:
+                            fp->nType           = dspu::FLT_BT_LRX_HIPASS;
+                            fp->nSlope          = 4;
+                            fp->fQuality        = 0.0f;
+                            return;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            fp->nType           = dspu::FLT_NONE;
+            fp->nSlope          = 0;
+            fp->fQuality        = 0.0f;
         }
 
         void mb_compressor::update_premix()

@@ -244,20 +244,19 @@ namespace lsp
                 dspu::Analyzer          sAnalyzer;              // Analyzer
                 dspu::DynamicFilters    sFilters;               // Dynamic filters for each band in 'modern' mode
                 dspu::Counter           sCounter;               // Sync counter
+                channel_t              *vChannels;              // Compressor channels
                 uint32_t                nMode;                  // Compressor mode
                 uint32_t                nSlope;                 // Current crossover slope
+                xover_mode_t            enXOver;                // Crossover mode
+                uint32_t                nEnvBoost;              // Envelope boost
                 bool                    bSidechain;             // External side chain
                 bool                    bEnvUpdate;             // Envelope filter update
                 bool                    bUseShmLink;            // Shared memory link is in use
-                xover_mode_t            enXOver;                // Crossover mode
                 bool                    bStereoSplit;           // Stereo split mode
-                uint32_t                nEnvBoost;              // Envelope boost
-                channel_t              *vChannels;              // Compressor channels
                 float                   fInGain;                // Input gain
                 float                   fDryGain;               // Dry gain
                 float                   fWetGain;               // Wet gain
                 float                   fZoom;                  // Zoom
-                uint8_t                *pData;                  // Aligned data pointer
                 float                  *vSc[2];                 // Sidechain signal data
                 float                  *vAnalyze[4];            // Analysis buffer
                 float                  *vBuffer;                // Temporary buffer
@@ -283,6 +282,8 @@ namespace lsp
                 plug::IPort            *pZoom;                  // Zoom port
                 plug::IPort            *pEnvBoost;              // Envelope adjust
                 plug::IPort            *pStereoSplit;           // Split left/right independently
+
+                uint8_t                *pData;                  // Aligned data pointer
 
             protected:
                 static bool compare_bands_for_sort(const comp_band_t *b1, const comp_band_t *b2);
