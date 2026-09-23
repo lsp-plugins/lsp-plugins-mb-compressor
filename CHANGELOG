@@ -3,7 +3,8 @@
 *******************************************************************************
 
 === 1.0.38 ===
-* Added built-in presets for mono, stereo, LR and MS plugin variants.
+* Added built-in presets for Mono, Stereo, LeftRight and MidSide plugin variants
+  (contributed by mene311 @ github.com).
 * Optimized CPU consumption: FFT analysis is not performed when UI is not active.
 * Added possibility to change the crossover slope.
 
