@@ -811,7 +811,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_mono_ports,
             "plugins/dynamics/compressor/multiband/mono.xml",
-            NULL,
+            "dynamics/compressor/multiband/mono",
             mono_plugin_port_groups,
             &mb_compressor_bundle,
             3
@@ -843,7 +843,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_stereo_ports,
             "plugins/dynamics/compressor/multiband/stereo.xml",
-            NULL,
+            "dynamics/compressor/multiband/stereo",
             stereo_plugin_port_groups,
             &mb_compressor_bundle,
             1
@@ -875,7 +875,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_lr_ports,
             "plugins/dynamics/compressor/multiband/lr.xml",
-            NULL,
+            "dynamics/compressor/multiband/lr",
             stereo_plugin_port_groups,
             &mb_compressor_bundle,
             5
@@ -907,7 +907,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_ms_ports,
             "plugins/dynamics/compressor/multiband/ms.xml",
-            NULL,
+            "dynamics/compressor/multiband/ms",
             stereo_plugin_port_groups,
             &mb_compressor_bundle,
             7
@@ -939,7 +939,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_mono_ports,
             "plugins/dynamics/compressor/multiband/mono.xml",
-            NULL,
+            "dynamics/compressor/multiband/mono",
             mono_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             4
@@ -971,7 +971,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_stereo_ports,
             "plugins/dynamics/compressor/multiband/stereo.xml",
-            NULL,
+            "dynamics/compressor/multiband/stereo",
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             2
@@ -1003,7 +1003,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_lr_ports,
             "plugins/dynamics/compressor/multiband/lr.xml",
-            NULL,
+            "dynamics/compressor/multiband/lr",
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             6
@@ -1035,7 +1035,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_ms_ports,
             "plugins/dynamics/compressor/multiband/ms.xml",
-            NULL,
+            "dynamics/compressor/multiband/ms",
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             8
