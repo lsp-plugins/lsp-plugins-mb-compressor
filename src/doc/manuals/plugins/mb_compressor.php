@@ -71,11 +71,17 @@
 	<li>
 		<b>Bypass</b> - bypass switch, when turned on (led indicator is shining), the plugin bypasses signal.
 	</li>
-	<li><b>Mode</b> - combo box that allows to switch between the following modes:</li>
+	<li><b>Mode</b> - combo boxes that allows to switch between the following modes and slopes:</li>
 	<ul>
 		<li><b>Classic</b> - classic operating mode using IIR filters and allpass filters to compensate phase shifts.</li>
 		<li><b>Modern</b> - modern operating mode using IIR shelving filters to adjust the gain of each frequency band.</li>
 		<li><b>Linear Phase</b> - linear phase operating mode using FFT transform (FIR filters) to split signal into multiple bands, introduces additional latency.</li>
+		<li><b>6 dB/oct</b> - filters with 6 dB/octave slope.</li>
+		<li><b>12 dB/oct</b> - filters with 12 dB/octave slope.</li>
+		<li><b>18 dB/oct</b> - filters with 18 dB/octave slope.</li>
+		<li><b>24 dB/oct</b> - filters with 24 dB/octave slope.</li>
+		<li><b>48 dB/oct</b> - filters with 48 dB/octave slope.</li>
+		<li><b>72 dB/oct</b> - filters with 72 dB/octave slope.</li>
 	</ul>
 	<li><b>SC Boost</b> - enables addidional boost of the sidechain signal:</li>
 	<ul>

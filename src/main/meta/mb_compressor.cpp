@@ -27,7 +27,7 @@
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MAJOR       1
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MINOR       0
-#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       37
+#define LSP_PLUGINS_MB_COMPRESSOR_VERSION_MICRO       38
 
 #define LSP_PLUGINS_MB_COMPRESSOR_VERSION  \
     LSP_MODULE_VERSION( \
@@ -40,6 +40,10 @@ namespace lsp
 {
     namespace meta
     {
+        // Different revisions
+        #define REV_0           0
+        #define REV_1           1
+
         //-------------------------------------------------------------------------
         // Multiband compressor
         static const int plugin_classes[]           = { C_COMPRESSOR, -1 };
@@ -162,6 +166,17 @@ namespace lsp
             { NULL, NULL }
         };
 
+        static const port_item_t mb_comp_cross_slopes[] =
+        {
+            { "6 dB/oct",       "eq.slope.6dbo"         },
+            { "12 dB/oct",      "eq.slope.12dbo"        },
+            { "18 dB/oct",      "eq.slope.18dbo"        },
+            { "24 dB/oct",      "eq.slope.24dbo"        },
+            { "48 dB/oct",      "eq.slope.48dbo"        },
+            { "72 dB/oct",      "eq.slope.72dbo"        },
+            { NULL, NULL }
+        };
+
         #define MB_COMP_SHM_LINK_MONO \
                 OPT_RETURN_MONO("link", "shml", "Side-chain shared memory link")
 
@@ -183,6 +198,7 @@ namespace lsp
         #define MB_COMMON(bands) \
                 BYPASS, \
                 COMBO("mode", "Compressor mode", "Mode", 1, mb_global_comp_modes), \
+                ADDON_COMBO(REV_1, "slope", "Crossover slope", "Slope", meta::mb_compressor_metadata::SLOPE_DEFAULT, mb_comp_cross_slopes ), \
                 AMP_GAIN("g_in", "Input gain", "Input gain", mb_compressor_metadata::IN_GAIN_DFL, 10.0f), \
                 AMP_GAIN("g_out", "Output gain", "Output gain", mb_compressor_metadata::OUT_GAIN_DFL, 10.0f), \
                 AMP_GAIN("g_dry", "Dry gain", "Dry", 0.0f, 10.0f), \
@@ -795,7 +811,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_mono_ports,
             "plugins/dynamics/compressor/multiband/mono.xml",
-            NULL,
+            "dynamics/compressor/multiband/mono",
             mono_plugin_port_groups,
             &mb_compressor_bundle,
             3
@@ -827,7 +843,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_stereo_ports,
             "plugins/dynamics/compressor/multiband/stereo.xml",
-            NULL,
+            "dynamics/compressor/multiband/stereo",
             stereo_plugin_port_groups,
             &mb_compressor_bundle,
             1
@@ -859,7 +875,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_lr_ports,
             "plugins/dynamics/compressor/multiband/lr.xml",
-            NULL,
+            "dynamics/compressor/multiband/lr",
             stereo_plugin_port_groups,
             &mb_compressor_bundle,
             5
@@ -891,7 +907,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             mb_compressor_ms_ports,
             "plugins/dynamics/compressor/multiband/ms.xml",
-            NULL,
+            "dynamics/compressor/multiband/ms",
             stereo_plugin_port_groups,
             &mb_compressor_bundle,
             7
@@ -923,7 +939,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_mono_ports,
             "plugins/dynamics/compressor/multiband/mono.xml",
-            NULL,
+            "dynamics/compressor/multiband/mono",
             mono_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             4
@@ -955,7 +971,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_stereo_ports,
             "plugins/dynamics/compressor/multiband/stereo.xml",
-            NULL,
+            "dynamics/compressor/multiband/stereo",
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             2
@@ -987,7 +1003,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_lr_ports,
             "plugins/dynamics/compressor/multiband/lr.xml",
-            NULL,
+            "dynamics/compressor/multiband/lr",
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             6
@@ -1019,7 +1035,7 @@ namespace lsp
             E_INLINE_DISPLAY,
             sc_mb_compressor_ms_ports,
             "plugins/dynamics/compressor/multiband/ms.xml",
-            NULL,
+            "dynamics/compressor/multiband/ms",
             stereo_plugin_sidechain_port_groups,
             &mb_compressor_bundle,
             8
